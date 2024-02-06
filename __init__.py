@@ -14,6 +14,7 @@ from . import preferences
 from . import operators
 from . import _refresh_
 
+# Reloading modules
 _refresh_.reload_modules()
 
 def register():
