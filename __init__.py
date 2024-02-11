@@ -9,19 +9,30 @@ bl_info = {
 }
 
 import bpy
+import bmesh
+
+from bpy.types import Operator
+from bpy.props import StringProperty
+from bpy.props import BoolProperty
+from bpy.props import Panel
+
 from . import panel
 from . import preferences
 from . import operators
 from . import _refresh_
+from . import props
 
 _refresh_.reload_modules()
 
 def register():
+    props.register_classes()
     operators.register_classes()
     preferences.register_classes()
-    panel.register_classes()
+    panel.register()
+    
 
 def unregister():
     panel.unregister_classes()
     operators.unregister_classes()
-    preferences.unregsiter_classes()
+    props.unregister_classes()
+    preferences.unregister()
