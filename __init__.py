@@ -14,7 +14,7 @@ import bmesh
 from bpy.types import Operator
 from bpy.props import StringProperty
 from bpy.props import BoolProperty
-from bpy.props import Panel
+# from bpy.props import Panel
 
 from . import panel
 from . import preferences
@@ -28,11 +28,11 @@ def register():
     props.register_classes()
     operators.register_classes()
     preferences.register_classes()
-    panel.register()
+    panel.register_classes()
     
 
 def unregister():
     panel.unregister_classes()
     operators.unregister_classes()
     props.unregister_classes()
-    preferences.unregister()
+    preferences.unregister_classes()

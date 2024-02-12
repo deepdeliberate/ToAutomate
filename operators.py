@@ -1,6 +1,6 @@
 import bpy 
 
-class OBJECT_OT_rename_baking_objects(bpy.types.Operator):
+class OBJECT_OT_TAMT_rename(bpy.types.Operator):
     """ Rename the active object and make the selected object counter suffix"""
     bl_idname = "to_automte.rename_object"
     bl_label = "Rename selected object"
@@ -41,23 +41,30 @@ class OBJECT_OT_rename_baking_objects(bpy.types.Operator):
             if name.endswith(HP):
                 name = name.replace(HP,"")
             name = name.replace( LP, "" )
-        context.object.name = name + LP
+        context.active_object.name = name + LP
 
         if move_LP :
-            low_col = get_col(col_LP_name)
+            # low_col = get_col(col_LP_name)
             move_obj(self, context.object, col_LP_name) 
 
+        # Add functionality to rename the active object while renaming
+
+        count = 0
         # Renaming and Moving active and selected objects to thier Collection
-        for i , obj in enumerate(context.selected_objects):
-            if not (obj == context.object) :
-                obj.name = name + HP
-                if i > 0:
-                    obj.name += f"_{i}"
-                
+        for obj in context.selected_objects:
+            if not (obj == context.active_object) :
+                cur_name = name + HP  
+                if count > 0:
+                    cur_name += f"_{count}"
+                count += 1
+                obj.name = cur_name
+
+
                 if move_HP :
-                    high_col = get_col(col_HP_name)
-                    move_obj(self, context.object, col_LP_name) 
-                
+                    # high_col = get_col(col_HP_name)
+                    move_obj(self, obj, col_HP_name) 
+        
+        return {'FINISHED'}
 
 
                     
@@ -83,16 +90,15 @@ def move_obj(self, obj, Col):
 
     if not(my_col in old_colls):
         my_col.objects.link(obj)
-    else:
-        for o in old_colls:
-            if not( o == my_col):
-                o.objects.unlink(obj)
+    for o in old_colls:
+        if not( o == my_col):
+            o.objects.unlink(obj)
         self.report({'INFO'}, "LOW Poly Object already in LP Collection")
 
 def register_classes():
-    bpy.utils.register_class(OBJECT_OT_rename_baking_objects)
+    bpy.utils.register_class(OBJECT_OT_TAMT_rename)
 
 
 
 def unregister_classes():
-    bpy.utils.unregister_class(OBJECT_OT_rename_baking_objects)
+    bpy.utils.unregister_class(OBJECT_OT_TAMT_rename)

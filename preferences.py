@@ -12,4 +12,6 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
 
 def register_classes():
     bpy.utils.register_class(ToAutomatePreferences)
+
+def unregister_classes():
     bpy.utils.unregister_class(ToAutomatePreferences)
