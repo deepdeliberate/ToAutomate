@@ -18,11 +18,19 @@ class OBJECT_PT_3DView_panel(bpy.types.Panel):
         row = layout.row(align = True)
         row.label(text = "To Automate Art Process")
         box = layout.box()
-        col = box.column(align=True)
+        col = box.column()
 
-        col.prop(tamt, 'low_suffix', text = "Low Suffix", expand= False)
+        col.prop(tamt, 'low_suffix', text = "Low Suffix", expand= True)
         col.prop(tamt, 'high_suffix' , text = "High Suffix", expand  = False)
         col.operator(operators.OBJECT_OT_TAMT_rename.bl_idname, text = "Rename")
+        
+        col.label(text = "Collection Names")
+        row1 = col.row()
+        row2 = col.row()
+        row1.prop(tamt, 'move_LP', text = "LP Collection")
+        row1.prop(tamt, 'col_LP', text = "", expand= False)
+        row2.prop(tamt, 'move_HP', text= "HP Collection")
+        row2.prop(tamt, 'col_HP', text = "", expand=False)
 
 def register_classes():
     bpy.utils.register_class(OBJECT_PT_3DView_panel)

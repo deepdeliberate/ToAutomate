@@ -1,4 +1,5 @@
-import bpy 
+
+import bpy
 
 class OBJECT_OT_TAMT_rename(bpy.types.Operator):
     """ Rename the active object and make the selected object counter suffix"""
@@ -64,11 +65,76 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
                     # high_col = get_col(col_HP_name)
                     move_obj(self, obj, col_HP_name) 
         
-        return {'FINISHED'}
+        return {'FINISHED'}      
 
+class OBJECT_OT_TAMT_select(bpy.types.Operator):
+    """ Option 1:  Select the objects' significant other, 
+    Option 2:  Select no matching object"""
+    bl_idname = "to_automte.select_significant"
+    bl_label = "Select significant other"
+    bl_description = "Select the significant other / or ones that don't"
+    bl_options = {'REGISTER', 'UNDO'}
 
-                    
+    # for selection
+    only_LP: bpy.props.BoolProperty(default= True)
+    only_HP: bpy.props.BoolProperty(default=True)
 
+    @classmethod
+    def poll(cls, context):
+        return len(context.selected_objects) > 0
+    
+    def execute(self, context):
+        LP = tamt.low_suffix
+        HP = tamt.high_suffix
+        move_LP = tamt.move_LP
+        move_HP = tamt.move_HP
+
+        col_LP_name = tamt.col_LP
+        col_HP_name = tamt.col_HP
+
+        L_Col = bpy.data.collections.get(col_LP_name)
+        H_Col = bpy.data.collections.get(col_HP_name)
+
+        if Select_option == 'OP1':
+            for obj in scene.objects: obj.select_set(False)
+
+            if not(bpy.data.collections.get(col_HP_name)):
+                self.report({'ERROR'}, "No HP Collection Found")
+                return {'CANCELLED'}
+            
+            if self.only_LP:
+                for obj in L_Col.objects:
+                    if not((obj.name[ : -1*(len(LP))] + HP) in H_Col.objects):
+                        obj.select_set(True)
+            
+            if self.only_HP:
+                for h_obj in H_Col.objects:
+                    if not((h_obj.name[  : -1*(len(HP)) ]   + LP ) in L_Col.objects):
+                        obj.select_set(False)
+        
+        else:
+            if d_sel:
+                des_obj = [o for o in context.selected_objects]
+            if not(only_col):
+                for obj in context.selectable_objects:
+                    if(obj.name.endswith(LP)):
+                        ob = bpy.data.objects.get( ob.name[   : -1*(len(LP))] + HP)
+                        if ob:
+                            ob.select_set(True)
+                            break
+
+                    elif obj.name.endswith(HP):
+                        ob = bpy.data.objects.get( ob.name[   : -1*(len(LP))] + HP)
+                        if ob:
+                            ob.select_set(True)
+                            break
+            else:
+                for obj in context.selected_objects:
+                    if (obj.name.endswith(LP)):
+                        for o in H_Col.objects:
+                            if(o in )
+
+            # working on Selecting significant other object
 
 #  Function to get a Collection of given name
         
@@ -93,11 +159,11 @@ def move_obj(self, obj, Col):
     for o in old_colls:
         if not( o == my_col):
             o.objects.unlink(obj)
-        self.report({'INFO'}, "LOW Poly Object already in LP Collection")
+        self.report({'INFO'}, f"{o.name} Object already in LP Collection")
+
 
 def register_classes():
     bpy.utils.register_class(OBJECT_OT_TAMT_rename)
-
 
 
 def unregister_classes():

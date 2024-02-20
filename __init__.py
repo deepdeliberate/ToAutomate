@@ -5,7 +5,7 @@ bl_info = {
     "blender": (4, 0, 0),
     "location": "VIEW3D > Properties > To Automate",
     "description": "Addon to Partly Automate 3D Project Development",
-    "category": "Learning",
+    "category": "3D View",
 }
 
 import bpy
