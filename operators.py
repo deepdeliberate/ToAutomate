@@ -86,6 +86,8 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
         return len(context.selected_objects) > 0
     
     def execute(self, context):
+        tamt = context.scene.tamt
+
         LP = tamt.low_suffix
         HP = tamt.high_suffix
         move_LP = tamt.move_LP
@@ -104,7 +106,7 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
         # OP1: Selecting the objects with no significant others
 
         if Select_option == 'OP1':
-            for obj in scene.objects: obj.select_set(False)
+            for obj in context.scene.objects: obj.select_set(False)
 
             if not(bpy.data.collections.get(col_HP_name)):
                 self.report({'ERROR'}, "No HP Collection Found")
@@ -112,12 +114,12 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
             
             if self.only_LP:
                 for obj in L_Col.objects:
-                    if not((obj.name[ : -1*(len(LP))] + HP) in H_Col.objects):
+                    if ((obj.name[ : -1*(len(LP))] + HP) in H_Col.objects):
                         obj.select_set(True)
             
             if self.only_HP:
                 for h_obj in H_Col.objects:
-                    if not((h_obj.name[  : -1*(len(HP)) ]   + LP ) in L_Col.objects):
+                    if ((h_obj.name[  : -1*(len(HP)) ]   + LP ) in L_Col.objects):
                         obj.select_set(False)
         
         # OP2: Selecting the significant other in the object 
@@ -128,44 +130,51 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
 
             if not(self.only_col):
                 for obj in context.selectable_objects:
-                    if(obj.name.endswith(LP)):
-                        ob = bpy.data.objects.get( ob.name[  : -1*(len(LP))] + HP)
+                    if(obj.name.endswith(LP )):
+                        ob = bpy.data.objects.get( obj.name[  : -1*(len(LP))] + HP)
                         if ob:
                             # Set object to visible collection
                             ob.select_set(True)
-                            break
 
-                    elif obj.name.endswith(HP):
-                        ob = bpy.data.objects.get( ob.name[  : -1*(len(LP))] + HP)
+                    elif(obj.name.endswith(HP)):
+                        ob = bpy.data.objects.get( obj.name[  : -1*(len(HP))] + LP)
                         if ob:
                             ob.select_set(True)
-                            break
             else:
+
                 # if object is LP check in HP Collection
                 # If it's significant other is there?
 
                 for obj in context.selected_objects:
                     if (obj.name.endswith(LP)):
-                        sel_object(obj, LP, H_Col)
+                        sel_object(obj, LP, HP, H_Col)
                     
-                    else:
-                        sel_object(obj, HP, L_Col)
+                    elif(obj.name.endswith(HP)):
+                        sel_object(obj, HP, LP, L_Col)
             
             # Deselecting original if option enabled
             if d_sel:
                 for ob in des_obj:
                     ob.select_set(False)
 
-            return {'FINISHED'}
+        return {'FINISHED'}
+    
+    # self layout improvement
+    # sel_LP_only, sel_HP_only
+    # and bug fixes
 
             
 
 # function to select the object if found in a collection
                             
-def sel_object(obj, suffix, target_col):
-    if( target_col in ob.users_collection):
+def sel_object(obj, suffix, s_suffix, target_col):
+
+    c_obj = bpy.data.objects.get(( obj.name[  : -1*(len(suffix))] + s_suffix))
+
+    if c_obj:
+        if( target_col in c_obj.users_collection):
             # Present in the High poly collection
-            ob.select_set(True)
+            c_obj.select_set(True)
 
 
 
@@ -196,9 +205,16 @@ def move_obj(self, obj, Col):
         self.report({'INFO'}, f"{o.name} Object already in LP Collection")
 
 
+classes = [
+    OBJECT_OT_TAMT_rename,
+    OBJECT_OT_TAMT_select,
+]
+
 def register_classes():
-    bpy.utils.register_class(OBJECT_OT_TAMT_rename)
+    for c in classes:
+        bpy.utils.register_class(c)
 
 
 def unregister_classes():
-    bpy.utils.unregister_class(OBJECT_OT_TAMT_rename)
+    for c in classes:
+        bpy.utils.unregister_class(c)
