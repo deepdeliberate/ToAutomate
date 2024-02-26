@@ -79,6 +79,8 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
     only_LP: bpy.props.BoolProperty(default= True)
     only_HP: bpy.props.BoolProperty(default=True)
 
+    only_col: bpy.props.BoolProperty(default = True)
+
     @classmethod
     def poll(cls, context):
         return len(context.selected_objects) > 0
@@ -89,11 +91,17 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
         move_LP = tamt.move_LP
         move_HP = tamt.move_HP
 
+        d_sel = tamt.opt_col_sel
+
+        Select_option = tamt.col_sel_enum
+
         col_LP_name = tamt.col_LP
         col_HP_name = tamt.col_HP
 
         L_Col = bpy.data.collections.get(col_LP_name)
         H_Col = bpy.data.collections.get(col_HP_name)
+
+        # OP1: Selecting the objects with no significant others
 
         if Select_option == 'OP1':
             for obj in scene.objects: obj.select_set(False)
@@ -112,32 +120,58 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
                     if not((h_obj.name[  : -1*(len(HP)) ]   + LP ) in L_Col.objects):
                         obj.select_set(False)
         
+        # OP2: Selecting the significant other in the object 
+
         else:
             if d_sel:
                 des_obj = [o for o in context.selected_objects]
-            if not(only_col):
+
+            if not(self.only_col):
                 for obj in context.selectable_objects:
                     if(obj.name.endswith(LP)):
-                        ob = bpy.data.objects.get( ob.name[   : -1*(len(LP))] + HP)
+                        ob = bpy.data.objects.get( ob.name[  : -1*(len(LP))] + HP)
                         if ob:
+                            # Set object to visible collection
                             ob.select_set(True)
                             break
 
                     elif obj.name.endswith(HP):
-                        ob = bpy.data.objects.get( ob.name[   : -1*(len(LP))] + HP)
+                        ob = bpy.data.objects.get( ob.name[  : -1*(len(LP))] + HP)
                         if ob:
                             ob.select_set(True)
                             break
             else:
+                # if object is LP check in HP Collection
+                # If it's significant other is there?
+
                 for obj in context.selected_objects:
                     if (obj.name.endswith(LP)):
-                        for o in H_Col.objects:
-                            if(o in )
+                        sel_object(obj, LP, H_Col)
+                    
+                    else:
+                        sel_object(obj, HP, L_Col)
+            
+            # Deselecting original if option enabled
+            if d_sel:
+                for ob in des_obj:
+                    ob.select_set(False)
 
-            # working on Selecting significant other object
+            return {'FINISHED'}
+
+            
+
+# function to select the object if found in a collection
+                            
+def sel_object(obj, suffix, target_col):
+    if( target_col in ob.users_collection):
+            # Present in the High poly collection
+            ob.select_set(True)
+
+
+
 
 #  Function to get a Collection of given name
-        
+
 def get_col(col_name):
     if not(bpy.data.collections.get(col_name)):
         my_col = bpy.data.collections.new(name = col_name)

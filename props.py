@@ -38,6 +38,19 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         default = "LP_Named"
     )
 
+    # Select significant other
+    opt_col_sel: bpy.props.BoolProperty(
+        name = "Select the Original Object",
+        default = False
+    )
+
+    col_sel_enum: bpy.props.EnumProperty(
+        name="",
+        description= "Menu to Select Objects",
+        items= [('OP1', "Non-matching objects", "Select Objects having no matching low or high objects from the collections"),
+                ('OP2', "Significant Other","Select the counter high / low object for the selected objects")]
+    )
+
 
 
 

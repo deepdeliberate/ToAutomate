@@ -32,6 +32,12 @@ class OBJECT_PT_3DView_panel(bpy.types.Panel):
         row2.prop(tamt, 'move_HP', text= "HP Collection")
         row2.prop(tamt, 'col_HP', text = "", expand=False)
 
+        box2 = layout.box()
+        col2 = box2.column()
+        col2.label(text = "Selection Menu")
+        col2.prop(tamt, 'col_sel_enum', text = "Select Objects")
+
+
 def register_classes():
     bpy.utils.register_class(OBJECT_PT_3DView_panel)
 
