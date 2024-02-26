@@ -120,7 +120,7 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
             if self.only_HP:
                 for h_obj in H_Col.objects:
                     if ((h_obj.name[  : -1*(len(HP)) ]   + LP ) in L_Col.objects):
-                        obj.select_set(False)
+                        obj.select_set(True)
         
         # OP2: Selecting the significant other in the object 
 
