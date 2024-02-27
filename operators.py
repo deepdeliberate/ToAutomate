@@ -76,14 +76,34 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     # for selection
-    only_LP: bpy.props.BoolProperty(default= True)
-    only_HP: bpy.props.BoolProperty(default=True)
+    only_LP: bpy.props.BoolProperty(description= "Select Only Low Poly, When ON, only searches LP no HP",default= True)
+    only_HP: bpy.props.BoolProperty(description= "Select Only High Poly, When ON, only searches HP no LP", default=True)
 
-    only_col: bpy.props.BoolProperty(default = True)
+    only_col: bpy.props.BoolProperty(description="Select from Collection if ON, otherwise searches whole scene", default = True)
 
     @classmethod
     def poll(cls, context):
         return len(context.selected_objects) > 0
+    
+    def draw(self, context):
+        layout = self.layout
+        row = layout.row(align= True)
+        # row.alignment = 'CENTER'
+
+        row.label(text = "Find in: ")
+        row.prop(self,'only_col', text="Collection Only")
+        
+        # # Low and High Only props
+        # row2 = layout.column(align= True)
+        # # row2.alignment = 'CENTER'
+        
+        # tamt = context.scene.tamt
+        # Select_option = tamt.col_sel_enum
+
+        # if Select_option == 'OP1':
+        #     row2.prop(self,'only_LP', text = "Low Poly")
+        #     row2.prop(self, 'only_HP', text= "High Poly")
+
     
     def execute(self, context):
         tamt = context.scene.tamt
@@ -108,18 +128,22 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
         if Select_option == 'OP1':
             for obj in context.scene.objects: obj.select_set(False)
 
-            if not(bpy.data.collections.get(col_HP_name)):
+            if not(L_Col):
                 self.report({'ERROR'}, "No HP Collection Found")
+                return {'CANCELLED'}
+            
+            if not(H_Col):
+                self.report({'ERROR'}, "No LP Collection Found")
                 return {'CANCELLED'}
             
             if self.only_LP:
                 for obj in L_Col.objects:
-                    if ((obj.name[ : -1*(len(LP))] + HP) in H_Col.objects):
+                    if not((obj.name[ : -1*(len(LP))] + HP) in H_Col.objects):
                         obj.select_set(True)
             
             if self.only_HP:
                 for h_obj in H_Col.objects:
-                    if ((h_obj.name[  : -1*(len(HP)) ]   + LP ) in L_Col.objects):
+                    if not((h_obj.name[  : -1*(len(HP)) ]   + LP ) in L_Col.objects):
                         obj.select_set(True)
         
         # OP2: Selecting the significant other in the object 
@@ -128,8 +152,9 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
             if d_sel:
                 des_obj = [o for o in context.selected_objects]
 
+            # If needs to check from the scene objects
             if not(self.only_col):
-                for obj in context.selectable_objects:
+                for obj in context.selected_objects:
                     if(obj.name.endswith(LP )):
                         ob = bpy.data.objects.get( obj.name[  : -1*(len(LP))] + HP)
                         if ob:
