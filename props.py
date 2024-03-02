@@ -52,7 +52,7 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
     )
 
     # ----------- Rename organization type ---------------------
-    rnm_ord_type: bpy..props.EnumProperty(
+    rnm_ord_type: bpy.props.EnumProperty(
         name = "",
         description = "Organization Method for Renaming LP & HP objects",
         items = [('OP1', "Separate Low-High","Move LP and HP to common LP and HP Collections"),
@@ -66,7 +66,7 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
 
     rnm_ord_parent: bpy.props.StringProperty(
         name = "Parent Collection",
-        description= "Name for Parent collection of the object collections / if empty : under Scene Collection"
+        description= "Name for Parent collection of the object collections / if empty : under Scene Collection",
         default = ""
     )
 

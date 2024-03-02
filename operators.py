@@ -34,7 +34,7 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
         # Rename Order Method Properties
         enum_rnm_method = tamt.rnm_ord_type
         crt_object_col = tamt.rnm_ord_3rd
-        prnt_obj_col = tamt.rnm_ord_parent
+        prnt_obj_col_name = tamt.rnm_ord_parent
 
         # rnm_ord_type , rnm_ord_3rd ,rnm_ord_parent
 
@@ -64,26 +64,53 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
                 # low_col = get_col(col_LP_name)
                 move_obj(self, context.object, col_LP_name) 
             
-            move_obj_LP_HP(self, context, context.active_object , context.selected_objects, name)
+            move_obj_LP_HP(self, context, context.active_object , context.selected_objects, name, col_HP_name, move_HP)
             # Add functionality to rename the active object while renaming
 
         elif enum_rnm_method == 'OP2':
-            pass
+            # move to object collection
+            base_obj_col = get_col(obj_col_name )
+
+            # got the collection
+            if prnt_obj_col_name != "" :
+                prnt_obj_col = get_col(prnt_obj_col_name)
+                move_col(base_obj_col, prnt_obj_col)
+            
+            # Move LP and HP both here after renaming
+            if move_LP :
+                # low_col = get_col(col_LP_name)
+                move_obj(self, context.object, obj_col_name) 
+            move_obj_LP_HP( self, context, context.active_object, context.selected_objects, name, obj_col_name)
+            
         
         else:
-            pass
+            low_objects = []
+            high_objects = []
+
+            # Create object coll or move to LP HP instead
+            crt_object_col
+
+            for obj in context.selected_objects:
+                if obj.name.endswith(LP):
+                    low_objects.append(obj)
+
+                elif obj.name.endswith(HP):
+                    high_objects.append(obj)
+            
+            move_mult_obj(low_objects, col_LP_name)
+            move_mult_obj(high_objects, col_HP_name)
+
+
         
         return {'FINISHED'}   
     
 
 # Function to move and rename the High poly objects to their corresponding LP name and HP col
     
-def move_obj_LP_HP( self, context, act_obj , objects, base_name):
+def move_obj_LP_HP( self, context, act_obj , objects, base_name, target_col_name, move_HP = True):
     tamt = context.scene.tamt
 
     HP = tamt.high_suffix
-    move_HP = tamt.move_HP
-    col_HP_name = tamt.col_HP
 
     # Renaming and Moving active and selected objects to thier Collection
     count = 0
@@ -98,8 +125,20 @@ def move_obj_LP_HP( self, context, act_obj , objects, base_name):
 
             if move_HP :
                 # high_col = get_col(col_HP_name)
-                move_obj(self, obj, col_HP_name) 
+                move_obj(self, obj, target_col_name) 
 
+def move_col(col, parent_col):
+    if not parent_col in col.users_collection:
+        # move to parent
+        old_col = col.users_collection
+        parent_col.children.link(col)
+
+        for o in old_col:
+            o.children.unlink(col)
+    
+    for o in col.users_collection:
+        if o != parent_col:
+            o.children.unlink(col)
 
 
 
@@ -242,7 +281,8 @@ def sel_object(obj, suffix, s_suffix, target_col):
 
 #  Function to get a Collection of given name
 
-def get_col(col_name):
+def get_col(col_name ):
+
     if not(bpy.data.collections.get(col_name)):
         my_col = bpy.data.collections.new(name = col_name)
         bpy.context.scene.collection.children.link(my_col)
@@ -263,7 +303,20 @@ def move_obj(self, obj, Col):
     for o in old_colls:
         if not( o == my_col):
             o.objects.unlink(obj)
-        self.report({'INFO'}, f"{o.name} Object already in LP Collection")
+        self.report({'INFO'}, f"{o.name} Object already in {Col.name} Collection")
+
+def move_mult_obj(all_obj, Col):
+    my_col = get_col(Col)
+
+    for obj in all_obj:
+        old_colls = obj.users_collection
+
+        if not(my_col in old_colls):
+            my_col.objects.link(obj)
+        for o in old_colls:
+            if not( o == my_col):
+                o.objects.unlink(obj)
+            self.report({'INFO'}, f"{o.name} Object already in {Col.name} Collection")
 
 
 classes = [
