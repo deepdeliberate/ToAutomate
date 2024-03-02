@@ -31,41 +31,77 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
         col_LP_name = tamt.col_LP
         col_HP_name = tamt.col_HP
 
-        if not context.active_object:
-            self.report({'ERROR'},"No active object")
-            return {'CANCELLED'}
-        
-        # Getting the active object name
-        name = context.active_object.name
+        # Rename Order Method Properties
+        enum_rnm_method = tamt.rnm_ord_type
+        crt_object_col = tamt.rnm_ord_3rd
+        prnt_obj_col = tamt.rnm_ord_parent
 
+        # rnm_ord_type , rnm_ord_3rd ,rnm_ord_parent
+
+        if enum_rnm_method == 'OP1' or enum_rnm_method == 'OP2':
+            if not context.active_object:
+                self.report({'ERROR'},"No active object")
+                return {'CANCELLED'}
+            # Getting the active object name
+            name = context.active_object.name
+
+        # Collection Name per object for OP2
+        obj_col_name = name
+
+        # Making sure the basename has proper prefix and suffix
+        # Can improve algorithm by using string [ : - len(LP)] 
         if LP in name:
             if name.endswith(HP):
                 name = name.replace(HP,"")
+                obj_col_name = obj_col_name.replace(HP)
+
             name = name.replace( LP, "" )
+            obj_col_name = obj_col_name.replace(LP, "")
         context.active_object.name = name + LP
 
-        if move_LP :
-            # low_col = get_col(col_LP_name)
-            move_obj(self, context.object, col_LP_name) 
+        if enum_rnm_method == 'OP1':
+            if move_LP :
+                # low_col = get_col(col_LP_name)
+                move_obj(self, context.object, col_LP_name) 
+            
+            move_obj_LP_HP(self, context, context.active_object , context.selected_objects, name)
+            # Add functionality to rename the active object while renaming
 
-        # Add functionality to rename the active object while renaming
-
-        count = 0
-        # Renaming and Moving active and selected objects to thier Collection
-        for obj in context.selected_objects:
-            if not (obj == context.active_object) :
-                cur_name = name + HP  
-                if count > 0:
-                    cur_name += f"_{count}"
-                count += 1
-                obj.name = cur_name
-
-
-                if move_HP :
-                    # high_col = get_col(col_HP_name)
-                    move_obj(self, obj, col_HP_name) 
+        elif enum_rnm_method == 'OP2':
+            pass
         
-        return {'FINISHED'}      
+        else:
+            pass
+        
+        return {'FINISHED'}   
+    
+
+# Function to move and rename the High poly objects to their corresponding LP name and HP col
+    
+def move_obj_LP_HP( self, context, act_obj , objects, base_name):
+    tamt = context.scene.tamt
+
+    HP = tamt.high_suffix
+    move_HP = tamt.move_HP
+    col_HP_name = tamt.col_HP
+
+    # Renaming and Moving active and selected objects to thier Collection
+    count = 0
+    for obj in objects:
+        if not (obj == act_obj) :
+            cur_name = base_name + HP  
+
+            if count > 0:
+                cur_name += f"_{count}"
+            count += 1
+            obj.name = cur_name
+
+            if move_HP :
+                # high_col = get_col(col_HP_name)
+                move_obj(self, obj, col_HP_name) 
+
+
+
 
 class OBJECT_OT_TAMT_select(bpy.types.Operator):
     """ Option 1:  Select the objects' significant other, 
