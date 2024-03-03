@@ -24,13 +24,35 @@ class OBJECT_PT_3DView_panel(bpy.types.Panel):
         col.prop(tamt, 'high_suffix' , text = "High Suffix", expand  = False)
         col.operator(operators.OBJECT_OT_TAMT_rename.bl_idname, text = "Rename")
         
-        col.label(text = "Collection Names")
+
+        my_rnm_ord_type = tamt.rnm_ord_type 
+        col.label(text = "Object Organize Method")
+        col.prop(tamt, 'rnm_ord_type', text = "Method")
+        
+        main_row = col.row()
         row1 = col.row()
         row2 = col.row()
-        row1.prop(tamt, 'move_LP', text = "LP Collection")
-        row1.prop(tamt, 'col_LP', text = "", expand= False)
-        row2.prop(tamt, 'move_HP', text= "HP Collection")
-        row2.prop(tamt, 'col_HP', text = "", expand=False)
+        row_mid = col.row()
+        row3 = col.row()
+
+        if my_rnm_ord_type != 'OP3':
+            main_row.label(text = "Collection Names")
+            row1.prop(tamt, 'col_LP', text = "Low Col", expand= False)
+            row2.prop(tamt, 'col_HP', text = "High Col", expand=False)
+        
+        if my_rnm_ord_type == 'OP1':
+            row1.prop(tamt, 'move_LP', text = "LP Collection")
+            row2.prop(tamt, 'move_HP', text= "HP Collection")
+
+        if my_rnm_ord_type == 'OP3':
+            row_mid.prop(tamt,'rnm_ord_3rd', text = "Object Col")
+
+        if my_rnm_ord_type != 'OP1':
+            row3.prop(tamt, 'rnm_ord_parent', text = "Parent Col")
+
+        
+            
+        
 
 # -------  Selecting Significant Other ----------------
         

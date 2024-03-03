@@ -43,7 +43,7 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
                 self.report({'ERROR'},"No active object")
                 return {'CANCELLED'}
             # Getting the active object name
-            name = context.active_object.name
+        name = context.active_object.name
 
         # Collection Name per object for OP2
         obj_col_name = name
@@ -74,7 +74,7 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
             # got the collection
             if prnt_obj_col_name != "" :
                 prnt_obj_col = get_col(prnt_obj_col_name)
-                move_col(base_obj_col, prnt_obj_col)
+                # move_col(base_obj_col, prnt_obj_col)q
             
             # Move LP and HP both here after renaming
             if move_LP :
@@ -87,18 +87,29 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
             low_objects = []
             high_objects = []
 
-            # Create object coll or move to LP HP instead
-            crt_object_col
-
             for obj in context.selected_objects:
                 if obj.name.endswith(LP):
                     low_objects.append(obj)
 
                 elif obj.name.endswith(HP):
                     high_objects.append(obj)
-            
-            move_mult_obj(low_objects, col_LP_name)
-            move_mult_obj(high_objects, col_HP_name)
+
+            # Parent property option?
+                    
+            if not crt_object_col:
+                move_mult_obj(self, low_objects, col_LP_name)
+                move_mult_obj(self, high_objects, col_HP_name)
+            else:
+                # move to object name collection
+                for obj in low_objects:
+                    base_obj_col_name = obj.name[ : -1*(len(LP))]  
+                    move_obj(self, obj, base_obj_col_name) 
+
+                for obj in high_objects:
+                    base_obj_col_name =  obj.name[ : -1*(len(HP))]
+                    move_obj(self,obj, base_obj_col_name) 
+
+
 
 
         
@@ -128,17 +139,11 @@ def move_obj_LP_HP( self, context, act_obj , objects, base_name, target_col_name
                 move_obj(self, obj, target_col_name) 
 
 def move_col(col, parent_col):
-    if not parent_col in col.users_collection:
-        # move to parent
-        old_col = col.users_collection
+
+    if not (col in parent_col.children):
         parent_col.children.link(col)
 
-        for o in old_col:
-            o.children.unlink(col)
-    
-    for o in col.users_collection:
-        if o != parent_col:
-            o.children.unlink(col)
+    # Check tree traverse for any other parent of collectionq
 
 
 
@@ -303,9 +308,9 @@ def move_obj(self, obj, Col):
     for o in old_colls:
         if not( o == my_col):
             o.objects.unlink(obj)
-        self.report({'INFO'}, f"{o.name} Object already in {Col.name} Collection")
+        self.report({'INFO'}, f"{o.name} Object already in {Col} Collection")
 
-def move_mult_obj(all_obj, Col):
+def move_mult_obj(self, all_obj, Col):
     my_col = get_col(Col)
 
     for obj in all_obj:
@@ -316,7 +321,7 @@ def move_mult_obj(all_obj, Col):
         for o in old_colls:
             if not( o == my_col):
                 o.objects.unlink(obj)
-            self.report({'INFO'}, f"{o.name} Object already in {Col.name} Collection")
+            self.report({'INFO'}, f"{o.name} Object already in {Col} Collection")
 
 
 classes = [

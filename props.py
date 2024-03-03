@@ -57,10 +57,11 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         description = "Organization Method for Renaming LP & HP objects",
         items = [('OP1', "Separate Low-High","Move LP and HP to common LP and HP Collections"),
                  ('OP2', "Object Collection", "Move LP and HP objects under Object's name Collection"),
-                 ('OP3', "Object Organize", "Organizes multiple LP and HP named objects to Object named / LP-HP Collection")]
+                 ('OP3', "Multi-Object Organize", "Organizes multiple LP and HP named objects to Object named / LP-HP Collection")]
     )
     rnm_ord_3rd: bpy.props.BoolProperty(
-        name = "Make Individual Object Collection for all objects, if off moves selected objects sorted by their suffix",
+        name = "",
+        description= "Make Individual Object Collection for all objects, if off moves selected objects sorted by their suffix",
         default= False
     )
 
