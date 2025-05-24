@@ -134,9 +134,9 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         default=False
     )
     
-    rem_old_mat: BoolProperty(
+    rem_old_mat: bpy.props.BoolProperty(
         name = "Remove Materials",
-        description= "Remove old materials of the object",
+        description= "Remove old materials and then Add New",
         default= False
     )
 

@@ -125,9 +125,13 @@ class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
         col.label(text = 'MATERIALS MENU')
         row1 = col.row()
         row1.prop(tamt, "base_mat", text = "Material")
-        row2 = col.row()
-        row2.operator(operators.OBJECT_OT_TAMT_MOD_ADDMAT.bl_idname, text="Add Material")
-        row2.operator(operators.OBJECT_OT_TAMT_MOD_REMMATS.bl_idname, text="Del Materials")
+        row1.prop(tamt, "rem_old_mat", text = "Del Old")
+        col = col.column()
+        row3 = col.row()
+        row4 = col.row()
+        col.operator(operators.OBJECT_OT_TAMT_MOD_ADDMAT.bl_idname, text="Add Material")
+        col.operator(operators.OBJECT_OT_TAMT_MOD_REMMATS.bl_idname, text="Del Materials")
+        col.operator(operators.OBJECT_OT_TAMT_MESH_CLEANMATS.bl_idname, text = "Clean UP")
 
 
 

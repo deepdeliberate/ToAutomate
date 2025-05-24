@@ -597,19 +597,29 @@ class OBJECT_OT_TAMT_MOD_WGHTNRM(bpy.types.Operator):
                 mod = obj.modifiers.new(name = 'WeightedNormal', type = 'WEIGHTED_NORMAL')    
                 mod.keep_sharp = True
         
-        return {'FINISHED'}     
+        return {'FINISHED'}
 
-class OBJECT_OT_TAMT_MOD_ADDMAT(bpy.types.Operator):
+     
+
+class OBJECT_OT_TAMT_MESH_ADDMAT(bpy.types.Operator):
     bl_idname = "to_automte.atm_addmat"
     bl_label = "Add Material"
     bl_description = "Add Material to selected objects"
     bl_options = {'REGISTER', 'UNDO'}
 
-    mat_name: bpy.props.StringProperty(name = "Material Name",default= "MarkUV")
+    mat_name: bpy.props.StringProperty(name = "Material Name",default= "NewMat")
 
     @classmethod
     def poll(cls, context):
-        return context.mode == "OBJECT"
+        obj = context.object
+        if len(bpy.context.selected_objects) < 1:
+            return False
+        if obj.type != 'MESH' and obj.type != 'CURVE':
+            return False
+        if context.mode != "OBJECT":
+            return False 
+        return True
+        
     
     def execute(self, context):
         tamt = context.scene.tamt
@@ -624,7 +634,7 @@ class OBJECT_OT_TAMT_MOD_ADDMAT(bpy.types.Operator):
         
         if mat:
             mat_name = mat.name
-        elif len(self.mat_name) > 0 :
+        elif len(self.mat_name) > 1:
             mat_name = self.mat_name
         else:
             self.report({'ERROR'}, "Please select some objects")
@@ -634,11 +644,11 @@ class OBJECT_OT_TAMT_MOD_ADDMAT(bpy.types.Operator):
         for obj in all_objs:
             if remove_old:
                 rem_mat(obj)
-            if obj.type == 'MESH':
-                add_mat(obj, mat_name, mat)
+            if obj.type == 'MESH' or obj.type == 'CURVE':
+                add_mat(obj, mat, apply_mat, mat_name)
 
         if not mat:
-            mat = get_mat(mat_name)
+            tamt.base_mat = get_mat(mat_name)
             
         return {'FINISHED'}
     
@@ -654,7 +664,7 @@ class OBJECT_OT_TAMT_MOD_ADDMAT(bpy.types.Operator):
 
 
     
-class OBJECT_OT_TAMT_MOD_REMMATS(bpy.types.Operator):
+class OBJECT_OT_TAMT_MESH_REMMATS(bpy.types.Operator):
     bl_idname = "to_automte.atm_remmat"
     bl_label = "Remove Materials"
     bl_description = "Remove all materials of selected objects"
@@ -683,6 +693,62 @@ class OBJECT_OT_TAMT_MOD_REMMATS(bpy.types.Operator):
         
         return {'FINISHED'}
             
+
+## Clean unused mats from the selected objects
+
+class OBJECT_OT_TAMT_MESH_CLEANMATS(bpy.types.Operator):
+    bl_idname = "to_automte.atm_cleanmat"
+    bl_label = "Remove Empty Materials"
+    bl_description = "Remove all unused materials from object"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.object
+        if len(bpy.context.selected_objects) < 1:
+            return False
+        if obj.type != 'MESH' and obj.type != 'CURVE':
+            return False
+        return True
+
+    def execute(self, context):
+        tamt = context.scene.tamt
+
+        if len(context.selected_objects) < 1:
+            self.report({'ERROR'}, "Please select some objects")
+            return {'CANCELLED'}
+
+        all_objs = [obj for obj in context.selected_objects if obj.type == 'MESH' or obj.type == 'CURVE']
+        
+        for obj in all_objs:
+            mats_to_remove = []
+
+            for i, slot in enumerate(obj.data.materials):
+
+                faces_using_mat = False
+                for face in obj.data.polygons:
+                    if face.material_index == i:
+                        faces_using_mat = True
+                        break
+                    
+                if not faces_using_mat:
+                    mats_to_remove.append(i)
+        
+            mats_to_remove.sort(reverse=True)
+
+            count = 0
+            if mats_to_remove:
+                for i in mats_to_remove:
+                    obj.data.materials.pop(index = i)
+                    count += 1
+
+                self.report({'INFO'}, f"{obj.name} got Removed {count} unused materials")
+
+
+        
+        return {'FINISHED'}
+
+
 def get_mat(mat_name = 'Base_Mat'):
     if mat_name in bpy.data.materials:
         mat = bpy.data.materials[mat_name]
@@ -691,7 +757,6 @@ def get_mat(mat_name = 'Base_Mat'):
         mat.use_nodes = True
     
     return mat
-
 
 def add_mat (obj ,mat, apply , mat_name = 'New_Mat') :
     exist_mat = False
@@ -706,7 +771,7 @@ def add_mat (obj ,mat, apply , mat_name = 'New_Mat') :
     
     assign = True
     # Checking if the material already exists in the object mats
-    if mat_name not in [m.name for m in obj.data.materials]:
+    if mat_name not in [m.name for m in obj.data.materials if m ]:
         obj.data.materials.append(mat)
         print(f"Assigned material: {mat.name}")
 
@@ -936,8 +1001,9 @@ classes = [
     OBJECT_OT_TAMT_MOD_TRIANGULATE,
     OBJECT_OT_TAMT_MOD_ARRAY,
     OBJECT_OT_TAMT_MOD_WGHTNRM,
-    OBJECT_OT_TAMT_MOD_ADDMAT,
-    OBJECT_OT_TAMT_MOD_REMMATS,
+    OBJECT_OT_TAMT_MESH_ADDMAT,
+    OBJECT_OT_TAMT_MESH_REMMATS,
+    OBJECT_OT_TAMT_MESH_CLEANMATS,
 
 ]
 
