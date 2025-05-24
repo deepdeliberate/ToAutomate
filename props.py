@@ -125,7 +125,20 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         description="Create new modifier even if already in the selected_objects, Only Mirror and Array ",
         default=True)
     
+    ##   Material Menu
+    base_mat: bpy.props.PointerProperty( type = bpy.types.Material)
+
+    apply_mat: bpy.props.BoolProperty(
+        name = "Apply to Object",
+        description="If Enabled, the material will be applied to mesh's faces",
+        default=False
+    )
     
+    rem_old_mat: BoolProperty(
+        name = "Remove Materials",
+        description= "Remove old materials of the object",
+        default= False
+    )
 
 
 classes = (

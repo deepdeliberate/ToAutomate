@@ -120,6 +120,15 @@ class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
             row2.prop(tamt,"shift_uvu", text="U")
             row2.prop(tamt,"shift_uvv", text="V")
 
+        mat_box = main_box.box()
+        col = mat_box.column()
+        col.label(text = 'MATERIALS MENU')
+        row1 = col.row()
+        row1.prop(tamt, "base_mat", text = "Material")
+        row2 = col.row()
+        row2.operator(operators.OBJECT_OT_TAMT_MOD_ADDMAT.bl_idname, text="Add Material")
+        row2.operator(operators.OBJECT_OT_TAMT_MOD_REMMATS.bl_idname, text="Del Materials")
+
 
 
 

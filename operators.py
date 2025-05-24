@@ -1,6 +1,8 @@
 
 import bpy
 
+from . import props
+
 class OBJECT_OT_TAMT_rename(bpy.types.Operator):
     """ Rename the active object and make the selected object counter suffix"""
     bl_idname = "to_automte.rename_object"
@@ -22,7 +24,7 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
     
     def execute(self, context):
         tamt = context.scene.tamt
-
+        
         LP = tamt.low_suffix
         HP = tamt.high_suffix
         move_LP = tamt.move_LP
@@ -595,7 +597,131 @@ class OBJECT_OT_TAMT_MOD_WGHTNRM(bpy.types.Operator):
                 mod = obj.modifiers.new(name = 'WeightedNormal', type = 'WEIGHTED_NORMAL')    
                 mod.keep_sharp = True
         
-        return {'FINISHED'}       
+        return {'FINISHED'}     
+
+class OBJECT_OT_TAMT_MOD_ADDMAT(bpy.types.Operator):
+    bl_idname = "to_automte.atm_addmat"
+    bl_label = "Add Material"
+    bl_description = "Add Material to selected objects"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    mat_name: bpy.props.StringProperty(name = "Material Name",default= "MarkUV")
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == "OBJECT"
+    
+    def execute(self, context):
+        tamt = context.scene.tamt
+        
+        mat = tamt.base_mat
+        apply_mat = tamt.apply_mat
+        remove_old = tamt.rem_old_mat
+        
+        if len(context.selected_objects) < 1:
+            self.report({'ERROR'}, "Please select some objects")
+            return {'CANCELLED'}
+        
+        if mat:
+            mat_name = mat.name
+        elif len(self.mat_name) > 0 :
+            mat_name = self.mat_name
+        else:
+            self.report({'ERROR'}, "Please select some objects")
+            return {'CANCELLED'}
+
+        all_objs = context.selected_objects
+        for obj in all_objs:
+            if remove_old:
+                rem_mat(obj)
+            if obj.type == 'MESH':
+                add_mat(obj, mat_name, mat)
+
+        if not mat:
+            mat = get_mat(mat_name)
+            
+        return {'FINISHED'}
+    
+    def invoke(self, context, event):
+        # Show Pop up only if the mat is not selected
+        if (context.scene.tamt.base_mat == None):
+            return context.window_manager.invoke_props_dialog(self) 
+        
+        else:
+            # Material already selected
+            return self.execute(context)
+    
+
+
+    
+class OBJECT_OT_TAMT_MOD_REMMATS(bpy.types.Operator):
+    bl_idname = "to_automte.atm_remmat"
+    bl_label = "Remove Materials"
+    bl_description = "Remove all materials of selected objects"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.object
+        if len(bpy.context.selected_objects) < 1:
+            return False
+        if obj.type != 'MESH' and obj.type != 'CURVE':
+            return False
+        return True
+
+    def execute(self, context):
+        tamt = context.scene.tamt
+
+        if len(context.selected_objects) < 1:
+            self.report({'ERROR'}, "Please select some objects")
+            return {'CANCELLED'}
+
+        all_objs = [obj for obj in context.selected_objects if obj.type == 'MESH' or obj.type == 'CURVE']
+        for obj in all_objs:
+            rem_mat(obj)
+
+        
+        return {'FINISHED'}
+            
+def get_mat(mat_name = 'Base_Mat'):
+    if mat_name in bpy.data.materials:
+        mat = bpy.data.materials[mat_name]
+    else:
+        mat = bpy.data.materials.new(mat_name)
+        mat.use_nodes = True
+    
+    return mat
+
+
+def add_mat (obj ,mat, apply , mat_name = 'New_Mat') :
+    exist_mat = False
+
+    if ( mat is None) :
+        if mat_name in bpy.data.materials:
+            mat = bpy.data.materials[mat_name]
+        
+        else:
+            mat = bpy.data.materials.new(mat_name)
+            mat.use_nodes = True
+    
+    assign = True
+    # Checking if the material already exists in the object mats
+    if mat_name not in [m.name for m in obj.data.materials]:
+        obj.data.materials.append(mat)
+        print(f"Assigned material: {mat.name}")
+
+    
+    mat_index = obj.data.materials.find(mat.name)
+
+    if mat_index != -1 and apply:
+        for poly in obj.data.polygons:
+            poly.material_index = mat_index
+    
+    return {"FINISHED"}
+
+def rem_mat(obj):
+    if obj.data.materials:
+        obj.data.materials.clear()
 
 def add_triangulate(obj , tri_name = "Export_Triangulate_T" ):
     print('I triangulate')
@@ -810,6 +936,8 @@ classes = [
     OBJECT_OT_TAMT_MOD_TRIANGULATE,
     OBJECT_OT_TAMT_MOD_ARRAY,
     OBJECT_OT_TAMT_MOD_WGHTNRM,
+    OBJECT_OT_TAMT_MOD_ADDMAT,
+    OBJECT_OT_TAMT_MOD_REMMATS,
 
 ]
 
