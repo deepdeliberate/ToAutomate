@@ -71,6 +71,34 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         default = ""
     )
 
+    # ------- Collection Organize/De-Organize -------------
+
+    ORG_name: bpy.props.StringProperty(
+        name="Collection Name",
+        description="Name for the root Object",
+        default="ROOT"
+    )
+
+    ORG_option: bpy.props.BoolProperty(
+        name="Make Parent for Collections",
+        description="If enabled Makes an Empty Parent for all Collections in scene",
+        default=False) 
+    
+    DORG_name: bpy.props.StringProperty(
+        name="Collection Name",
+        description="Name for the root Collection",
+        default="Main Collection")
+        
+    DORG_option: bpy.props.BoolProperty(
+        name="Make a root Collection",
+        description="If enabled makes a new collection of the name",
+        default=False)   
+        
+    del_emp: bpy.props.BoolProperty(
+        name="Delete Empties?",
+        description="If enabled, deletes the parent empties",
+        default=True)    
+
 
 
 

@@ -50,9 +50,6 @@ class OBJECT_PT_3DView_panel(bpy.types.Panel):
         if my_rnm_ord_type != 'OP1':
             row3.prop(tamt, 'rnm_ord_parent', text = "Parent Col")
 
-        
-            
-        
 
 # -------  Selecting Significant Other ----------------
         
@@ -67,6 +64,24 @@ class OBJECT_PT_3DView_panel(bpy.types.Panel):
             sel_row.prop(tamt,"opt_col_sel", text = "Deselect Original Objects")
 
         col2.operator(operators.OBJECT_OT_TAMT_select.bl_idname, text = "Select")
+
+# ------- Collection Organize/De-Organize
+
+        box3 = layout.box()
+        box3.label(text = "Collection Organizer", icon = "OUTLINER_COLLECTION")
+        row1 = box3.row()
+        row1.prop(tamt, "ORG_option", text="Parent?", icon="BLANK1")
+        row1.prop(tamt, "ORG_name", text="Name", icon="PARTICLES")
+        box3.operator(operators.OBJECT_OT_TAMT_COLORGANIZE.bl_idname, text = "Organize")
+
+        box3.label(text="Collection De-Organizer", icon="OUTLINER_COLLECTION")
+        row2 = box3.row()
+        row2.prop(tamt, "DORG_option", text="Root Col?", icon="BLANK1")
+        row2.prop(tamt, "DORG_name", text = "Name", icon="OUTLINER_COLLECTION")
+        box3.prop(tamt,"del_emp", text="Delete Empties?")
+        box3.operator(operators.OBJECT_OT_TAMT_COL_REORGANIZE.bl_idname, text = "Reset Collections")
+
+
 
 
 def register_classes():

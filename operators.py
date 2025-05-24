@@ -268,9 +268,204 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
     # sel_LP_only, sel_HP_only
     # and bug fixes
 
-            
+class OBJECT_OT_TAMT_COLORGANIZE(bpy.types.Operator):
+    bl_idname = "to_automte.col_organize"
+    bl_label = "Collection Organizer"
+    bl_description = "Make Collection Heirarchy equivalent empty-parent to objects"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == "OBJECT"
+    
+    def execute(self, context):
+        tamt = context.scene.tamt
+
+        org_name = context.scene.tamt.ORG_name
+        mk_root = context.scene.tamt.ORG_option
+        
+        Col_traverse(context.scene.collection)
+        if not org_name:
+            a = 'ROOT_PARENT'
+        if mk_root:
+            if not(bpy.data.objects.get(org_name)):
+                col_obj = bpy.data.objects.new(org_name, None)
+                context.scene.collection.objects.link(col_obj)
+            else:
+                col_obj = bpy.data.objects[org_name]
+
+            for name in context.scene.collection.children.keys():
+                if bpy.data.objects.get(name):
+                    if (bpy.data.objects[name] == col_obj):
+                        continue
+                    else:
+                        bpy.data.objects[name].parent = col_obj
+
+            for obj in context.scene.collection.objects:
+                if not(obj.type == 'EMPTY'):
+                    obj.parent = col_obj
+        return {'FINISHED'}
+
+class OBJECT_OT_TAMT_COL_REORGANIZE(bpy.types.Operator):
+    bl_idname = "to_automte.col_reorganize"
+    bl_label = "Collection Revert"
+    bl_description = "Convert the Empty Collection Parenting to Collections"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == "OBJECT"
+
+    def execute(self, context):
+        tamt = context.scene.tamt
+
+        root_name = tamt.DORG_name
+        mk_root = tamt.DORG_option
+        del_emp = tamt.del_emp
+
+        all_coll = None
+        
+        if not root_name:
+            root_name = 'MASTER Collection'
+        
+        if mk_root == 1:
+            for obj in context.scene.objects:
+                if not(obj.parent):
+                    if not(bpy.data.objects.get(root_name)):
+                        obj_root = bpy.data.objects.new(root_name, None)
+                        context.scene.collection.objects.link(obj_root)
+                    else:
+                        obj_root = bpy.data.objects[root_name]
+                    old = obj_root.users_collection
+
+                    if not(context.scene.collection in old):
+                        context.scene.collection.objects.link(obj_root)
+
+                    count = 0
+                    for o in old:
+                        if not(o == context.scene.collection):
+                            count += 1
+                    
+                    if count >= 1:
+                        # Object already exist in other collection
+
+                        pass
+                    obj.parent = obj_root
+        
+        flag = False
+        for obj in context.scene.objects:
+            if obj and obj.type == 'EMPTY':
+                if not(obj.parent):
+                    flag = True
+                    Col_retraverse(obj)
+
+        bpy.ops.object.select_all(action='DESELECT')
+        for obj in context.scene.collection.all_objects:
+            if not obj.type == 'EMPTY':
+                if obj.parent:
+                    if obj.parent.type == 'EMPTY':
+                        obj.select_set(True)
+
+                        bpy.ops.object.parent_clear(type = 'CLEAR_KEEP_TRANSFORM')
+                        obj.select_set(False)
+        
+        if del_emp:
+            all_coll = [name for name in bpy.data.collections.values()]
+            for i in range(len(all_coll)):
+                if all_coll:
+                    cols = all_coll.pop()
+                    if bpy.data.objects.get(cols.name) != None:
+                        obj = bpy.data.objects[cols.name]
+                        if obj.type == 'EMPTY':
+                            bpy.data.objects.remove(obj, do_unlink=True)
+        
+        return {'FINISHED'}
+
 
 # function to select the object if found in a collection
+
+def traverse_tree(col):
+    yield col
+    for col2 in col.children:
+        yield from traverse_tree(col2)    
+        
+
+
+def Col_traverse(col):
+    for c_col in col.children:
+        
+        #Object named after the current Collection
+        if not(bpy.data.objects.get(c_col.name)):
+            new_obj= bpy.data.objects.new(c_col.name,None)
+            c_col.objects.link(new_obj)
+        else:   #handling if obj already present.(second method Can be also used as either rename existing object having a $ or any sign to differentiate)
+            new_obj=bpy.data.objects[c_col.name]
+            old=new_obj.users_collection
+            if not c_col in old:
+                c_col.objects.link(new_obj)
+            for o in old:
+                o.objects.unlink(new_obj)
+        if col==bpy.context.scene.collection :
+            pass
+        elif col== bpy.context.scene.collection:
+            pass
+        else:
+            new_obj.parent=bpy.data.objects[col.name]
+        #Make collection named object first 
+        
+        Col_traverse(c_col)
+    for obj in col.objects:
+        if not(obj.name==col.name) and not(col.name=='Master Collection'):
+            if not(obj.parent):
+                obj.parent = get_empty_obj(col.name)
+                obj.parent=bpy.data.objects[col.name]    
+        if(obj.name==col.name):
+            obj.parent=bpy.data.objects[col.name].parent
+
+
+def get_empty_obj(name):
+    cols = get_col(name)
+    obj = bpy.data.objects.new(name,None)
+    cols.objects.link(obj)
+
+    return obj
+
+def Col_retraverse(obj):
+    if obj.type=='EMPTY':
+        if not(bpy.data.collections.get(obj.name)):
+            new_col=bpy.data.collections.new(name=obj.name)
+            if not(obj.parent):
+                bpy.context.scene.collection.children.link(new_col)
+            else:
+                bpy.data.collections[obj.parent.name].children.link(new_col)
+        else:
+            new_col=bpy.data.collections.get(obj.name)
+            if obj.parent:
+                sub=[c2 for c2 in traverse_tree(bpy.context.scene.collection) if c2.user_of_id(new_col)]
+                if not(bpy.data.collections[obj.parent.name] in sub):
+                    bpy.data.collections[obj.parent.name].children.link(new_col)
+                for co in sub:
+                    if not(co==bpy.data.collections[obj.parent.name]):
+                        co.children.unlink(new_col)
+        old_col=obj.users_collection
+        if not(new_col in old_col):
+            new_col.objects.link(obj)
+        for o in old_col:
+            if not(o.name==new_col.name):
+                o.objects.unlink(obj)
+        for ob in obj.children:
+            Col_retraverse(ob)
+    else:
+        #zprint(obj.name)
+        if obj.parent:
+            old=obj.users_collection
+            new_col=bpy.data.collections[obj.parent.name]
+            if not(new_col in old):
+                new_col.objects.link(obj)
+            for o in old:
+                if not(o == new_col):
+                    o.objects.unlink(obj)
+
                             
 def sel_object(obj, suffix, s_suffix, target_col):
 
@@ -327,6 +522,8 @@ def move_mult_obj(self, all_obj, Col):
 classes = [
     OBJECT_OT_TAMT_rename,
     OBJECT_OT_TAMT_select,
+    OBJECT_OT_TAMT_COLORGANIZE,
+    OBJECT_OT_TAMT_COL_REORGANIZE,
 ]
 
 def register_classes():
