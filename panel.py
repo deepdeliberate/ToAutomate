@@ -82,7 +82,7 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         box3.operator(operators.OBJECT_OT_TAMT_COL_REORGANIZE.bl_idname, text = "Reset Collections")
 
 class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
-    """ 3D View Panel"""
+    """ Mesh Ops Panel"""
     bl_label = "Mesh Operators"
     bl_idname = "to_automate.Mesh_panel"
     bl_space_type = 'VIEW_3D'
@@ -95,7 +95,6 @@ class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
 
         layout = self.layout
         row = layout.row(align = True)
-        row.label(text = "Mesh Operations")
         main_box = layout.box()
         mods = main_box.box()
         col = main_box.column()
@@ -133,15 +132,77 @@ class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
         col.operator(operators.OBJECT_OT_TAMT_MOD_REMMATS.bl_idname, text="Del Materials")
         col.operator(operators.OBJECT_OT_TAMT_MESH_CLEANMATS.bl_idname, text = "Clean UP")
 
+    
+class TAMT_PT_UVOperators_panel(bpy.types.Panel):
+    """ UV Panel"""
+    bl_label = "UV Operators"
+    bl_idname = "to_automate.UV_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = "UI"
+    bl_category = "To Automate"
+
+    def draw(self, context):
+        tamt = context.scene.tamt
+
+        layout = self.layout
+        row = layout.row(align = True)
+        mbox = layout.box()
+        col = mbox.column()
+
+        col.label(text='UV PRE-CHECK')
+        col.operator(operators.OBJECT_OT_TAMT_UV_OFFCHECK.bl_idname, text = "UV Offset")
+        col.operator(operators.OBJECT_OT_TAMT_UV_OFFSET.bl_idname, text= "Add UV Offset")
+        col.operator(operators.OBJECT_OT_TAMT_UV_SplitCheck.bl_idname, text = "Split-Island Check")
+
+        help_box = layout.box()
+        col2 = help_box.column()
+        col2.label(text = "UV HELP MENU")
+        col2.operator(operators.OBJECT_OT_TAMT_UV_MARKSHARPSEAM.bl_idname, text = "Mark Sharp Seam")
+        col2.operator(operators.OBJECT_OT_TAMT_UV_MARKOUTERSEAM.bl_idname, text = "Mark Boundary Seam")
+
+        # UVMap Create, Rename, Delete
+        edit_box1 = layout.box()
+        col3 = edit_box1.column()
+        col3.label(text = "Create UVMap")
+        col3.prop(tamt, "uvmap_name", text = "Name")
+        col3.prop(tamt,"uvmap_mk_active", text="Make Active")
+        col3.operator(operators.OBJECT_OT_TAMT_UV_Create.bl_idname, text = "Create UVMap")
 
 
+        uv_ren_option = tamt.uvmap_ren_enum
+        edit_box2 = layout.box()
+        col4 = edit_box2.column()
+        col4.label(text = "Rename UVMap")
+        col4.prop(tamt, "uvmap_ren_enum", text = "Select")
+        if uv_ren_option == 'OP1':
+            col4.prop(tamt, "uvmap_ren_name", text = "UV Name", icon="UV")
+        elif uv_ren_option == 'OP2':
+            col4.prop(tamt, "uvmap_f_name", text ="Find", icon = "UV")
+            col4.prop(tamt, "uvmap_ren_name", text = "Replace", icon= "UV")
+            row1 = col4.row()
+            row1.prop(tamt, "uvmap_ren_create", text = "Create")
+            row1.prop(tamt,"uvmap_ren_active", text="Make Active")
+        col4.operator(operators.OBJECT_OT_TAMT_UV_Rename.bl_idname, text = "Rename UVMap")
+        
+        uv_del_option = tamt.uvmap_del_enum
+        edit_box3 = layout.box()
+        col5 = edit_box3.column()
+        col5.label(text = "Delete UVMap")
+        col5.prop(tamt, "uvmap_del_enum", text = "Delete")
+        if uv_del_option != 'OP1':
+            # Delete Active UV
+            col5.prop(tamt,"uvmap_del_name", text = "Name")
+        col5.operator(operators.OBJECT_OT_TAMT_UV_Remove.bl_idname, text = "Delete UVMap")            
 
+            
+        
 
 
 
 classes = (
     TAMTOBJECT_PT_3DView_panel,
     TAMT_PT_MeshOperators_panel,
+    TAMT_PT_UVOperators_panel,
 )
 
 def register_classes():

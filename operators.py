@@ -791,6 +791,271 @@ class OBJECT_OT_TAMT_MESH_CLEANMATS(bpy.types.Operator):
         return {'FINISHED'}
 
 
+# UV Check Offset for Array and mirror
+
+class OBJECT_OT_TAMT_UV_OFFCHECK(bpy.types.Operator):
+    bl_idname = "to_automte.atm_uvchkoffset"
+    bl_label = "Check UV Offset"
+    bl_description = "Select Objects which has no UV offset in their modifiers"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == 'OBJECT'
+    
+    def execute(self, context):
+        all_objs = [obj for obj in context.selected_objects if obj.type == 'MESH']
+
+        for obj in all_objs:
+            flag = False
+            if obj.modifiers:
+                for mod in obj.modifiers:
+                    u, v = 0,0
+                    if mod.type == 'MIRROR' or mod.type == 'ARRAY':
+                        if mod.offset_u == 0 and mod.offset_v == 0:
+                            flag = True
+                            break
+
+            if flag:
+                obj.select_set(True)
+            else:
+                obj.select_set(False)
+
+        
+        return {'FINISHED'}
+
+
+class OBJECT_OT_TAMT_UV_OFFSET(bpy.types.Operator):
+    bl_idname = "to_automte.atm_uv_addoffset"
+    bl_label = "Add UV Offset"
+    bl_description = "Add UV offset to Mirror and Array modifiers in object"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == 'OBJECT'
+    
+    def execute(self, context):
+        objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
+
+        flag = True
+
+        for obj in objects:
+            if obj.modifiers:
+                for mod in obj.modifiers:
+                    if mod.type == 'MIRROR' or mod.type == 'ARRAY':
+                        # Alternate U V offset, so that multiple mod stack has alternate u v offset
+                        if flag : 
+                            mod.offset_u = 1.0 
+                            flag = False
+                        else : 
+                            modd_offset_v = 1.0
+                            flag = True
+        
+        return {'FINISHED'}
+    
+class OBJECT_OT_TAMT_UV_SplitCheck(bpy.types.Operator):
+    bl_idname = "to_automte.atm_uv_islandcheck"
+    bl_label = "Check UV Split island"
+    bl_description = "Checks the UV islands if they are splitted"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls,context):
+        return context.mode=='EDIT_MESH'
+    
+    def execute(self,context):
+        bpy.ops.object.mode_set(mode='EDIT')
+        tolerance=0
+        bpy.ops.mesh.select_all(action='DESELECT')
+        for obj in bpy.context.selected_objects:
+            me=obj.data
+            bm=bmesh.from_edit_mesh(me)
+            uvl=bm.loops.layers.uv[me.uv_layers.active.name]
+            for face in bm.faces:
+                for loop in face.loops:
+                    neighbour_loop=loop.link_loop_radial_next
+                    if loop is neighbour_loop or loop.edge.seam:
+                        continue
+                    loop1_start_uv=loop[uvl].uv
+                    loop1_end_uv=loop.link_loop_next[uvl].uv
+                    loop2_start_uv=neighbour_loop[uvl].uv
+                    loop2_end_uv=neighbour_loop.link_loop_next[uvl].uv
+                    vert1_uv_distance=(loop1_start_uv-loop2_end_uv).length
+                    vert2_uv_distance=(loop1_end_uv-loop2_start_uv).length
+                    if vert1_uv_distance>tolerance or vert2_uv_distance>tolerance:
+                        loop.edge.select=True
+        
+        return{'FINISHED'}
+    
+class OBJECT_OT_TAMT_UV_MARKSHARPSEAM(bpy.types.Operator):
+    bl_idname="to_automte.atm_uv_marksharpseam"
+    bl_label="Mark Sharp as seams"
+    bl_description="Marks sharp edges as seams of selected mesh"  
+    bl_options={"REGISTER","UNDO"}
+    
+    @classmethod
+    def poll(cls,context):
+        if context.mode != 'EDIT_MESH':
+            return False
+        return True
+    
+    def execute(self,context):
+        for obj in context.selected_objects:
+            if obj.type == 'MESH':
+                bm = bmesh.from_edit_mesh(obj.data)
+                bm.edges.ensure_lookup_table()
+
+                mark_count = 0
+                for edge in bm.edges:
+                    if not edge.smooth:
+                        edge.seam = True
+                        mark_count += 1
+                bmesh.update_edit_mesh(obj.data)
+                bm.free()
+        
+        return {'FINISHED'}
+    
+class OBJECT_OT_TAMT_UV_MARKOUTERSEAM(bpy.types.Operator):
+    bl_idname="to_automte.atm_uv_markboundseam"
+    bl_label="Mark Boundary seams"
+    bl_description="Marks seams of the boundary of selected faces of mesh"  
+    bl_options={"REGISTER","UNDO"}
+    
+    @classmethod
+    def poll(cls,context):
+        return context.mode=='EDIT_MESH'
+    def execute(self,context):
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.region_to_loop()
+        bpy.ops.mesh.mark_seam(clear=False)
+        return {'FINISHED'}
+    
+
+
+# UV CREATE, RENAME, DELETE
+class OBJECT_OT_TAMT_UV_Create(bpy.types.Operator):
+    """ UV Create Menu"""
+    bl_idname="to_automte.atm_uv_create"
+    bl_label="Create UVMap"
+    bl_description="Create UVMap for selected objects, if exists no Change"  
+    bl_options={"REGISTER","UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.mode == 'EDIT_MESH' or context.mode == 'OBJECT')
+    
+    def execute(self, context):
+        tamt = context.scene.tamt
+
+        uv_name=tamt.uvmap_name
+        mk_active=tamt.uvmap_mk_active
+        # mk_activeRender=tamt.uvmap_mk_activerender
+
+        for obj in context.selected_objects:
+            exist = False
+            if obj.type=='MESH':
+                for uv_tex in obj.data.uv_layers:
+                    if uv_tex.name==uv_name:
+                        exist = True
+                if not(exist):
+                    obj.data.uv_layers.new(name=uv_name)
+                if mk_active:
+                    obj.data.uv_layers.active=obj.data.uv_layers[uv_name]
+                    obj.data.uv_layers[uv_name].active_render=True
+                # if mk_activeRender: 
+                #     obj.data.uv_layers[uv_name].active_render=True
+        return {'FINISHED'}    
+
+class OBJECT_OT_TAMT_UV_Rename(bpy.types.Operator):
+    """ UV Rename Menu"""
+    bl_idname="to_automte.atm_uv_rename"
+    bl_label="Rename UVMap"
+    bl_description="Rename UVMap for selected objects"  
+    bl_options={"REGISTER","UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.mode == 'EDIT_MESH' or context.mode == 'OBJECT')
+    
+    def execute(self, context):
+        tamt = context.scene.tamt
+        uv_name = tamt.uvmap_ren_name
+        option = tamt.uvmap_ren_enum
+
+        active = tamt.uvmap_ren_active
+        f_name = tamt.uvmap_f_name
+        create = tamt.uvmap_rep_name
+
+        if option =='OP1':
+            for obj in context.selected_objects:
+                exist=0
+                if obj.type=='MESH':
+                    for uv_tex in obj.data.uv_layers:   
+                        if uv_tex==obj.data.uv_layers.active:
+                            exist=1
+                            uv_tex.name=uv_name
+                    if not(exist):
+                        obj.data.uv_layers.new(name=uv_name)
+        if option =='OP2':
+            for obj in context.selected_objects:
+                exist=0
+                if obj.type=='MESH':
+                    for uv_tex in obj.data.uv_layers:
+                        if uv_tex.name==f_name:
+                            exist=1
+                            uv_tex.name=uv_name
+                            if active:
+                                obj.data.uv_layers.active=uv_tex
+                                
+                    if (not(exist) and create):
+                        obj.data.uv_layers.new(name=uv_name)
+                        if active:
+                            obj.data.uv_layers.active=uv_tex
+                            obj.data.uv_layers[uv_name].active_render=True
+        return {'FINISHED'}
+
+
+
+class OBJECT_OT_TAMT_UV_Remove(bpy.types.Operator):
+    """ UV Delete Menu"""
+    bl_idname="to_automte.atm_uv_delete"
+    bl_label="Delete UVMap"
+    bl_description="Delete UVMap for selected objects"  
+    bl_options={"REGISTER","UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == 'EDIT_MESH' or context.mode == 'OBJECT'
+    
+    def execute(self, context):
+        tamt = context.scene.tamt
+        uv_name = tamt.uvmap_del_name
+        uvr_enum = tamt.uvmap_del_enum
+
+        for obj in context.selected_objects:
+            if obj.type == 'MESH':
+                if len(obj.data.uv_layers) == 0:
+                    continue
+                uv_layer_list = list(obj.data.uv_layers)
+                if obj.data.uv_layers:
+                    for i in range(len(uv_layer_list) -1, -1, -1):
+                        uv_tex = uv_layer_list[i]
+                        if uvr_enum=='OP1':
+                            if uv_tex==obj.data.uv_layers.active:
+                                obj.data.uv_layers.remove(uv_tex)
+                        elif uvr_enum=='OP2':
+                            if uv_tex.name==uv_name:
+                                obj.data.uv_layers.remove(uv_tex)
+                        else:
+                            # Remove except this
+                            if uv_tex.name != uv_name:
+                                obj.data.uv_layers.remove(uv_tex)
+                else:
+                    self.report({'INFO'},"Some Object has no UVs at all")
+        return {'FINISHED'}
+
+
 def get_mat(mat_name = 'Base_Mat'):
     if mat_name in bpy.data.materials:
         mat = bpy.data.materials[mat_name]
@@ -1046,6 +1311,15 @@ classes = [
     OBJECT_OT_TAMT_MESH_ADDMAT,
     OBJECT_OT_TAMT_MESH_REMMATS,
     OBJECT_OT_TAMT_MESH_CLEANMATS,
+
+    OBJECT_OT_TAMT_UV_OFFCHECK,
+    OBJECT_OT_TAMT_UV_OFFSET,
+    OBJECT_OT_TAMT_UV_SplitCheck,
+    OBJECT_OT_TAMT_UV_MARKSHARPSEAM,
+    OBJECT_OT_TAMT_UV_MARKOUTERSEAM,
+    OBJECT_OT_TAMT_UV_Create,
+    OBJECT_OT_TAMT_UV_Rename,
+    OBJECT_OT_TAMT_UV_Remove,
 
 ]
 

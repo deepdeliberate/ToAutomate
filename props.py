@@ -140,6 +140,79 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         default= False
     )
 
+    # UVMap Menu
+    # Add UV Map default name to preferences?
+
+    uvmap_name: bpy.props.StringProperty(
+        name= "UVMap Name",
+        description="Name of the UVMap",
+        default='UVMap' 
+    )
+
+    uvmap_mk_active: bpy.props.BoolProperty(
+        name="Make UVMap Active",
+        description="Make UVMap as active UVMap for work",
+        default= True 
+    )
+
+    # uvmap_mk_activerender: bpy.props.BoolProperty(
+    #     name="Make UVMap Active Render",
+    #     description="Make Active UVMap as active Render",
+    #     default= True
+    # )
+
+    uvmap_del_name: bpy.props.StringProperty(
+        name = "UV Name",
+        description= "New UVMap Name",
+        default="UVMap"
+    )
+
+    uvmap_del_enum: bpy.props.EnumProperty(
+        name = "Delete Method",
+        description="Select method to delete UVs",
+        items=[('OP1',"Active UV","Removes the active UV from UV stack"),
+                ('OP2',"UV named","Remove UV with specific Name"),
+                ('OP3',"Except Name", "Remove all UVs except the one named above")],
+    )
+
+    uvmap_ren_name: bpy.props.StringProperty(
+        name = "UV Name",
+        description= "UVMap Name",
+        default="UVMap"
+    )
+
+    uvmap_ren_enum: bpy.props.EnumProperty(
+        name = "Rename Method",
+        description="Select method to delete UVs",
+        items=[('OP1',"Rename Active","Renames the active UV of the object"),
+                ('OP2',"Find & Rename","Search and Renames the UV")],
+    )
+    
+    uvmap_ren_active: bpy.props.BoolProperty(
+        name="Make Active",
+        description = "Rename and Make active",
+        default = True
+    )
+
+    uvmap_f_name: bpy.props.StringProperty(
+        name= "Find UVMap named as",
+        description="Find the UVMap of given name",
+        default='UV_0'
+    )
+
+    uvmap_rep_name: bpy.props.StringProperty(
+        name = "Replacement Name",
+        description= "Replace the Found UV with this name",
+        default = 'UVMap'
+    )
+
+    uvmap_ren_create: bpy.props.BoolProperty(
+        name="Create UV",
+        description = "Create if not found?",
+        default = True
+    )
+
+
 
 classes = (
     TAMT_Addon_Props,
