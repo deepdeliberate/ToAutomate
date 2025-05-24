@@ -1,5 +1,6 @@
 
 import bpy
+import bmesh
 
 from . import props
 
@@ -616,7 +617,7 @@ class OBJECT_OT_TAMT_MESH_ADDMAT(bpy.types.Operator):
             return False
         if obj.type != 'MESH' and obj.type != 'CURVE':
             return False
-        if context.mode != "OBJECT":
+        if context.mode not in {'OBJECT', 'EDIT_MESH'}:
             return False 
         return True
         
@@ -627,28 +628,69 @@ class OBJECT_OT_TAMT_MESH_ADDMAT(bpy.types.Operator):
         mat = tamt.base_mat
         apply_mat = tamt.apply_mat
         remove_old = tamt.rem_old_mat
-        
-        if len(context.selected_objects) < 1:
-            self.report({'ERROR'}, "Please select some objects")
-            return {'CANCELLED'}
-        
+
+        is_in_edit_mode = (context.object.mode == 'EDIT' ) 
+
+        all_objs = [obj for obj in context.selected_objects]
+
         if mat:
             mat_name = mat.name
-        elif len(self.mat_name) > 1:
+        elif len(self.mat_name.strip()) > 1:
             mat_name = self.mat_name
         else:
-            self.report({'ERROR'}, "Please select some objects")
+            self.report({'ERROR'}, "Empty Name won't work")
             return {'CANCELLED'}
-
-        all_objs = context.selected_objects
-        for obj in all_objs:
-            if remove_old:
-                rem_mat(obj)
-            if obj.type == 'MESH' or obj.type == 'CURVE':
-                add_mat(obj, mat, apply_mat, mat_name)
-
+        
         if not mat:
-            tamt.base_mat = get_mat(mat_name)
+            mat = get_mat(self.mat_name)
+            tamt.base_mat = mat
+
+        if is_in_edit_mode:
+            for obj in all_objs:
+                if obj.type != 'MESH':
+                    continue
+
+                mat_index = -1
+                for i, slot in enumerate(obj.data.materials):
+                    if slot == mat:
+                        mat_index = i
+                        break
+                
+                if mat_index == -1:
+                    # Add material to the object
+                    obj.data.materials.append(mat)
+                    mat_index = len(obj.data.materials) - 1
+                
+
+                
+                mesh = obj.data
+                bm = bmesh.from_edit_mesh(mesh)
+                bm.verts.ensure_lookup_table()
+                bm.edges.ensure_lookup_table()
+                bm.faces.ensure_lookup_table()
+
+                face_indices = []
+                for face in bm.faces:
+                    if face.select:
+                        for loop in face.loops:
+                            face_indices.append(face.index)
+
+                bm.free()
+                bpy.ops.object.mode_set(mode = 'OBJECT')
+
+                for id in face_indices:
+                    if id >= 0 and id < len(obj.data.polygons):
+                        obj.data.polygons[id].material_index = mat_index
+                bpy.ops.object.mode_set(mode = 'EDIT')
+                
+
+        else:
+            for obj in all_objs:
+                if remove_old:
+                    rem_mat(obj)
+                if obj.type == 'MESH' or obj.type == 'CURVE':
+                    add_mat(obj, mat, apply_mat, mat_name)
+
             
         return {'FINISHED'}
     
