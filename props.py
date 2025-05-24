@@ -99,7 +99,33 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         description="If enabled, deletes the parent empties",
         default=True)    
 
-
+    # --------- Modifier Menu -------------------
+    shift_uv: bpy.props.BoolProperty(
+        name="SHIFT UVs",
+        description="Shift mirror part's UV along x to 1",
+        default=True)
+    
+    shift_uvu: bpy.props.BoolProperty(
+        name="SHIFT U",
+        description="Shift mirror part's UV along x to 1",
+        default=True)
+    
+    shift_uvv: bpy.props.BoolProperty(
+        name="SHIFT V",
+        description="Shift mirror part's UV along y to 1",
+        default=False)
+    
+    sym_obj_name: bpy.props.StringProperty(
+        name="Sym Object",
+        description="Name for the symmetry Empty object",
+        default="All_sym") 
+    
+    NewMod: bpy.props.BoolProperty(
+        name="Create Modifier",
+        description="Create new modifier even if already in the selected_objects, Only Mirror and Array ",
+        default=True)
+    
+    
 
 
 classes = (

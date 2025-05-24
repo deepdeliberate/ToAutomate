@@ -3,10 +3,10 @@ import bpy
 from . import operators
 from bpy.props import IntProperty, BoolProperty, StringProperty
 
-class OBJECT_PT_3DView_panel(bpy.types.Panel):
+class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
     """ 3D View Panel"""
     bl_label = "To Automate Panel"
-    bl_idname = "to_automate_3D_panel"
+    bl_idname = "to_automate.3D_panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
     bl_category = "To Automate"
@@ -81,12 +81,61 @@ class OBJECT_PT_3DView_panel(bpy.types.Panel):
         box3.prop(tamt,"del_emp", text="Delete Empties?")
         box3.operator(operators.OBJECT_OT_TAMT_COL_REORGANIZE.bl_idname, text = "Reset Collections")
 
+class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
+    """ 3D View Panel"""
+    bl_label = "Mesh Operators"
+    bl_idname = "to_automate.Mesh_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = "UI"
+    bl_category = "To Automate"
+    # bl_parent_id = "to_automate.3D_panel"
+
+    def draw(self, context):
+        tamt = context.scene.tamt
+
+        layout = self.layout
+        row = layout.row(align = True)
+        row.label(text = "Mesh Operations")
+        main_box = layout.box()
+        mods = main_box.box()
+        col = main_box.column()
+
+        mods.label(text='Add Modifiers')
+        mods.prop(tamt, "NewMod", text = "CREATE New")
+
+        mods.prop(tamt, "sym_obj_name", text = "Mir Obj")
+
+        row = col.row()
+        col1 = row.column()
+        col1.operator(operators.OBJECT_OT_TAMT_MOD_TRIANGULATE.bl_idname, text="TRIANGULATE", icon="MOD_TRIANGULATE")
+        col1.operator(operators.OBJECT_OT_TAMT_MOD_MIRROR.bl_idname, text = "MIRROR", icon="MOD_MIRROR")
+        col1.operator(operators.OBJECT_OT_TAMT_MOD_ARRAY.bl_idname, text = "Dynamic Array", icon="MOD_ARRAY")
+        col1.operator(operators.OBJECT_OT_TAMT_MOD_WGHTNRM.bl_idname, text = "Weighted Normal", icon="MOD_NORMALEDIT")
+
+        col1.prop(tamt, "shift_uv", text="SHIFT UV", icon="BLANK1")
+
+        row1 = col.column()
+        row2 = row1.row()
+        if tamt.shift_uv:
+            row2.prop(tamt,"shift_uvu", text="U")
+            row2.prop(tamt,"shift_uvv", text="V")
 
 
+
+
+
+
+
+classes = (
+    TAMTOBJECT_PT_3DView_panel,
+    TAMT_PT_MeshOperators_panel,
+)
 
 def register_classes():
-    bpy.utils.register_class(OBJECT_PT_3DView_panel)
+    for cls in classes:
+        bpy.utils.register_class(cls)
 
 def unregister_classes():
-    bpy.utils.unregister_class(OBJECT_PT_3DView_panel)
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
 

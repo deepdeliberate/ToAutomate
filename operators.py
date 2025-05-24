@@ -384,12 +384,293 @@ class OBJECT_OT_TAMT_COL_REORGANIZE(bpy.types.Operator):
 
 # function to select the object if found in a collection
 
+
+class OBJECT_OT_TAMT_MOD_MIRROR(bpy.types.Operator):
+    bl_idname = "to_automte.atm_mirror"
+    bl_label = "Add Mirror"
+    bl_description = "Add Mirror Modifier to all selected objects"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    mirror_axis: bpy.props.BoolVectorProperty(name = "Mirror Axis",
+                                                default=(True, False, False),
+                                                subtype= 'XYZ',
+                                                )
+    
+    all_sym: bpy.props.BoolProperty(name="Global Sym", default= True                                
+                                    )
+    
+    create_new : bpy.props.BoolProperty(name="Create New", default= False,
+                                        description="Create New modifier even if existed"                                
+                                    )
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == "OBJECT"
+
+    def invoke(self, context, event):
+        wm = context.window_manager
+        wm.invoke_props_dialog(self)
+
+        return {'RUNNING_MODAL'}
+    
+    def execute(self, context):
+        tamt = context.scene.tamt
+
+        shift_uv = tamt.shift_uv
+        newmod = tamt.NewMod
+        shift_u = tamt.shift_uvu
+        shift_v = tamt.shift_uvv
+
+        for obj in context.selected_objects:
+            exist = False
+            if obj.modifiers:
+                for mod in obj.modifiers:
+                    if mod.type == 'MIRROR':
+                        exist = True
+                
+            if exist and not newmod :
+                continue
+            else:
+                # Create new modifier
+                mod = obj.modifiers.new(name = 'My_Mirror', type = 'MIRROR')
+                if self.all_sym:
+                    sym_obj = Global_Sym()
+                    mod.mirror_object = sym_obj
+
+                mod.use_axis[0] = self.mirror_axis[0]
+                mod.use_axis[1] = self.mirror_axis[1]
+                mod.use_axis[2] = self.mirror_axis[2]
+
+                if shift_uv:
+                    if shift_u:
+                        mod.offset_u = 1.0
+                    if shift_v:
+                        mod.offset_v = 1.0
+                            
+        return {'FINISHED'}
+    
+
+class OBJECT_OT_TAMT_MOD_TRIANGULATE(bpy.types.Operator):
+    bl_idname = "to_automte.atm_triangulate"
+    bl_label = "Add Triangulate"
+    bl_description = "Add Triangulate Modifier to all selected objects"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == "OBJECT"
+    
+    def execute(self, context):
+        tamt = context.scene.tamt
+
+        newmod = tamt.NewMod
+
+        for obj in context.selected_objects:
+            n=0
+            exist=False
+            if obj.modifiers:
+                for i,modifier in enumerate(obj.modifiers):
+                    n+=1
+                    if modifier.type=="TRIANGULATE":
+                        exist=True
+                        modifier.keep_custom_normals = True
+                        m_name=modifier.name
+                        obj.modifiers.remove(modifier)
+                        
+                        add_triangulate(obj,"Triangulate" )
+                        break
+                            #modify=obj.modifiers.new(name=m_name,type='TRIANGULATE')
+                            
+                        if enum=='OP2':
+                            pass       
+                if not exist:
+                    if newmod:
+                        add_triangulate(obj, "Triangulate")
+            else:
+                if newmod:
+                    add_triangulate(obj, "Triangulate")
+        return {'FINISHED'}
+
+class OBJECT_OT_TAMT_MOD_ARRAY(bpy.types.Operator):
+    bl_idname = "to_automte.atm_array"
+    bl_label = "Add Dynamic Array"
+    bl_description = "Dynamic Array makes active object have it's array as difference of position compared to second object"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    Mod_Mir_Axes: bpy.props.BoolVectorProperty(name = "Array Axis",
+                                            default=(True, False, False),
+                                            subtype='XYZ',
+                                            )
+    
+    create_new : bpy.props.BoolProperty(name="Create New", default= False,
+                                        description="Create New modifier even if existed"                                
+                                    )
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == "OBJECT"
+    
+    def invoke(self, context, event):
+        wm = context.window_manager
+        wm.invoke_props_dialog(self)
+
+        return {'RUNNING_MODAL'}
+    
+    def execute(self, context):
+        tamt = context.scene.tamt
+
+        shift_uv = tamt.shift_uv
+        shift_u = tamt.shift_uvu
+        shift_v = tamt.shift_uvv
+
+        Mod_loc_X = self.Mod_Mir_Axes[0]
+        Mod_loc_Y = self.Mod_Mir_Axes[1]
+        Mod_loc_Z = self.Mod_Mir_Axes[2]
+
+        val_UV_X = 1.0
+        val_UV_Y = 1.0
+
+        if not shift_u :
+            val_UV_X = 0.0
+        if not shift_v :
+            val_UV_Y = 0.0
+
+        if not context.active_object:
+           self.report({'ERROR'}, "No active object")
+           return {'CANCELLED'}
+        if len(context.selected_objects) != 2:
+           self.report({'ERROR'}, "You must select two objects")
+           return {'CANCELLED'}
+        
+        s_obj = bpy.context.active_object
+        mod = None
+        if s_obj.modifiers:
+            for m in obj.modifiers:
+                if m.type == 'ARRAY' and m.name == 'D_Array':
+                    mod = m
+                    break
+        if not mod or self.create_new:        
+            mod = s_obj.modifiers.new(name="D_Array",type='ARRAY')
+
+        mod.use_relative_offset = False
+
+        mod.use_constant_offset = True
+        C_Loc = [ Mod_loc_X, Mod_loc_Y , Mod_loc_Z ]
+
+        for obj in bpy.context.selected_objects:
+            if (obj != s_obj ):
+                for i in range(0,3):
+                    if C_Loc[i]:
+                        mod.constant_offset_displace[i] = obj.location[i] - s_obj.location[i]
+                if shift_uv:
+                    mod.offset_u = val_UV_X
+                    mod.offset_v = val_UV_Y
+        
+        return {'FINISHED'}
+    
+
+class OBJECT_OT_TAMT_MOD_WGHTNRM(bpy.types.Operator):
+    bl_idname = "to_automte.atm_wght_normal"
+    bl_label = "Add Weighted Normal"
+    bl_description = "Add Weighted Normal Modifier to all selected objects"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == "OBJECT"
+    
+    def execute(self, context):
+        if len (context.selected_objects) < 1:
+            self.report({'WARNING'}, "Please select at least one object")
+            return {'CANCELLED'}
+        
+        for obj in context.selected_objects:
+            a = False
+            for mod in obj.modifiers:
+                if mod.type == 'WEIGHTED_NORMAL':
+                    a = True
+                    mod.keep_sharp = True
+            if not a:
+                #Means we need to add the modifier 
+                mod = obj.modifiers.new(name = 'WeightedNormal', type = 'WEIGHTED_NORMAL')    
+                mod.keep_sharp = True
+        
+        return {'FINISHED'}       
+
+def add_triangulate(obj , tri_name = "Export_Triangulate_T" ):
+    print('I triangulate')
+    
+    if obj.type=='MESH':
+        if obj.modifiers:
+            index_tri = -1
+            index_wt = -1
+            for i,mod in enumerate(obj.modifiers):
+#                if mod.type == 'WEIGHTED_NORMAL':
+#                    index_wt = i
+                if mod.type == 'TRIANGULATE':
+                    index_tri = i
+                    mod.keep_custom_normals = True
+            
+            if index_tri != -1 and index_wt != -1:
+                # Triangle exists
+                if index_wt > index_tri :
+                    # Trianle is at right location, no need to move
+                    pass
+                else:
+                    #move_above( obj , index_tri, index_wt)
+                    bpy.ops.object.modifier_move_to_index({'object':obj},modifier=obj.modifiers[index_tri].name, index=index_wt)
+                    modify.keep_custom_normals = True
+            elif index_wt != -1:
+                # add triangle above the index_wt
+                modify=obj.modifiers.new(name=tri_name,type='TRIANGULATE')
+                
+                bpy.ops.object.modifier_move_to_index({'object':obj}, modifier=modify.name, index=index_wt)
+                modify.keep_custom_normals = True
+            
+            elif index_tri == -1:
+                # just add triangulate
+                modify=obj.modifiers.new(name=tri_name,type='TRIANGULATE')
+                modify.keep_custom_normals = True
+        else:
+            modify=obj.modifiers.new(name=tri_name,type='TRIANGULATE')
+            modify.keep_custom_normals = True
+    return obj
+
+
+def rem_triangulate(obj , tri_name = "Export_Triangulate_T"):
+    if obj.type=='MESH':
+        i = 0
+        for modify in obj.modifiers:
+            if modify.name==tri_name:
+                if i != len(obj.modifiers)-1:
+                    if obj.modifiers[i+1].type == 'WEIGHTED_NORMAL':
+                        # Triangulate for Weighted normal
+                        modify.name = "Triangulate"
+                    else:
+                        obj.modifiers.remove(modify)
+                else:
+                    obj.modifiers.remove(modify)
+                    
+            i += 1
+    return obj
+
+def Global_Sym():
+    name = bpy.context.scene.sym_obj_name  
+    if not(bpy.data.objects.get(name)):
+        o=bpy.data.objects.new(name,None)
+        bpy.context.scene.collection.objects.link(o)
+    else:
+        o=bpy.data.objects[name]
+    
+    o.empty_display_size=1
+    o.empty_display_type='PLAIN_AXES'
+    return o
+
 def traverse_tree(col):
     yield col
     for col2 in col.children:
         yield from traverse_tree(col2)    
         
-
 
 def Col_traverse(col):
     for c_col in col.children:
@@ -524,6 +805,12 @@ classes = [
     OBJECT_OT_TAMT_select,
     OBJECT_OT_TAMT_COLORGANIZE,
     OBJECT_OT_TAMT_COL_REORGANIZE,
+
+    OBJECT_OT_TAMT_MOD_MIRROR,
+    OBJECT_OT_TAMT_MOD_TRIANGULATE,
+    OBJECT_OT_TAMT_MOD_ARRAY,
+    OBJECT_OT_TAMT_MOD_WGHTNRM,
+
 ]
 
 def register_classes():
