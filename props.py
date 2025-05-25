@@ -1,6 +1,129 @@
 import bpy
 
+from . import operators
 from bpy.props import PointerProperty
+
+
+
+class CollectionItem(bpy.types.PropertyGroup):
+    collection: bpy.props.PointerProperty(
+        name = "Collection",
+        type = bpy.types.Collection,
+    )
+
+class exportPresetActive(bpy.types.PropertyGroup):
+    selected_preset: bpy.props.EnumProperty(name = "Select Preset", items =  operators.update_presets )
+
+
+class exportProperties(bpy.types.PropertyGroup):
+
+    name: bpy.props.StringProperty(name="Preset Name")
+
+    exp_nameMethod: bpy.props.EnumProperty(
+        name="Choose Naming Method",
+        description="Select how the export file should be named",
+        items=[('OP1',"Project file name","Uses the name of blend file saved and it automatically adds corresponding suffix"),
+                ('OP2',"Custom Name","Set a custom name and it automatically adds corresponding suffix")])
+    
+    exp_name: bpy.props.StringProperty(
+        name="File name",
+        description="Set the file name for the Exports",
+        default="My_Export")
+    
+    exp_meshPath: bpy.props.StringProperty(
+        name="Config Path",
+        update= operators.update_mesh_path,
+        description="Define the root path of the Export file",
+        default="",
+        subtype="DIR_PATH",
+        )
+    
+    exp_inDirectory: bpy.props.BoolProperty(
+        name="Save in same folder as .blend",
+        description="Uses the same directory as of the .blend file",
+        default=False)
+    
+    exp_meshSource: bpy.props.EnumProperty(
+        name="Export Source",
+        description="Select Export Method",
+        items=[('OP1',"Export_Collection Objects","Export Specific Collection, Include or Exclude Collections to Export"),
+                ('OP2',"Export Selected Objects","Exports the selected objects only!")])
+    
+    exp_format : bpy.props.EnumProperty(
+        name="Export File Type",
+        description="Select File Extensions",
+        items=[('OP1',"FBX Export","Exports the file as Project.fbx"),
+                ('OP2',"OBJ Export","Export the file as Project.obj")])
+    
+    exp_editPresetDetails: bpy.props.BoolProperty(
+        name = "Edit Preset",
+        description="Edit Properties of Preset.",
+        default= False,
+    )
+    
+    exp_openSubstance: bpy.props.BoolProperty(
+        name = "Open Substance Painter",
+        description="Open Substance Painter with the new exported mesh",
+        default= False,
+    )
+
+    exp_separateSppName: bpy.props.BoolProperty(
+        name="Different name for Spp file",
+        description="Select to have different name for spp file than the export file",
+        default= False,
+    )
+
+    exp_sppName: bpy.props.StringProperty(
+        name="Spp File Name",
+        description="Add Name for the Substance file to save as",
+        default="")
+
+    exp_sppPath: bpy.props.StringProperty(
+        name="Spp file Path",
+        update= operators.update_spp_path,
+        description="Add location for the project.spp file to save in.",
+        default="",
+        subtype="DIR_PATH")
+    
+    exp_sppTexPath: bpy.props.StringProperty(
+        name="Textures file Path",
+        update= operators.update_sppTex_path,
+        description="Add location for the Spp textures export files.",
+        default="",
+        subtype="DIR_PATH")
+    
+    exp_targetKeyframe: bpy.props.IntProperty(
+        name= "Set Export at Frame",
+        description="Select the keyframe at which to export object",
+        default= 0,
+    )
+
+    
+    inc_collections: bpy.props.CollectionProperty(type= CollectionItem)
+    inc_collections_index: bpy.props.IntProperty(name = "Collections Index", default= -1)
+
+    exc_collections: bpy.props.CollectionProperty(type= CollectionItem)
+    exc_collections_index: bpy.props.IntProperty(name = "Collections Index", default= -1)
+
+
+    collections_expanded: bpy.props.BoolProperty(name="Collections Expanded",description= "Edit Collections to Include or Exclude" ,default=True)
+
+    collection_type: bpy.props.EnumProperty(
+        name = "Collection Type",
+        items=[
+            ('INC_COLLECTIONS', "Include Collection", "Select Collections to Include"),
+            ('EXC_COLLECTIONS', "Exclude Collection", "Select Collections to Exclude")
+        ],
+        default= 'INC_COLLECTIONS'
+    )
+
+
+
+class exportCollection(bpy.types.PropertyGroup):
+    presets: bpy.props.CollectionProperty(type = exportProperties)
+
+
+
 
 class TAMT_Addon_Props(bpy.types.PropertyGroup):
     """ Class to define all the properties of the addon"""
@@ -212,9 +335,18 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         default = True
     )
 
+    # Export Menu
+
+    export_collection: bpy.props.PointerProperty(type = exportCollection)
+    export_presets: bpy.props.PointerProperty(type = exportPresetActive)
+
 
 
 classes = (
+    CollectionItem,
+    exportPresetActive,
+    exportProperties,
+    exportCollection,
     TAMT_Addon_Props,
 )
 

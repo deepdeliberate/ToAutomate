@@ -1,8 +1,11 @@
 
 import bpy
 import bmesh
+import os
+import subprocess
 
 from . import props
+from pathlib import Path
 
 class OBJECT_OT_TAMT_rename(bpy.types.Operator):
     """ Rename the active object and make the selected object counter suffix"""
@@ -1054,7 +1057,494 @@ class OBJECT_OT_TAMT_UV_Remove(bpy.types.Operator):
                 else:
                     self.report({'INFO'},"Some Object has no UVs at all")
         return {'FINISHED'}
+    
 
+# Export Presets Menu ----------------------------------
+
+class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
+    """Export Collections With Presets"""
+    bl_idname="to_automte.atm_exportcol"
+    bl_label="Export Collections"
+    bl_description="Export Collections"  
+    bl_options={"REGISTER","UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == 'OBJECT'
+    
+    def execute(self, context):
+        tamt = context.scene.tamt
+        suffix_LP = tamt.low_suffix
+        suffix_HP = tamt.high_suffix
+
+        if len(tamt.export_collection.presets) == 0:
+            self.report({'INFO'}, "Please add a Preset in order to Setup Export Settings")
+            return {'CANCELLED'}
+    
+        preset_index = int( tamt.export_presets.selected_preset)
+        preset = tamt.export_collection.presets[preset_index]
+
+        exp_saveInMain = preset.exp_inDirectory #Bool
+        exp_name = preset.exp_name
+        exp_nameMethod = preset.exp_nameMethod
+        exp_meshSource = preset.exp_meshSource
+        exp_format = preset.exp_format
+        exp_meshPath = preset.exp_meshPath
+
+        exp_openSubstance = preset.exp_openSubstance
+
+        exp_sepSppName = preset.exp_separateSppName
+        exp_sppName = preset.exp_sppName
+        exp_sppPath = preset.exp_sppPath
+        exp_sppTexPath = preset.exp_sppTexPath
+
+        exp_targetKeyframe = preset.exp_targetKeyframe
+        save_keyFrame = bpy.context.scene.frame_current
+
+        preferences = get_preferences(context)
+        painter_path = preferences["painter_path"]
+
+        sppFileName = "My_substance"
+
+        avoid_suffix_check = False
+
+        final_objects = []
+
+
+
+        if exp_meshSource == 'OP1':
+            inc_collections = preset.inc_collections
+            exc_collections = preset.exc_collections
+
+            Inc_Coll = [ c.collection for c in inc_collections ]
+            Exc_Coll = [ c.collection for c in exc_collections]
+                
+            if len(Inc_Coll) == 0:
+                self.report({'ERROR'}, "No Collection selected for export")
+                return {'CANCELLED'}
+
+            # Set for checking duplicates
+
+            # Only exclude if they are found in the traversal of Inc_Coll:
+            # Exclude fully, so don't traverse Exc_coll's childrens either
+
+            final_cols = []
+            for col in Inc_Coll:
+                cur_cols = []
+                cur_cols = [c for c in (exp_Col_traverse( col , Exc_Coll)) ]
+                final_cols += cur_cols
+
+            
+            #  Final Collections contains all needed collections
+
+            if len(final_cols) == 0:
+                self.report({'ERROR'}, "Object Count from Collections is 0")
+                return {'CANCELLED'}
+            
+            for col in final_cols:
+                for obj in col.objects:
+                    final_objects.append(obj)
+
+        elif exp_meshSource == 'OP2':
+            # Selected Objects
+            for obj in bpy.context.selected_objects:
+                final_objects.append(obj)
+
+        else:
+            # Write Code for LP and HP Objects
+            all_low_cols = [col for col in exp_Col_traverse(col, []) ]
+            all_high_cols = [col for col in exp_Col_traverse(col, []) ]
+
+            low_objects = []
+            for obj in low_objects:
+                if obj.name.endswith(suffix_LP) or avoid_suffix_check :
+                    low_objects.append(obj)
+            
+            high_objects = []
+            for obj in low_objects:
+                if obj.name.endswith(suffix_HP) or avoid_suffix_check:
+                    high_objects.append(obj)
+
+            final_objects = low_objects + high_objects
+
+        # final_objects contains all desired mesh so far
+
+        export_final_name = 'ABC'
+        # Name Algorithm ----------------------------
+
+        if exp_nameMethod == 'OP1':
+            # Project File Name
+            # Project File save check
+            if not(bpy.path.basename(bpy.context.blend_data.filepath)):
+                self.report({'ERROR'}, "Please Save your project file first")
+                return {'CANCELLED'}
+            
+            #Blend File name
+            export_final_name = bpy.path.basename(bpy.context.blend_data.filepath).replace(".blend","")
+
+        elif exp_nameMethod == 'OP2':
+            # Custom name
+            # make sure it ain't empty
+            if len(exp_name.replace(" ","")) > 0:
+                export_final_name = exp_name
+            else:
+                self.report({'ERROR'}, "Please create non-empty name")
+                return {'CANCELLED'}
+        
+        
+        
+        
+        # Export location path
+
+        mesh_export_path = bpy.path.abspath('//')
+
+        if exp_saveInMain:
+            # save in base directory
+            if not(bpy.path.basename(bpy.context.blend_data.filepath)):
+                self.report({'ERROR'}, "Please Save your project file first")
+                return {'CANCELLED'}
+            
+            mesh_export_path = bpy.path.abspath('//')
+        
+        else:
+            # Save in the desired location
+            if len(exp_meshPath.replace(" ", "")) == 0:
+                self.report({'ERROR'}, "Please make sure the save path isn't empty")
+                return {'CANCELLED'}
+
+            mesh_export_path = exp_meshPath
+
+
+        if len(final_objects) == 0:
+            self.report({'ERROR'}, "Final Export Object count is 0")
+            return {'CANCELLED'}
+
+        # Export File Format
+        export_ext = '.fbx'
+        exp_fbx = ''
+
+        abc = ""
+        if mesh_export_path.startswith('//'):
+            mesh_export_path = str(bpy.path.abspath(mesh_export_path+"{}.{}".format(export_final_name,export_ext)))
+
+        # Updating the keyframe to desired Keyframe for the preset
+        bpy.context.scene.frame_current = exp_targetKeyframe
+
+        if exp_format == 'OP1' or exp_format == 'OP2':
+            export_ext = '.fbx'
+            export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
+
+            exp_fbx = export_Path
+
+            with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
+                bpy.ops.export_scene.fbx(
+                use_selection= True,
+                mesh_smooth_type='EDGE',
+                use_mesh_modifiers= True,
+                add_leaf_bones= False,
+                use_triangles= True,
+                apply_scale_options= 'FBX_SCALE_ALL',
+                bake_anim= False,
+                bake_anim_use_nla_strips= False,
+                bake_space_transform= True,
+                filepath = str(export_Path),
+                )
+        
+
+        # Updating the current frame to original location
+        bpy.context.scene.frame_current = save_keyFrame
+
+        # Open Substance Algorithm
+
+        #  Accurate name for the Substance file
+        if exp_sepSppName :
+            if len(exp_sppName.replace(" ","")) > 0:
+                sppFileNameWithExt = exp_sppName + '.spp'
+            else:
+                self.report({'ERROR'}, "Please create non-empty name")
+                return {'CANCELLED'}
+            # sppFileNameWithExt = exp_sppName + '.spp'
+
+        else:
+            sppFileNameWithExt = export_final_name + '.spp'
+
+
+        exp_sppPath = Path(exp_sppPath).joinpath(sppFileNameWithExt)
+        exp_sppTexPath = Path(exp_sppTexPath)
+
+        if exp_openSubstance:
+            if painter_path == '':
+                self.report({'ERROR'}, 'Please specify Substance Painter path in addon preferences')
+                return {'CANCELLED'}
+
+            if not Path(painter_path).exists:
+                self.report({'ERROR'}, "Substance Painter path is not valid. Please set the correct path to Substance Painter in addon Preferences")
+                return {'CANCELLED'}
+            
+            if os.name == 'posix' and painter_path.endswith('.app'):
+                painter_path = painter_path + '/Contents/MacOS/Adobe Substance 3D Painter'
+            
+            if os.path.isdir(painter_path):
+                self.report({'ERROR'}, 'Substance Painter is set to a directory. Please set it to the executable file')
+                return {'CANCELLED'}
+            
+            if exp_sppTexPath == '':
+                self.report({'INFO'}, f'Substance textures did not have correct path set, using same path as {export_final_name}.spp')
+                exp_sppTexPath = exp_sppPath
+            
+            
+            open_substance_only = False
+
+            try: 
+                if not open_substance_only:
+                    if os.name == 'nt':
+                        subprocess.Popen([painter_path, '--mesh',exp_fbx , '--export-path', exp_sppTexPath , exp_sppPath] )
+                    else:
+                        subprocess.Popen(f'"{painter_path}" --mesh "{exp_fbx}" --export-path "{exp_sppTexPath}" "{exp_sppPath}"', shell= True)
+                else:
+                    if os.name == 'nt':
+                        subprocess.Popen([painter_path, '--export-path', exp_sppTexPath, exp_sppPath])
+                    else :
+                        subprocess.Popen(f'"{painter_path}" --export-path "{exp_sppTexPath}" "{exp_sppPath}"', shell= True)
+            except Exception as e:
+                self.report({'ERROR'}, f'Error opening Substance Painter: {e}')
+                return {'FINISHED'}
+        
+        self.report({'INFO'},"FINISHED EXPORTING")
+        return {'FINISHED'}
+
+
+class OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET(bpy.types.Operator):
+    """Create Collection Export Preset"""
+    bl_idname="to_automte.atmt_exportcol_crtpreset"
+    bl_label="Create New Preset"
+    bl_description="Add a new Preset for Specific Export System"  
+    bl_options={"REGISTER","UNDO"}
+
+    def execute(self, context):
+        tamt = context.scene.tamt
+        collection = tamt.export_collection
+        new_preset = collection.presets.add()
+
+        new_preset.name = f"Preset {len(collection.presets)}"
+        new_preset.exp_nameMethod = 'OP1'
+        new_preset.exp_name = "My_mesh"
+        new_preset.exp_conf_path = ""
+        new_preset.exp_f_path = False
+        new_preset.exp_meshSource = 'OP1'
+        new_preset.exp_format = 'OP1'
+        new_preset.exp_openSubstance = False
+
+        #Update the enum property items
+        tamt.export_presets.selected_preset = str(len(tamt.export_collection.presets) - 1)
+        return  {'FINISHED'}
+    
+
+class OBJECT_OT_TAMT_EXPORTCOL_REMPRESET(bpy.types.Operator):
+    bl_idname="to_automte.atmt_exportcol_rempreset"
+    bl_label = "Delete Current Preset"
+    bl_description = "Delete the current Preset"
+
+    confirmed: bpy.props.BoolProperty(default = True)
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Delete the Active Preset?")
+
+    def execute(self, context):
+
+        if self.confirmed:
+            tamt = context.scene.tamt
+            preset_collection = tamt.export_collection
+
+            if len(preset_collection.presets) == 0:
+                self.report({'INFO'}, "No Presets to Delete")
+                return {'CANCELLED'}  
+            
+            preset_index = int(tamt.export_presets.selected_preset)
+
+            name = preset_collection.presets[preset_index].name
+            preset_collection.presets.remove(preset_index)
+
+            # Update the selected preset index
+            if len(preset_collection.presets) > 0:
+                tamt.export_presets.selected_preset = str(min( preset_index, len(preset_collection.presets) - 1))
+            else :
+                tamt.export_presets.selected_preset = '0'
+
+            self.report({'INFO'}, f"Deleted Preset: {name}")
+            return {'FINISHED'}
+        
+        self.report({'INFO'}, "Operator Cancelled")
+        return {'CANCELLED'}
+
+    
+class OBJECT_OT_TAMT_EXPORTCOL_ADDCOL(bpy.types.Operator):
+    bl_idname="to_automte.atmt_exportcol_addcol"
+    bl_label = "Add Collection"
+    bl_description = "Add Collection to Include/Exclude it's object and children collection for Export"
+
+    def execute(self, context):
+        tamt = context.scene.tamt
+        preset_index = int(tamt.export_presets.selected_preset)
+        preset = tamt.export_collection.presets[preset_index]
+
+        active_collection = context.collection
+        collection_group = preset.inc_collections if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections
+        if active_collection:
+            # Check if the collection is already in th preset's collections
+
+            already_present = False
+            for item in collection_group:
+                if item.collection == active_collection:
+                    already_present = True
+                    break
+            
+            if already_present:
+                self.report({'WARNING'}, "Collection is already added")
+                return {'CANCELLED'}
+                    
+            
+        if preset.collection_type == 'INC_COLLECTIONS':
+            item = preset.inc_collections.add()
+        else:
+            item = preset.exc_collections.add()
+
+        item.collection = active_collection
+        
+        return {'FINISHED'}
+    
+class OBJECT_OT_TAMT_EXPORTCOL_REMCOL(bpy.types.Operator):
+    bl_idname = "renamer.export_remove_collection"
+    bl_label = "Remove Collection"
+    bl_description = "Remove this collection from the group"
+
+    index: bpy.props.IntProperty()
+
+    def execute(self, context):
+        tamt = context.scene.tamt
+
+        preset_index = int(tamt.export_presets.selected_preset)
+        preset = tamt.export_collection.presets[preset_index]
+
+        collection_group = preset.inc_collections if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections
+        collection_group.remove(self.index)
+        return {'FINISHED'}
+
+def exp_Col_traverse(Col , Exclude):
+    # Call out the childrens
+    if Col not in Exclude:
+        yield Col
+        for c in Col.children:
+            yield from exp_Col_traverse(c, Exclude)
+
+
+def update_mesh_path(self,context):
+    if self.exp_meshPath.startswith("//"):
+        fullpath_blend = bpy.path.abspath(context.blend_data.filepath)
+        base_name = bpy.path.basename(context.blend_data.filepath)
+        self.exp_meshPath = fullpath_blend[ : -len(base_name)] + self.exp_meshPath[2:]
+
+
+def update_spp_path(self,context):
+    if self.exp_sppPath.startswith("//"):
+        fullpath_blend = bpy.path.abspath(context.blend_data.filepath)
+        base_name = bpy.path.basename(context.blend_data.filepath)
+        self.exp_sppPath = fullpath_blend[ : -len(base_name)] + self.exp_sppPath[2:]
+
+def update_sppTex_path(self,context):
+    if self.exp_sppTexPath.startswith("//"):
+        fullpath_blend = bpy.path.abspath(context.blend_data.filepath)
+        base_name = bpy.path.basename(context.blend_data.filepath)
+        self.exp_sppTexPath = fullpath_blend[ : -len(base_name)] + self.exp_sppTexPath[2:]
+
+def update_presets(self, context):
+    items = [(str(i), context.scene.tamt.export_collection.presets[i].name, "") for i in range(len(context.scene.tamt.export_collection.presets))]
+    if not items:
+        items = [('0', 'No Presets', '')]
+    return items
+
+
+
+def substance_painter_path():
+    paths = []
+    
+    curr_os = os.name
+
+    # MACOS
+    if curr_os == 'posix':
+        paths.extend([
+            f'/Applications/Adobe Substance 3D Painter.app/Contents/MacOS/Adobe Substance 3D Painter',
+            f'/Applications/Adobe Substance 3D Painter/Adobe Substance 3D Painter.app/Contents/MacOS/Adobe Substance 3D Painter',
+            f'~/Library/Application Support/Steam/steamsapps/common/Substance 3D Painter/Adobe Substance 3D Painter.app/Contents/ MacOS/Adobe Substance 3D Painter'
+        ])
+        for year in range(2020,2027):
+            paths.extend([
+                f'/Applications/Adobe Substance 3D Painter {year}.app/Contents/MacOS/Adobe Substance 3D Painter',
+                f'/Applications/Adobe Substance 3D Painter/Adobe Substance 3D Painter {year}.app/Contents/MacOS/Adobe Substance 3D Painter',
+                f'~/Library/Application Support/Steam/steamapps/common/Substance 3D Painter {year}/Adobe Substance 3D Painter.app/Contents/MacOS/Adobe Substance 3D Painter'
+            ])
+    elif curr_os == 'nt':
+        # Windows
+        for ch in 'CDEFGHIJKLMNOPQRSTUVWXYZ':
+            paths.extend([
+                #CC
+                f'{ch}:\\Program Files\\Adobe\\Adobe Substance 3D Painter\\Adobe Substance 3D Painter.exe',
+                f'{ch}:\\Program Files (x86)\\Adobe\\Adobe Substance 3D Painter\\Adobe Substance 3D Painter.exe',
+                
+                # Steam without 3D
+                f'{ch}:\\Program Files\\Steam||steamapps\\common\\Substance Painter\\Adobe Substance 3D Painter.exe',
+                f'{ch}:\\Program Files (x86)\\Steam\\steamapps\\common\\Substance Painter\\Adobe Substance 3D Painter.exe',
+                
+                # Steam with 3D
+                f'{ch}:\\Program Files\\Steam\\steamapps\\common\\Substance 3D Painter\\Adobe Substance 3D Painter.exe',
+                f'{ch}:\\Program Files (x86)\\Steam\\steamapps\\common\\Substance 3D Painter\\Adobe Substance 3D Painter.exe'
+            ])
+        # Windows with year
+        for year in range(2020,2027):
+            paths.extend([
+                # CC
+                f'{ch}:\\Program Files\\Adobe\\Adobe Substance 3D Painter {year}\\Adobe Substance 3D Painter.exe',
+                f'{ch}:\\Program Files (x86)\\Adobe\\Adobe Substance 3D Painter {year}\\Adobe Substance 3D Painter.exe',
+                
+                # Steam without 3D
+                f'{ch}:\\Program Files\\Steam||steamapps\\common\\Substance Painter {year}\\Adobe Substance 3D Painter.exe',
+                f'{ch}:\\Program Files (x86)\\Steam\\steamapps\\common\\Substance Painter {year}\\Adobe Substance 3D Painter.exe',
+                
+                # Steam with 3D
+                f'{ch}:\\Program Files\\Steam\\steamapps\\common\\Substance 3D Painter {year}\\Adobe Substance 3D Painter.exe',
+                f'{ch}:\\Program Files (x86)\\Steam\\steamapps\\common\\Substance 3D Painter {year}\\Adobe Substance 3D Painter.exe'
+            ])
+
+    # Check each path for the current operating system and return the first one that exists
+    for path in paths:
+        path = os.path.expanduser(path)
+        try:
+            if Path(path).exists():
+                return path
+        except Exception as e:
+            pass
+    return ''
+
+testing = {
+    'painter_path' : substance_painter_path()
+}
+
+def get_preferences(context):
+    if __name__ == '__main__':
+        return testing
+    else:
+        prefs = context.preferences.addons[__package__].preferences
+
+        return {
+            'painter_path': prefs.painter_path
+        }
+
+
+# Materials Functions
 
 def get_mat(mat_name = 'Base_Mat'):
     if mat_name in bpy.data.materials:
@@ -1320,6 +1810,12 @@ classes = [
     OBJECT_OT_TAMT_UV_Create,
     OBJECT_OT_TAMT_UV_Rename,
     OBJECT_OT_TAMT_UV_Remove,
+
+    OBJECT_OT_TAMT_EXPORTCOLL,
+    OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET,
+    OBJECT_OT_TAMT_EXPORTCOL_REMPRESET,
+    OBJECT_OT_TAMT_EXPORTCOL_ADDCOL,
+    OBJECT_OT_TAMT_EXPORTCOL_REMCOL,
 
 ]
 

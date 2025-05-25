@@ -194,7 +194,81 @@ class TAMT_PT_UVOperators_panel(bpy.types.Panel):
             col5.prop(tamt,"uvmap_del_name", text = "Name")
         col5.operator(operators.OBJECT_OT_TAMT_UV_Remove.bl_idname, text = "Delete UVMap")            
 
+class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
+    """ Export Collection Panel"""
+    bl_label = "Export System"
+    bl_idname = "to_automate.EXPCOL_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = "UI"
+    bl_category = "To Automate"
+
+    def draw(self, context):
+        tamt = context.scene.tamt
+        collection = tamt.export_collection
+
+        layout = self.layout
+        row = layout.box()
+        row.label(text="Collection Exporter")
+
+        row.prop(tamt.export_presets, "selected_preset")
+        row.operator(operators.OBJECT_OT_TAMT_EXPORTCOLL.bl_idname, text="EXPORT")
+        row.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET.bl_idname, text = "Add Preset" )
+        row.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_REMPRESET.bl_idname, text= "Delete Preset")
+
+        if len(collection.presets) > 0:
+
+            preset_index = int(tamt.export_presets.selected_preset)
+            preset = collection.presets[preset_index]
+
+            row.prop(preset, "name")
+            row.prop(preset,"exp_meshSource", text = "Export Type", icon = "OBJECT_DATA")
+            row.prop(preset, "exp_nameMethod", text = "Set File Name")
+            if preset.exp_nameMethod == 'OP2':
+                row.prop(preset, "exp_name")
+            row.prop(preset, "exp_format", text = "Export as", icon = "EXPORT")
+            if not preset.exp_inDirectory:
+                row.prop(preset, "exp_meshPath")
             
+            row.prop(preset, "exp_openSubstance", text = "Substance File?", icon = "BLANK1")
+
+            exp_sepSppName = preset.exp_separateSppName
+            if preset.exp_openSubstance:
+                row.prop(preset,"exp_separateSppName", text = "Diff Spp Name")
+                if exp_sepSppName:
+                    row.prop(preset,"exp_sppName", text = "Name Spp")
+                row.prop(preset, "exp_sppPath", text= "Path Spp", icon="SHADING_TEXTURE")
+                row.prop(preset, "exp_sppTexPath", text= "Textures Path", icon = "TEXTURE")
+            
+            row.prop(preset, "exp_inDirectory", text = "Use File Directory")
+            row.prop(context.scene, "exp_tngt", text = "Triangulate")
+            row.prop(preset, "exp_targetKeyframe", text = "Export Frame")
+
+            
+
+            row = layout.row()
+            row1 = row.box()
+
+            if preset.exp_meshSource == 'OP1':
+                collection_group = preset.inc_collections if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections
+
+                
+                row1.label(text = "Export Collection Selection Menu:")
+                row1.prop(preset,"collection_type", expand=True)
+                
+                row1.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_ADDCOL.bl_idname, text = "Add Collection")
+                row1.prop(preset,"collections_expanded", text="EDIT Collections", icon="NONE")
+                
+                if preset.collections_expanded:
+                    row1.label(text="INCLUDED Collections" if preset.collection_type == 'INC_COLLECTIONS' else "EXCLUDED Collections")
+                
+                
+                if preset.collections_expanded:
+                    for i, item in enumerate(collection_group):
+                        index = preset.inc_collections_index if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections_index
+                        row = row1.row()
+                        row.prop(item, "collection")
+                        op = row.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_REMCOL.bl_idname, text = "", icon="X").index = i
+
         
 
 
@@ -203,6 +277,7 @@ classes = (
     TAMTOBJECT_PT_3DView_panel,
     TAMT_PT_MeshOperators_panel,
     TAMT_PT_UVOperators_panel,
+    TAMT_PT_EXPORTCOL_PANEL,
 )
 
 def register_classes():
