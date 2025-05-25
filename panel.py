@@ -128,8 +128,8 @@ class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
         col = col.column()
         row3 = col.row()
         row4 = col.row()
-        col.operator(operators.OBJECT_OT_TAMT_MOD_ADDMAT.bl_idname, text="Add Material")
-        col.operator(operators.OBJECT_OT_TAMT_MOD_REMMATS.bl_idname, text="Del Materials")
+        col.operator(operators.OBJECT_OT_TAMT_MESH_ADDMAT.bl_idname, text="Add Material")
+        col.operator(operators.OBJECT_OT_TAMT_MESH_REMMATS.bl_idname, text="Del Materials")
         col.operator(operators.OBJECT_OT_TAMT_MESH_CLEANMATS.bl_idname, text = "Clean UP")
 
     

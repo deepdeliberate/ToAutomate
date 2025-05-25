@@ -9,7 +9,6 @@ bl_info = {
 }
 
 import bpy
-import bmesh
 
 from bpy.types import Operator
 from bpy.props import StringProperty
@@ -21,6 +20,7 @@ from . import preferences
 from . import operators
 from . import _refresh_
 from . import props
+from . import utils
 
 _refresh_.reload_modules()
 

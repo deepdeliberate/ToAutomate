@@ -1,6 +1,6 @@
 import bpy
 
-from . import operators
+from . import utils
 
 class ToAutomatePreferences(bpy.types.AddonPreferences):
     """ Addon preferences for ToAutomate"""
@@ -9,7 +9,7 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
 
     painter_path: bpy.props.StringProperty(
         name = 'Substance Painter Executable',
-        default = operators.substance_painter_path(), 
+        default = utils.substance_painter_path(), 
         subtype= 'FILE_PATH',
         description="Path to your Substance Painter Executable"
     )

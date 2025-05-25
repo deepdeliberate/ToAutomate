@@ -13,3 +13,4 @@ def reload_modules():
     reload(props)
     reload(operators)
     reload(panel)
+    reload(utils)

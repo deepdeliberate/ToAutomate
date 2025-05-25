@@ -1,6 +1,6 @@
 import bpy
 
-from . import operators
+from . import utils
 from bpy.props import PointerProperty
 
 
@@ -12,7 +12,7 @@ class CollectionItem(bpy.types.PropertyGroup):
     )
 
 class exportPresetActive(bpy.types.PropertyGroup):
-    selected_preset: bpy.props.EnumProperty(name = "Select Preset", items =  operators.update_presets )
+    selected_preset: bpy.props.EnumProperty(name = "Preset", items =  utils.update_presets )
 
 
 class exportProperties(bpy.types.PropertyGroup):
@@ -32,7 +32,7 @@ class exportProperties(bpy.types.PropertyGroup):
     
     exp_meshPath: bpy.props.StringProperty(
         name="Config Path",
-        update= operators.update_mesh_path,
+        update= utils.update_mesh_path,
         description="Define the root path of the Export file",
         default="",
         subtype="DIR_PATH",
@@ -80,14 +80,14 @@ class exportProperties(bpy.types.PropertyGroup):
 
     exp_sppPath: bpy.props.StringProperty(
         name="Spp file Path",
-        update= operators.update_spp_path,
+        update= utils.update_spp_path,
         description="Add location for the project.spp file to save in.",
         default="",
         subtype="DIR_PATH")
     
     exp_sppTexPath: bpy.props.StringProperty(
         name="Textures file Path",
-        update= operators.update_sppTex_path,
+        update= utils.update_sppTex_path,
         description="Add location for the Spp textures export files.",
         default="",
         subtype="DIR_PATH")
