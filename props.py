@@ -154,11 +154,11 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
 
     col_HP: bpy.props.StringProperty(
         name = "High Poly Collection",
-        default = "HP_Named"
+        default = "HP_Col"
     )
     col_LP: bpy.props.StringProperty(
         name = "Low Poly Collection",
-        default = "LP_Named"
+        default = "LP_Col"
     )
 
     # Select significant other

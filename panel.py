@@ -18,10 +18,18 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         row = layout.row(align = True)
         row.label(text = "3D Object Operators")
         box = layout.box()
+        r1 = box.row(align=True)
+        r2 = box.row(align=True)
         col = box.column()
 
-        col.prop(tamt, 'low_suffix', text = "Low Suffix", expand= True)
-        col.prop(tamt, 'high_suffix' , text = "High Suffix", expand  = False)
+        first = col.row()
+        split = r1.split(factor=0.5, align=True)
+        split.label(text="Low Suffix")
+        split.prop(tamt, 'low_suffix', text = "", expand= True)
+
+        s2 = r2.split(factor=0.5, align=True)
+        s2.label(text="High Suffix")
+        s2.prop(tamt, 'high_suffix' , text = "", expand  = False)
         col.operator(operators.OBJECT_OT_TAMT_rename.bl_idname, text = "Rename")
         
 
@@ -30,19 +38,26 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         col.prop(tamt, 'rnm_ord_type', text = "Method")
         
         main_row = col.row()
-        row1 = col.row()
-        row2 = col.row()
+        row1 = col.row().split(factor=0.5, align=True)
+        row2 = col.row().split(factor=0.5, align=True)
         row_mid = col.row()
         row3 = col.row()
 
+        if my_rnm_ord_type == 'OP1':
+            row1.prop(tamt, 'move_LP', text = "LP Col")
+            row2.prop(tamt, 'move_HP', text= "HP Col")
+
+        if my_rnm_ord_type == 'OP2q':
+            row1.label(text="LP Col")
+            row2.label(text="HP Col")
+
+
         if my_rnm_ord_type != 'OP3':
             main_row.label(text = "Collection Names")
-            row1.prop(tamt, 'col_LP', text = "Low Col", expand= False)
-            row2.prop(tamt, 'col_HP', text = "High Col", expand=False)
+            row1.prop(tamt, 'col_LP', text = "", expand= False)
+            row2.prop(tamt, 'col_HP', text = "", expand=False)
         
-        if my_rnm_ord_type == 'OP1':
-            row1.prop(tamt, 'move_LP', text = "LP Collection")
-            row2.prop(tamt, 'move_HP', text= "HP Collection")
+        
 
         if my_rnm_ord_type == 'OP3':
             row_mid.prop(tamt,'rnm_ord_3rd', text = "Object Col")
@@ -54,38 +69,47 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
 # -------  Selecting Significant Other ----------------
         
         box2 = layout.box()
-        col2 = box2.column()
-        col2.label(text = "Selection Menu")
-        col2.prop(tamt, 'col_sel_enum', text = "Select Objects")
+        box2.label(text = "Selection Menu")
+
+        col2 = box2.row(align=True)
+        col3 = box2.row(align=True)
+        row4 = col2.split(factor=0.5)
+        row4.label(text="Select Object")
+        row4.prop(tamt, 'col_sel_enum', text = "")
         
         sel_enum = tamt.col_sel_enum
         if sel_enum == 'OP2':
-            sel_row = col2.row()
+            sel_row = col3.row()
             sel_row.prop(tamt,"opt_col_sel", text = "Deselect Original Objects")
 
-        col2.operator(operators.OBJECT_OT_TAMT_select.bl_idname, text = "Select")
+        col3.operator(operators.OBJECT_OT_TAMT_select.bl_idname, text = "Select")
 
 # ------- Collection Organize/De-Organize
 
         box3 = layout.box()
         box4 = layout.box()
         box3.label(text = "Collection Organizer", icon = "OUTLINER_COLLECTION")
-        r1 = box3.column()
-        row1 = box3.row()
-        r1.prop(tamt, "ORG_p_col", text = "Source", icon="OUTLINER_COLLECTION")
-        row1.prop(tamt, "ORG_option", text="Parent?")
+
+        r1 = box3.row(align=True)
+        r2 = box3.row(align=True)
+        r11 = r1.split(factor=0.4, align=True)
+        r11.label(text="Source Col")
+        r11.prop(tamt, "ORG_p_col", text = "", icon="OUTLINER_COLLECTION")
+        r2.prop(tamt, "ORG_option", text="Parent?")
         if tamt.ORG_option:
-            row1.prop(tamt, "ORG_name", text="Name", icon="PARTICLES")
+            r2.prop(tamt, "ORG_name", text="Name", icon="PARTICLES")
 
         box3.operator(operators.OBJECT_OT_TAMT_COLORGANIZE.bl_idname, text = "Organize")
 
         box4.label(text="Collection De-Organizer", icon="OUTLINER_COLLECTION")
-        row2 = box4.row()
-        row3 = box4.row()
-        row2.prop(tamt, "DORG_obj", text="Parent Object", icon="PARTICLES")
-        row3.prop(tamt, "DORG_option", text="Root Col?")
+        r3 = box4.row()
+        r4 = box4.row()
+        r31 = r3.split(factor=0.4, align=True)
+        r31.label(text="Parent Object")
+        r31.prop(tamt, "DORG_obj", text="", icon="PARTICLES")
+        r4.prop(tamt, "DORG_option", text="Root Col?")
         if tamt.DORG_option:
-            row3.prop(tamt, "DORG_name", text = "Name", icon="OUTLINER_COLLECTION")
+            r4.prop(tamt, "DORG_name", text = "Name", icon="OUTLINER_COLLECTION")
         box4.prop(tamt,"del_emp", text="Delete Empties?")
         box4.operator(operators.OBJECT_OT_TAMT_COL_REORGANIZE.bl_idname, text = "Reset Collections")
 
@@ -127,12 +151,18 @@ class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
             row2.prop(tamt,"shift_uvu", text="U")
             row2.prop(tamt,"shift_uvv", text="V")
 
+
+        # Material Menu
+
         mat_box = main_box.box()
         col = mat_box.column()
         col.label(text = 'MATERIALS MENU')
-        row1 = col.row()
-        row1.prop(tamt, "base_mat", text = "Material")
-        row1.prop(tamt, "rem_old_mat", text = "Del Old")
+        row1 = col.row(align=True)
+        r2 = col.row(align=True)
+        r1 = row1.split(factor=0.4, align=True)
+        r1.label(text="Material")
+        r1.prop(tamt, "base_mat", text = "")
+        r2.prop(tamt, "rem_old_mat", text = "Delete Old Material")
         col = col.column()
         row3 = col.row()
         row4 = col.row()
@@ -230,12 +260,12 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
 
             row.prop(preset, "name")
             row.prop(preset,"exp_meshSource", text = "Export Type", icon = "OBJECT_DATA")
-            row.prop(preset, "exp_nameMethod", text = "Set File Name")
+            row.prop(preset, "exp_nameMethod", text = "File Name")
             if preset.exp_nameMethod == 'OP2':
                 row.prop(preset, "exp_name")
             row.prop(preset, "exp_format", text = "Export as", icon = "EXPORT")
             if not preset.exp_inDirectory:
-                row.prop(preset, "exp_meshPath")
+                row.prop(preset, "exp_meshPath", text="Export Pathq")
             
             row.prop(preset, "exp_openSubstance", text = "Substance File?", icon = "BLANK1")
 
