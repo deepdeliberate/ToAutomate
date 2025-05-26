@@ -197,24 +197,32 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
     # ------- Collection Organize/De-Organize -------------
 
     ORG_name: bpy.props.StringProperty(
-        name="Collection Name",
-        description="Name for the root Object",
+        name="Targe Object Name",
+        description="Name for the root Parent Object",
         default="ROOT"
     )
 
+    ORG_p_col: bpy.props.PointerProperty(type = bpy.types.Collection,
+                                         name="Source Collection to Organize",
+                                        description="Select the Top-level collection of heirarchy to convert")
+
     ORG_option: bpy.props.BoolProperty(
-        name="Make Parent for Collections",
-        description="If enabled Makes an Empty Parent for all Collections in scene",
+        name="Make Master parent for final heirarchy",
+        description="If enabled Makes an Top Level Object and puts the src Col objects in it",
         default=False) 
     
     DORG_name: bpy.props.StringProperty(
         name="Collection Name",
         description="Name for the root Collection",
         default="Main Collection")
+    
+    DORG_obj: bpy.props.PointerProperty(type = bpy.types.Object,
+                                        name="Source Object to De-organize",
+                                        description="Select the Top-parent object of heirarchy to convert")
         
     DORG_option: bpy.props.BoolProperty(
-        name="Make a root Collection",
-        description="If enabled makes a new collection of the name",
+        name="Make Master Parent Collection",
+        description="Enabled: Makes a new Parent Collection ontop of Final Root Collection",
         default=False)   
         
     del_emp: bpy.props.BoolProperty(

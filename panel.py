@@ -6,7 +6,7 @@ from bpy.props import IntProperty, BoolProperty, StringProperty
 class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
     """ 3D View Panel"""
     bl_label = "To Automate Panel"
-    bl_idname = "to_automate.3D_panel"
+    bl_idname = "TO_AUTOMATE_PT_3D_PANEL"
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
     bl_category = "To Automate"
@@ -68,23 +68,31 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
 # ------- Collection Organize/De-Organize
 
         box3 = layout.box()
+        box4 = layout.box()
         box3.label(text = "Collection Organizer", icon = "OUTLINER_COLLECTION")
+        r1 = box3.column()
         row1 = box3.row()
-        row1.prop(tamt, "ORG_option", text="Parent?", icon="BLANK1")
-        row1.prop(tamt, "ORG_name", text="Name", icon="PARTICLES")
+        r1.prop(tamt, "ORG_p_col", text = "Source", icon="OUTLINER_COLLECTION")
+        row1.prop(tamt, "ORG_option", text="Parent?")
+        if tamt.ORG_option:
+            row1.prop(tamt, "ORG_name", text="Name", icon="PARTICLES")
+
         box3.operator(operators.OBJECT_OT_TAMT_COLORGANIZE.bl_idname, text = "Organize")
 
-        box3.label(text="Collection De-Organizer", icon="OUTLINER_COLLECTION")
-        row2 = box3.row()
-        row2.prop(tamt, "DORG_option", text="Root Col?", icon="BLANK1")
-        row2.prop(tamt, "DORG_name", text = "Name", icon="OUTLINER_COLLECTION")
-        box3.prop(tamt,"del_emp", text="Delete Empties?")
-        box3.operator(operators.OBJECT_OT_TAMT_COL_REORGANIZE.bl_idname, text = "Reset Collections")
+        box4.label(text="Collection De-Organizer", icon="OUTLINER_COLLECTION")
+        row2 = box4.row()
+        row3 = box4.row()
+        row2.prop(tamt, "DORG_obj", text="Parent Object", icon="PARTICLES")
+        row3.prop(tamt, "DORG_option", text="Root Col?")
+        if tamt.DORG_option:
+            row3.prop(tamt, "DORG_name", text = "Name", icon="OUTLINER_COLLECTION")
+        box4.prop(tamt,"del_emp", text="Delete Empties?")
+        box4.operator(operators.OBJECT_OT_TAMT_COL_REORGANIZE.bl_idname, text = "Reset Collections")
 
 class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
     """ Mesh Ops Panel"""
     bl_label = "Mesh Operators"
-    bl_idname = "to_automate.Mesh_panel"
+    bl_idname = "TO_AUTOMATE_PT_MESH_PANEL"
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
     bl_category = "To Automate"
@@ -136,7 +144,7 @@ class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
 class TAMT_PT_UVOperators_panel(bpy.types.Panel):
     """ UV Panel"""
     bl_label = "UV Operators"
-    bl_idname = "to_automate.UV_panel"
+    bl_idname = "TO_AUTOMATE_PT_UV_PANEL"
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
     bl_category = "To Automate"
@@ -197,7 +205,7 @@ class TAMT_PT_UVOperators_panel(bpy.types.Panel):
 class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
     """ Export Collection Panel"""
     bl_label = "Export System"
-    bl_idname = "to_automate.EXPCOL_panel"
+    bl_idname = "TO_AUTOMATE_PT_EXPCOL_PANEL"
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
     bl_category = "To Automate"
