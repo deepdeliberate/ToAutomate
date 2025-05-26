@@ -16,7 +16,7 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
 
         layout = self.layout
         row = layout.row(align = True)
-        row.label(text = "To Automate Art Process")
+        row.label(text = "3D Object Operators")
         box = layout.box()
         col = box.column()
 
