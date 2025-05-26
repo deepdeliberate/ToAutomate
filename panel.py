@@ -5,7 +5,7 @@ from bpy.props import IntProperty, BoolProperty, StringProperty
 
 class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
     """ 3D View Panel"""
-    bl_label = "To Automate Panel"
+    bl_label = "To Automate"
     bl_idname = "TO_AUTOMATE_PT_3D_PANEL"
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
@@ -47,7 +47,7 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
             row1.prop(tamt, 'move_LP', text = "LP Col")
             row2.prop(tamt, 'move_HP', text= "HP Col")
 
-        if my_rnm_ord_type == 'OP2q':
+        if my_rnm_ord_type == 'OP2':
             row1.label(text="LP Col")
             row2.label(text="HP Col")
 
@@ -80,7 +80,7 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         sel_enum = tamt.col_sel_enum
         if sel_enum == 'OP2':
             sel_row = col3.row()
-            sel_row.prop(tamt,"opt_col_sel", text = "Deselect Original Objects")
+            sel_row.prop(tamt,"opt_col_sel", text = "Deselect")
 
         col3.operator(operators.OBJECT_OT_TAMT_select.bl_idname, text = "Select")
 
@@ -132,7 +132,7 @@ class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
         col = main_box.column()
 
         mods.label(text='Add Modifiers')
-        mods.prop(tamt, "NewMod", text = "CREATE New")
+        mods.prop(tamt, "NewMod", text = "Create New")
 
         mods.prop(tamt, "sym_obj_name", text = "Mir Obj")
 
