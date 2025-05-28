@@ -108,14 +108,20 @@ class exportProperties(bpy.types.PropertyGroup):
 
     collections_expanded: bpy.props.BoolProperty(name="Collections Expanded",description= "Edit Collections to Include or Exclude" ,default=True)
 
+    def get_col_type_items(self, context):
+        items = [
+            ('INC_COLLECTIONS', f"Include Collection ({len(self.inc_collections)})", "Select Collections to Include"),
+            ('EXC_COLLECTIONS', f"Exclude Collection ({len(self.exc_collections)})", "Select Collections to Exclude")
+        ]
+        return items
+
     collection_type: bpy.props.EnumProperty(
         name = "Collection Type",
-        items=[
-            ('INC_COLLECTIONS', "Include Collection", "Select Collections to Include"),
-            ('EXC_COLLECTIONS', "Exclude Collection", "Select Collections to Exclude")
-        ],
-        default= 'INC_COLLECTIONS'
+        items=get_col_type_items,
+        default= 0
     )
+
+    
 
 
 
