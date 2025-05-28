@@ -1,6 +1,7 @@
 import bpy
 
 from . import operators
+from . import utils
 from bpy.props import IntProperty, BoolProperty, StringProperty
 
 class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
@@ -245,7 +246,41 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
         collection = tamt.export_collection
 
         layout = self.layout
+        b_row = layout.box()
         row = layout.box()
+
+
+        ## Batch Export Menu
+        b_row.label(text = "Batch Export Presets")
+
+        b_row.operator(operators.OBJECT_OT_TAMT_BatchSycnList.bl_idname, text = "Refresh",icon='INFO')
+
+
+        batch_selection_list = tamt.batch_selection_list
+
+        if batch_selection_list:
+            col = b_row.column(align=True)
+            col.label(text="Include Presets")
+            head_row = col.row(align=True)
+            r1 = head_row.row()
+            r2 = head_row.row()
+            r1.row().operator(operators.OBJECT_OT_TAMT_BatchSelectDeselectAll.bl_idname, text = "All").select_all = True
+            r2.row().operator(operators.OBJECT_OT_TAMT_BatchSelectDeselectAll.bl_idname, text = "None").select_all = False
+
+            flow = col.column_flow(columns=2, align=True)
+
+            for item in batch_selection_list:
+                frow = flow.row(align=True)
+                frow.prop(item, "is_selected", text = item.name_id)
+            b_row.separator()
+            lrow = b_row.row(align=True)
+            lrow.operator( operators.OBJECT_OT_TAMT_BATCHEXPORT.bl_idname, text = "Batch Export", icon = 'PLAY')
+
+        else:  
+            row1 = b_row.column()
+            row1.label(text = "No Export Presets available", icon = 'INFO')
+            row1.label(text = "Add presets in 'Collection Export'")
+
         row.label(text="Collection Exporter")
 
         row.prop(tamt.export_presets, "selected_preset")

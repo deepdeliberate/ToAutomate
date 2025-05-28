@@ -14,6 +14,17 @@ class CollectionItem(bpy.types.PropertyGroup):
 class exportPresetActive(bpy.types.PropertyGroup):
     selected_preset: bpy.props.EnumProperty(name = "Preset", items =  utils.update_presets )
 
+class exportBatchPresetItem(bpy.types.PropertyGroup):
+    name_id: bpy.props.StringProperty(
+        name="Preset Name ID",
+        description="Internal ID for Preset",
+    )
+
+    is_selected: bpy.props.BoolProperty(
+        name = "Select",
+        description = "Include this preset in the batch export",
+        default = False
+    )
 
 class exportProperties(bpy.types.PropertyGroup):
 
@@ -355,11 +366,20 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
     export_collection: bpy.props.PointerProperty(type = exportCollection)
     export_presets: bpy.props.PointerProperty(type = exportPresetActive)
 
+    batch_selection_list: bpy.props.CollectionProperty(type= exportBatchPresetItem)
+
+    batch_sync: bpy.props.BoolProperty(
+        name="Needs Batch sync",
+        description="To Resync batch preset list",
+        default=True
+    )
+
 
 
 classes = (
     CollectionItem,
     exportPresetActive,
+    exportBatchPresetItem,
     exportProperties,
     exportCollection,
     TAMT_Addon_Props,

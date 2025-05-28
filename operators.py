@@ -4,6 +4,7 @@ import bmesh
 import os
 import subprocess
 
+from . import props
 from . import utils
 from pathlib import Path
 
@@ -1038,7 +1039,93 @@ class OBJECT_OT_TAMT_UV_Remove(bpy.types.Operator):
         return {'FINISHED'}
     
 
-# Export Presets Menu ----------------------------------
+# Batch Export Operator
+
+class OBJECT_OT_TAMT_BatchSycnList(bpy.types.Operator):
+    bl_idname="to_automte.batch_sync_presets"
+    bl_label="Sync Batch Presets"
+    bl_description="Synchroize Batch Presets"  
+    bl_options={"REGISTER","UNDO"}
+    
+    def execute(self, context):
+        utils.sync_batch_presets(context)
+        context.scene.tamt.batch_sync = False
+
+        return {'FINISHED'}
+
+class OBJECT_OT_TAMT_BatchSelectDeselectAll(bpy.types.Operator):
+    bl_idname="to_automte.batch_select_deselect_all"
+    bl_label="Select/Deselect All"
+    bl_description="Select or Deselect all Presets"  
+    bl_options={"REGISTER","UNDO"}
+
+    select_all: bpy.props.BoolProperty(
+        name="Select All",
+        description="True for select all, False for deselect all",
+        default=False
+    )
+
+    def execute(self, context):
+        utils.batch_select_all_presets(context, self.select_all)
+        return {'FINISHED'}
+
+class OBJECT_OT_TAMT_BATCHEXPORT(bpy.types.Operator):
+    """Batch Export Presets"""
+    bl_idname="to_automte.atm_batchexport"
+    bl_label="Batch Export"
+    bl_description="Batch Export selected Presets"  
+    bl_options={"REGISTER","UNDO"}
+
+    def execute(self, context):
+        tamt = context.scene.tamt
+        if not tamt or not tamt.export_collection:
+            self.report({'ERROR'}, "No export Presets Found")
+            return {'CANCELLED'}
+
+        selected_count = 0
+
+        current_preset = tamt.export_presets.selected_preset
+
+        utils.sync_batch_presets(context)
+
+        preset_by_name = {p.name: p for p in tamt.export_collection.presets}
+        
+        for batch_item in tamt.batch_selection_list:
+            if batch_item.is_selected :
+                actual_preset = preset_by_name.get(batch_item.name_id)
+
+                if actual_preset:
+                    try:
+                        active_id = list(tamt.export_collection.presets).index(actual_preset)
+                    except ValueError:
+                        self.report({'WARNING'}, f"Selected preset '{actual_preset.name}' not found in main collection. Skipping.")
+                        continue
+                    
+                    tamt.export_presets.selected_preset = str(active_id)
+                    context.view_layer.update()
+
+                    try: 
+                        bpy.ops.to_automate.atm_exportcol('EXEC_DEFAULT')
+                        self.report({'INFO'},f"Exported: '{actual_preset.name}'")
+                        selected_count += 1
+                    except Exception as e:
+                        self.report({'WARNING'}, f"Failed to export Preset '{actual_preset.name}': {e}")
+                else:
+                    self.report({'WARNING'}, f"Selected preset '{batch_item.name_id}' not found in current presets. Skipping")
+            elif batch_item.is_selected:
+                self.report({'WARNING'}, f"Selected preset item has no valid link. Skipping.")
+            
+        tamt.export_presets.selected_preset = current_preset
+        
+        if selected_count > 0:
+            self.report({'INFO'}, f"Batch export finished: {selected_count} preset(s) exported.")
+            return{'FINISHED'}
+        else:
+            self.report({'INFO'}, "No Valid presets selected for batch export.")
+            return {'CANCELLED'}
+    
+
+# Export Presets Operator ----------------------------------
 
 class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
     """Export Collections With Presets"""
@@ -1756,6 +1843,9 @@ classes = [
     OBJECT_OT_TAMT_UV_Rename,
     OBJECT_OT_TAMT_UV_Remove,
 
+    OBJECT_OT_TAMT_BatchSycnList,
+    OBJECT_OT_TAMT_BatchSelectDeselectAll,
+    OBJECT_OT_TAMT_BATCHEXPORT,
     OBJECT_OT_TAMT_EXPORTCOLL,
     OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET,
     OBJECT_OT_TAMT_EXPORTCOL_REMPRESET,
