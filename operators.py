@@ -10,7 +10,7 @@ from pathlib import Path
 
 class OBJECT_OT_TAMT_rename(bpy.types.Operator):
     """ Rename the active object and make the selected object counter suffix"""
-    bl_idname = "to_automte.rename_object"
+    bl_idname = "to_automate.rename_object"
     bl_label = "Rename selected object"
     bl_description = "Rename selected objects with desired suffix"
     bl_options = {"REGISTER", "UNDO"}
@@ -157,7 +157,7 @@ def move_col(col, parent_col):
 class OBJECT_OT_TAMT_select(bpy.types.Operator):
     """ Option 1:  Select the objects' significant other, 
     Option 2:  Select no matching object"""
-    bl_idname = "to_automte.select_significant"
+    bl_idname = "to_automate.select_significant"
     bl_label = "Select significant other"
     bl_description = "Select the significant other / or ones that don't"
     bl_options = {'REGISTER', 'UNDO'}
@@ -276,7 +276,7 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
     # and bug fixes
 
 class OBJECT_OT_TAMT_COLORGANIZE(bpy.types.Operator):
-    bl_idname = "to_automte.col_organize"
+    bl_idname = "to_automate.col_organize"
     bl_label = "Collection Organizer"
     bl_description = "Make Collection Heirarchy equivalent empty-parent to objects"
     bl_options = {'REGISTER', 'UNDO'}
@@ -319,7 +319,7 @@ class OBJECT_OT_TAMT_COLORGANIZE(bpy.types.Operator):
         return {'FINISHED'}
 
 class OBJECT_OT_TAMT_COL_REORGANIZE(bpy.types.Operator):
-    bl_idname = "to_automte.col_reorganize"
+    bl_idname = "to_automate.col_reorganize"
     bl_label = "Collection Revert"
     bl_description = "Convert the Empty Collection Parenting to Collections"
     bl_options = {'REGISTER', 'UNDO'}
@@ -372,7 +372,7 @@ class OBJECT_OT_TAMT_COL_REORGANIZE(bpy.types.Operator):
 
 
 class OBJECT_OT_TAMT_MOD_MIRROR(bpy.types.Operator):
-    bl_idname = "to_automte.atm_mirror"
+    bl_idname = "to_automate.atm_mirror"
     bl_label = "Add Mirror"
     bl_description = "Add Mirror Modifier to all selected objects"
     bl_options = {'REGISTER', 'UNDO'}
@@ -437,7 +437,7 @@ class OBJECT_OT_TAMT_MOD_MIRROR(bpy.types.Operator):
     
 
 class OBJECT_OT_TAMT_MOD_TRIANGULATE(bpy.types.Operator):
-    bl_idname = "to_automte.atm_triangulate"
+    bl_idname = "to_automate.atm_triangulate"
     bl_label = "Add Triangulate"
     bl_description = "Add Triangulate Modifier to all selected objects"
     bl_options = {'REGISTER', 'UNDO'}
@@ -478,7 +478,7 @@ class OBJECT_OT_TAMT_MOD_TRIANGULATE(bpy.types.Operator):
         return {'FINISHED'}
 
 class OBJECT_OT_TAMT_MOD_ARRAY(bpy.types.Operator):
-    bl_idname = "to_automte.atm_array"
+    bl_idname = "to_automate.atm_array"
     bl_label = "Add Dynamic Array"
     bl_description = "Dynamic Array makes active object have it's array as difference of position compared to second object"
     bl_options = {'REGISTER', 'UNDO'}
@@ -556,7 +556,7 @@ class OBJECT_OT_TAMT_MOD_ARRAY(bpy.types.Operator):
     
 
 class OBJECT_OT_TAMT_MOD_WGHTNRM(bpy.types.Operator):
-    bl_idname = "to_automte.atm_wght_normal"
+    bl_idname = "to_automate.atm_wght_normal"
     bl_label = "Add Weighted Normal"
     bl_description = "Add Weighted Normal Modifier to all selected objects"
     bl_options = {'REGISTER', 'UNDO'}
@@ -586,7 +586,7 @@ class OBJECT_OT_TAMT_MOD_WGHTNRM(bpy.types.Operator):
      
 
 class OBJECT_OT_TAMT_MESH_ADDMAT(bpy.types.Operator):
-    bl_idname = "to_automte.atm_addmat"
+    bl_idname = "to_automate.atm_addmat"
     bl_label = "Add Material"
     bl_description = "Add Material to selected objects"
     bl_options = {'REGISTER', 'UNDO'}
@@ -690,7 +690,7 @@ class OBJECT_OT_TAMT_MESH_ADDMAT(bpy.types.Operator):
 
     
 class OBJECT_OT_TAMT_MESH_REMMATS(bpy.types.Operator):
-    bl_idname = "to_automte.atm_remmat"
+    bl_idname = "to_automate.atm_remmat"
     bl_label = "Remove Materials"
     bl_description = "Remove all materials of selected objects"
     bl_options = {'REGISTER', 'UNDO'}
@@ -722,7 +722,7 @@ class OBJECT_OT_TAMT_MESH_REMMATS(bpy.types.Operator):
 ## Clean unused mats from the selected objects
 
 class OBJECT_OT_TAMT_MESH_CLEANMATS(bpy.types.Operator):
-    bl_idname = "to_automte.atm_cleanmat"
+    bl_idname = "to_automate.atm_cleanmat"
     bl_label = "Remove Empty Materials"
     bl_description = "Remove all unused materials from object"
     bl_options = {'REGISTER', 'UNDO'}
@@ -777,7 +777,7 @@ class OBJECT_OT_TAMT_MESH_CLEANMATS(bpy.types.Operator):
 # UV Check Offset for Array and mirror
 
 class OBJECT_OT_TAMT_UV_OFFCHECK(bpy.types.Operator):
-    bl_idname = "to_automte.atm_uvchkoffset"
+    bl_idname = "to_automate.atm_uvchkoffset"
     bl_label = "Check UV Offset"
     bl_description = "Select Objects which has no UV offset in their modifiers"
     bl_options = {'REGISTER', 'UNDO'}
@@ -809,7 +809,7 @@ class OBJECT_OT_TAMT_UV_OFFCHECK(bpy.types.Operator):
 
 
 class OBJECT_OT_TAMT_UV_OFFSET(bpy.types.Operator):
-    bl_idname = "to_automte.atm_uv_addoffset"
+    bl_idname = "to_automate.atm_uv_addoffset"
     bl_label = "Add UV Offset"
     bl_description = "Add UV offset to Mirror and Array modifiers in object"
     bl_options = {'REGISTER', 'UNDO'}
@@ -838,7 +838,7 @@ class OBJECT_OT_TAMT_UV_OFFSET(bpy.types.Operator):
         return {'FINISHED'}
     
 class OBJECT_OT_TAMT_UV_SplitCheck(bpy.types.Operator):
-    bl_idname = "to_automte.atm_uv_islandcheck"
+    bl_idname = "to_automate.atm_uv_islandcheck"
     bl_label = "Check UV Split island"
     bl_description = "Checks the UV islands if they are splitted"
     bl_options = {'REGISTER', 'UNDO'}
@@ -872,7 +872,7 @@ class OBJECT_OT_TAMT_UV_SplitCheck(bpy.types.Operator):
         return{'FINISHED'}
     
 class OBJECT_OT_TAMT_UV_MARKSHARPSEAM(bpy.types.Operator):
-    bl_idname="to_automte.atm_uv_marksharpseam"
+    bl_idname="to_automate.atm_uv_marksharpseam"
     bl_label="Mark Sharp as seams"
     bl_description="Marks sharp edges as seams of selected mesh"  
     bl_options={"REGISTER","UNDO"}
@@ -900,7 +900,7 @@ class OBJECT_OT_TAMT_UV_MARKSHARPSEAM(bpy.types.Operator):
         return {'FINISHED'}
     
 class OBJECT_OT_TAMT_UV_MARKOUTERSEAM(bpy.types.Operator):
-    bl_idname="to_automte.atm_uv_markboundseam"
+    bl_idname="to_automate.atm_uv_markboundseam"
     bl_label="Mark Boundary seams"
     bl_description="Marks seams of the boundary of selected faces of mesh"  
     bl_options={"REGISTER","UNDO"}
@@ -919,7 +919,7 @@ class OBJECT_OT_TAMT_UV_MARKOUTERSEAM(bpy.types.Operator):
 # UV CREATE, RENAME, DELETE
 class OBJECT_OT_TAMT_UV_Create(bpy.types.Operator):
     """ UV Create Menu"""
-    bl_idname="to_automte.atm_uv_create"
+    bl_idname="to_automate.atm_uv_create"
     bl_label="Create UVMap"
     bl_description="Create UVMap for selected objects, if exists no Change"  
     bl_options={"REGISTER","UNDO"}
@@ -952,7 +952,7 @@ class OBJECT_OT_TAMT_UV_Create(bpy.types.Operator):
 
 class OBJECT_OT_TAMT_UV_Rename(bpy.types.Operator):
     """ UV Rename Menu"""
-    bl_idname="to_automte.atm_uv_rename"
+    bl_idname="to_automate.atm_uv_rename"
     bl_label="Rename UVMap"
     bl_description="Rename UVMap for selected objects"  
     bl_options={"REGISTER","UNDO"}
@@ -1002,7 +1002,7 @@ class OBJECT_OT_TAMT_UV_Rename(bpy.types.Operator):
 
 class OBJECT_OT_TAMT_UV_Remove(bpy.types.Operator):
     """ UV Delete Menu"""
-    bl_idname="to_automte.atm_uv_delete"
+    bl_idname="to_automate.atm_uv_delete"
     bl_label="Delete UVMap"
     bl_description="Delete UVMap for selected objects"  
     bl_options={"REGISTER","UNDO"}
@@ -1042,7 +1042,7 @@ class OBJECT_OT_TAMT_UV_Remove(bpy.types.Operator):
 # Batch Export Operator
 
 class OBJECT_OT_TAMT_BatchSycnList(bpy.types.Operator):
-    bl_idname="to_automte.batch_sync_presets"
+    bl_idname="to_automate.batch_sync_presets"
     bl_label="Sync Batch Presets"
     bl_description="Synchroize Batch Presets"  
     bl_options={"REGISTER","UNDO"}
@@ -1054,7 +1054,7 @@ class OBJECT_OT_TAMT_BatchSycnList(bpy.types.Operator):
         return {'FINISHED'}
 
 class OBJECT_OT_TAMT_BatchSelectDeselectAll(bpy.types.Operator):
-    bl_idname="to_automte.batch_select_deselect_all"
+    bl_idname="to_automate.batch_select_deselect_all"
     bl_label="Select/Deselect All"
     bl_description="Select or Deselect all Presets"  
     bl_options={"REGISTER","UNDO"}
@@ -1071,7 +1071,7 @@ class OBJECT_OT_TAMT_BatchSelectDeselectAll(bpy.types.Operator):
 
 class OBJECT_OT_TAMT_BATCHEXPORT(bpy.types.Operator):
     """Batch Export Presets"""
-    bl_idname="to_automte.atm_batchexport"
+    bl_idname="to_automate.atm_batchexport"
     bl_label="Batch Export"
     bl_description="Batch Export selected Presets"  
     bl_options={"REGISTER","UNDO"}
@@ -1105,9 +1105,10 @@ class OBJECT_OT_TAMT_BATCHEXPORT(bpy.types.Operator):
                     context.view_layer.update()
 
                     try: 
-                        bpy.ops.to_automate.atm_exportcol('EXEC_DEFAULT')
-                        self.report({'INFO'},f"Exported: '{actual_preset.name}'")
+                        bpy.ops.to_automate.atm_exportcol('INVOKE_DEFAULT')
                         selected_count += 1
+                        self.report({'INFO'},f"Exported: '{actual_preset.name}'")
+
                     except Exception as e:
                         self.report({'WARNING'}, f"Failed to export Preset '{actual_preset.name}': {e}")
                 else:
@@ -1116,7 +1117,7 @@ class OBJECT_OT_TAMT_BATCHEXPORT(bpy.types.Operator):
                 self.report({'WARNING'}, f"Selected preset item has no valid link. Skipping.")
             
         tamt.export_presets.selected_preset = current_preset
-        
+
         if selected_count > 0:
             self.report({'INFO'}, f"Batch export finished: {selected_count} preset(s) exported.")
             return{'FINISHED'}
@@ -1129,7 +1130,7 @@ class OBJECT_OT_TAMT_BATCHEXPORT(bpy.types.Operator):
 
 class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
     """Export Collections With Presets"""
-    bl_idname="to_automte.atm_exportcol"
+    bl_idname="to_automate.atm_exportcol"
     bl_label="Export Collections"
     bl_description="Export Collections"  
     bl_options={"REGISTER","UNDO"}
@@ -1376,13 +1377,13 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 self.report({'ERROR'}, f'Error opening Substance Painter: {e}')
                 return {'FINISHED'}
         
-        self.report({'INFO'},"FINISHED EXPORTING")
+        self.report({'INFO'}, f"FINISHED EXPORTING")
         return {'FINISHED'}
 
 
 class OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET(bpy.types.Operator):
     """Create Collection Export Preset"""
-    bl_idname="to_automte.atmt_exportcol_crtpreset"
+    bl_idname="to_automate.atmt_exportcol_crtpreset"
     bl_label="Create New Preset"
     bl_description="Add a new Preset for Specific Export System"  
     bl_options={"REGISTER","UNDO"}
@@ -1407,7 +1408,7 @@ class OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET(bpy.types.Operator):
     
 
 class OBJECT_OT_TAMT_EXPORTCOL_REMPRESET(bpy.types.Operator):
-    bl_idname="to_automte.atmt_exportcol_rempreset"
+    bl_idname="to_automate.atmt_exportcol_rempreset"
     bl_label = "Delete Current Preset"
     bl_description = "Delete the current Preset"
 
@@ -1449,7 +1450,7 @@ class OBJECT_OT_TAMT_EXPORTCOL_REMPRESET(bpy.types.Operator):
 
     
 class OBJECT_OT_TAMT_EXPORTCOL_ADDCOL(bpy.types.Operator):
-    bl_idname="to_automte.atmt_exportcol_addcol"
+    bl_idname="to_automate.atmt_exportcol_addcol"
     bl_label = "Add Collection"
     bl_description = "Add Collection to Include/Exclude it's object and children collection for Export"
 
