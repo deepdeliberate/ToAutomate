@@ -1660,7 +1660,9 @@ def Col_traverse(col):
         elif bpy.data.objects[c_col.name].type == 'EMPTY' and bpy.data.objects[c_col.name].instance_type == 'COLLECTION' and bpy.data.objects[c_col.name].instance_collection:
             # Check whether empty object named col_name, and maybe it's an instance too lol
             #rename this object
-            bpy.data.objects[c_col.name].name += '_instance'
+            new_obj = bpy.data.objects[c_col.name] 
+            new_obj.name += '_instance'
+            
 
         else: 
             # Object with collection name exists
