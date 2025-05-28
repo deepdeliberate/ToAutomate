@@ -1,7 +1,10 @@
 # ToAutomate
+ToAuotmate has a simple goal, to streamline and automate the repeating process of 3D production work.
+
+## Documentation: 
+* [Documentation](https://deepdesperate.github.io/objectRenamerDocs/)
 
 ## Overview
-ToAuotmate has a simple goal, to streamline and automate the repeating process of 3D production work.
 
 1. **ToAutomate** is a Blender addon aimed to optimize the **3D-Art** workflows in real production workflow.
 2. It is an ever-evolving addon which tackles various stages of production that could be optimized to simplify repetetive tasks and give artist freedom to focus more on creative work.
@@ -24,14 +27,14 @@ Install from our github or gumroad, gumroad is helpful just in case you wanna be
 
 After downloading, the addon can be installed with following steps: <br>
 1. Open **Blender** and go to **Edit > Preferences > addons.** 
-2. Click at Install from FIle and locate the pacakge [ToAutomate.zip](https://github.com/deepdesperate/ToAutomate) file in the newly opened window. <br>
+2. Click at Install from FIle and locate the pacakge releases [ToAutomate.zip](https://github.com/deepdesperate/ToAutomate/releases) file in the newly opened window. <br>
 3. The addon should now appear in your addons list and can be activated. 
 Please contact me in case you run into any issues.
 
 ## Feature Overview
 1. 3D Object Operators: <br>
     <!-- <img src="/assets/images/3DMenu.png" width=200> -->
-    1. `Renamer` Operator to convert to rename two objects as Low and High, with suffix
+    1. `Renamer` Operator to rename two objects as Low and High, with suffix
         1. Active object gets renamed to `obj_LP`, and selected object gest `obj_HP`.
         2. Suffix are changeable for both.
     2. `Organize Menu`: It moves the Low-poly and High-poly objects into their respective collection.
