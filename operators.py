@@ -1020,10 +1020,9 @@ class OBJECT_OT_TAMT_UV_Remove(bpy.types.Operator):
             if obj.type == 'MESH':
                 if len(obj.data.uv_layers) == 0:
                     continue
-                uv_layer_list = list(obj.data.uv_layers)
                 if obj.data.uv_layers:
-                    for i in range(len(uv_layer_list) -1, -1, -1):
-                        uv_tex = uv_layer_list[i]
+                    for i in range(len(obj.data.uv_layers) -1, -1, -1):
+                        uv_tex = obj.data.uv_layers[i]
                         if uvr_enum=='OP1':
                             if uv_tex==obj.data.uv_layers.active:
                                 obj.data.uv_layers.remove(uv_tex)
