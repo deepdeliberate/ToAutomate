@@ -1460,18 +1460,21 @@ class OBJECT_OT_TAMT_EXPORTCOL_ADDCOL(bpy.types.Operator):
 
         active_collection = context.collection
         collection_group = preset.inc_collections if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections
-        if active_collection:
-            # Check if the collection is already in th preset's collections
+        if not active_collection:
+            self.report({'ERROR'}, "No Active Collectioin")
+            return {'CANCELLED'}
+        
+        # Check if the collection is already in th preset's collections
 
-            already_present = False
-            for item in collection_group:
-                if item.collection == active_collection:
-                    already_present = True
-                    break
-            
-            if already_present:
-                self.report({'WARNING'}, "Collection is already added")
-                return {'CANCELLED'}
+        already_present = False
+        for item in collection_group:
+            if item.collection == active_collection:
+                already_present = True
+                break
+        
+        if already_present:
+            self.report({'WARNING'}, "Collection is already added")
+            return {'CANCELLED'}
                     
             
         if preset.collection_type == 'INC_COLLECTIONS':
