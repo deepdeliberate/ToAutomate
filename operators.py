@@ -1286,8 +1286,14 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             return {'CANCELLED'}
 
         # Export File Format
-        export_ext = '.fbx'
-        exp_fbx = ''
+        if exp_format == 'OP1':
+            export_ext = '.fbx'
+        elif exp_format == 'OP2':
+            export_ext = '.obj'
+        else:
+            export_ext = '.usdc'
+
+        exp_mesh = ''
 
         abc = ""
         if mesh_export_path.startswith('//'):
@@ -1296,11 +1302,11 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
         # Updating the keyframe to desired Keyframe for the preset
         bpy.context.scene.frame_current = exp_targetKeyframe
 
-        if exp_format == 'OP1' or exp_format == 'OP2':
+        if exp_format == 'OP1' :
             export_ext = '.fbx'
             export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
 
-            exp_fbx = export_Path
+            exp_mesh = export_Path
 
             with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
                 bpy.ops.export_scene.fbx(
@@ -1313,7 +1319,53 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 bake_anim= False,
                 bake_anim_use_nla_strips= False,
                 bake_space_transform= True,
+                axis_forward='-Z',
+                axis_up='Y',
                 filepath = str(export_Path),
+                )
+
+        elif exp_format == 'OP2':
+            export_ext = '.obj'
+            export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
+
+            exp_mesh = export_Path
+
+            
+            with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
+                bpy.ops.wm.obj_export(
+                    filepath= str(export_Path),
+                    export_selected_objects=True,
+                    export_triangulated_mesh=True,
+                    export_animation=False,
+                    forward_axis='NEGATIVE_Z',
+                    up_axis='Y',
+                    filter_glob=".obj",
+                )
+
+        elif exp_format == 'OP3':
+            export_ext = '.usdc'
+            export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
+
+            exp_mesh = export_Path
+            
+            with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
+                bpy.ops.wm.usd_export(
+                    filepath = str(export_Path),
+                    selected_objects_only=True,
+                    visible_objects_only=False,
+                    use_instancing=False,
+                    export_textures=False,
+                    export_textures_mode='NEW',
+                    triangulate_meshes=True,
+                    quad_method='SHORTEST_DIAGONAL',
+                    ngon_method='BEAUTY',
+                    export_normals=True,
+                    export_materials=True,
+                    export_uvmaps=True,
+                    export_animation=False,
+                    export_curves=True,
+                    export_global_forward_selection='NEGATIVE_Z',
+                    export_global_up_selection='Y',
                 )
         
 
@@ -1364,9 +1416,9 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             try: 
                 if not open_substance_only:
                     if os.name == 'nt':
-                        subprocess.Popen([painter_path, '--mesh',exp_fbx , '--export-path', exp_sppTexPath , exp_sppPath] )
+                        subprocess.Popen([painter_path, '--mesh',exp_mesh , '--export-path', exp_sppTexPath , exp_sppPath] )
                     else:
-                        subprocess.Popen(f'"{painter_path}" --mesh "{exp_fbx}" --export-path "{exp_sppTexPath}" "{exp_sppPath}"', shell= True)
+                        subprocess.Popen(f'"{painter_path}" --mesh "{exp_mesh}" --export-path "{exp_sppTexPath}" "{exp_sppPath}"', shell= True)
                 else:
                     if os.name == 'nt':
                         subprocess.Popen([painter_path, '--export-path', exp_sppTexPath, exp_sppPath])

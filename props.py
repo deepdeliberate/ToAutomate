@@ -64,7 +64,8 @@ class exportProperties(bpy.types.PropertyGroup):
         name="Export File Type",
         description="Select File Extensions",
         items=[('OP1',"FBX Export","Exports the file as Project.fbx"),
-                ('OP2',"OBJ Export","Export the file as Project.obj")])
+                ('OP2',"OBJ Export","Export the file as Project.obj"),
+                ('OP3',"USD Export", "Export as file.usdc")])
     
     exp_editPresetDetails: bpy.props.BoolProperty(
         name = "Edit Preset",
