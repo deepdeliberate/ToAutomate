@@ -1330,13 +1330,16 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
             exp_mesh = export_Path
 
+            bpy.ops.object.select_all(action='DESELECT')
+
+            for obj in final_objects:
+                obj.select_set(True)
             
             with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
                 bpy.ops.wm.obj_export(
                     filepath= str(export_Path),
                     export_selected_objects=True,
                     export_triangulated_mesh=True,
-                    export_animation=False,
                     forward_axis='NEGATIVE_Z',
                     up_axis='Y',
                 )
@@ -1346,6 +1349,11 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
 
             exp_mesh = export_Path
+
+            bpy.ops.object.select_all(action='DESELECT')
+
+            for obj in final_objects:
+                obj.select_set(True)
             
             with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
                 bpy.ops.wm.usd_export(
