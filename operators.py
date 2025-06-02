@@ -1339,7 +1339,6 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                     export_animation=False,
                     forward_axis='NEGATIVE_Z',
                     up_axis='Y',
-                    filter_glob=".obj",
                 )
 
         elif exp_format == 'OP3':
