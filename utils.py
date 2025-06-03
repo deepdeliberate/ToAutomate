@@ -3,6 +3,13 @@ import os
 
 from pathlib import Path
 
+def rem_col(col):
+    if not col:
+        return
+    
+    bpy.context.scene.collection.children.unlink(col)
+    bpy.data.collections.remove(col, do_unlink= True)
+
 def update_mesh_path(self,context):
     if self.exp_meshPath.startswith("//"):
         fullpath_blend = bpy.path.abspath(context.blend_data.filepath)
