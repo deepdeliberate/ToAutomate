@@ -69,25 +69,25 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
         if enum_rnm_method == 'OP1':
             if move_LP :
                 # low_col = get_col(col_LP_name)
-                move_obj(self, context.object, col_LP_name) 
+                utils.move_obj(self, context.object, col_LP_name) 
             
-            move_obj_LP_HP(self, context, context.active_object , context.selected_objects, name, col_HP_name, move_HP)
+            utils.move_obj_LP_HP(self, context, context.active_object , context.selected_objects, name, col_HP_name, move_HP)
             # Add functionality to rename the active object while renaming
 
         elif enum_rnm_method == 'OP2':
             # move to object collection
-            base_obj_col = get_col(obj_col_name )
+            base_obj_col = utils.get_col(obj_col_name )
 
             # got the collection
             if prnt_obj_col_name != "" :
-                prnt_obj_col = get_col(prnt_obj_col_name)
+                prnt_obj_col = utils.get_col(prnt_obj_col_name)
                 # move_col(base_obj_col, prnt_obj_col)q
             
             # Move LP and HP both here after renaming
             if move_LP :
                 # low_col = get_col(col_LP_name)
-                move_obj(self, context.object, obj_col_name) 
-            move_obj_LP_HP( self, context, context.active_object, context.selected_objects, name, obj_col_name)
+                utils.move_obj(self, context.object, obj_col_name) 
+            utils.move_obj_LP_HP( self, context, context.active_object, context.selected_objects, name, obj_col_name)
             
         
         else:
@@ -104,17 +104,17 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
             # Parent property option?
                     
             if not crt_object_col:
-                move_mult_obj(self, low_objects, col_LP_name)
-                move_mult_obj(self, high_objects, col_HP_name)
+                utils.move_mult_obj(self, low_objects, col_LP_name)
+                utils.move_mult_obj(self, high_objects, col_HP_name)
             else:
                 # move to object name collection
                 for obj in low_objects:
                     base_obj_col_name = obj.name[ : -1*(len(LP))]  
-                    move_obj(self, obj, base_obj_col_name) 
+                    utils.move_obj(self, obj, base_obj_col_name) 
 
                 for obj in high_objects:
                     base_obj_col_name =  obj.name[ : -1*(len(HP))]
-                    move_obj(self,obj, base_obj_col_name) 
+                    utils.move_obj(self,obj, base_obj_col_name) 
 
 
 
@@ -125,25 +125,7 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
 
 # Function to move and rename the High poly objects to their corresponding LP name and HP col
     
-def move_obj_LP_HP( self, context, act_obj , objects, base_name, target_col_name, move_HP = True):
-    tamt = context.scene.tamt
 
-    HP = tamt.high_suffix
-
-    # Renaming and Moving active and selected objects to thier Collection
-    count = 0
-    for obj in objects:
-        if not (obj == act_obj) :
-            cur_name = base_name + HP  
-
-            if count > 0:
-                cur_name += f"_{count}"
-            count += 1
-            obj.name = cur_name
-
-            if move_HP :
-                # high_col = get_col(col_HP_name)
-                move_obj(self, obj, target_col_name) 
 
 def move_col(col, parent_col):
 
@@ -259,10 +241,10 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
 
                 for obj in context.selected_objects:
                     if (obj.name.endswith(LP)):
-                        sel_object(obj, LP, HP, H_Col)
+                        utils.sel_object(obj, LP, HP, H_Col)
                     
                     elif(obj.name.endswith(HP)):
-                        sel_object(obj, HP, LP, L_Col)
+                        utils.sel_object(obj, HP, LP, L_Col)
             
             # Deselecting original if option enabled
             if d_sel:
@@ -302,7 +284,7 @@ class OBJECT_OT_TAMT_COLORGANIZE(bpy.types.Operator):
                 return {'CANCELLED'}
         
         # Makes empties and parent for objects in the entire tree of this collection
-        Col_traverse(p_col)
+        utils.Col_traverse(p_col)
 
         if not org_name:
             a = p_col.name
@@ -346,15 +328,15 @@ class OBJECT_OT_TAMT_COL_REORGANIZE(bpy.types.Operator):
                 self.report({'ERROR'},"Master Collection Name can't be empty")
                 return {'CANCELLED'}
         
-        col = get_col(src_obj.name)
+        col = utils.get_col(src_obj.name)
         src_name = src_obj.name
 
-        Obj_retraverse(src_obj, del_emp)
+        utils.Obj_retraverse(src_obj, del_emp)
 
         if mk_root and root_name != src_name:
-            p_col = get_col(root_name)
+            p_col = utils.get_col(root_name)
 
-            old_cols = [c2 for c2 in traverse_tree(context.scene.collection) if c2.user_of_id(col)]
+            old_cols = [c2 for c2 in utils.traverse_tree(context.scene.collection) if c2.user_of_id(col)]
             # print(old_cols)
             if p_col not in old_cols:
                 p_col.children.link(col)
@@ -420,7 +402,7 @@ class OBJECT_OT_TAMT_MOD_MIRROR(bpy.types.Operator):
                 # Create new modifier
                 mod = obj.modifiers.new(name = 'My_Mirror', type = 'MIRROR')
                 if self.all_sym:
-                    sym_obj = Global_Sym()
+                    sym_obj = utils.Global_Sym()
                     mod.mirror_object = sym_obj
 
                 mod.use_axis[0] = self.mirror_axis[0]
@@ -463,7 +445,7 @@ class OBJECT_OT_TAMT_MOD_TRIANGULATE(bpy.types.Operator):
                         m_name=modifier.name
                         obj.modifiers.remove(modifier)
                         
-                        add_triangulate(obj,"Triangulate" )
+                        utils.add_triangulate(obj,"Triangulate" )
                         break
                             #modify=obj.modifiers.new(name=m_name,type='TRIANGULATE')
                             
@@ -471,10 +453,10 @@ class OBJECT_OT_TAMT_MOD_TRIANGULATE(bpy.types.Operator):
                             pass       
                 if not exist:
                     if newmod:
-                        add_triangulate(obj, "Triangulate")
+                        utils.add_triangulate(obj, "Triangulate")
             else:
                 if newmod:
-                    add_triangulate(obj, "Triangulate")
+                    utils.add_triangulate(obj, "Triangulate")
         return {'FINISHED'}
 
 class OBJECT_OT_TAMT_MOD_ARRAY(bpy.types.Operator):
@@ -625,7 +607,7 @@ class OBJECT_OT_TAMT_MESH_ADDMAT(bpy.types.Operator):
             return {'CANCELLED'}
         
         if not mat:
-            mat = get_mat(self.mat_name)
+            mat = utils.get_mat(self.mat_name)
             tamt.base_mat = mat
 
         if is_in_edit_mode:
@@ -670,9 +652,9 @@ class OBJECT_OT_TAMT_MESH_ADDMAT(bpy.types.Operator):
         else:
             for obj in all_objs:
                 if remove_old:
-                    rem_mat(obj)
+                    utils.rem_mat(obj)
                 if obj.type == 'MESH' or obj.type == 'CURVE':
-                    add_mat(obj, mat, apply_mat, mat_name)
+                    utils.add_mat(obj, mat, apply_mat, mat_name)
 
             
         return {'FINISHED'}
@@ -713,7 +695,7 @@ class OBJECT_OT_TAMT_MESH_REMMATS(bpy.types.Operator):
 
         all_objs = [obj for obj in context.selected_objects if obj.type == 'MESH' or obj.type == 'CURVE']
         for obj in all_objs:
-            rem_mat(obj)
+            utils.rem_mat(obj)
 
         
         return {'FINISHED'}
@@ -1167,7 +1149,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
         exp_targetKeyframe = preset.exp_targetKeyframe
         save_keyFrame = bpy.context.scene.frame_current
 
-        preferences = get_preferences(context)
+        preferences = utils.get_preferences(context)
         painter_path = preferences["painter_path"]
 
         sppFileName = "My_substance"
@@ -1197,7 +1179,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             final_cols = []
             for col in Inc_Coll:
                 cur_cols = []
-                cur_cols = [c for c in (exp_Col_traverse( col , Exc_Coll)) ]
+                cur_cols = [c for c in (utils.exp_Col_traverse( col , Exc_Coll)) ]
                 final_cols += cur_cols
 
             
@@ -1218,8 +1200,8 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
         else:
             # Write Code for LP and HP Objects
-            all_low_cols = [col for col in exp_Col_traverse(col, []) ]
-            all_high_cols = [col for col in exp_Col_traverse(col, []) ]
+            all_low_cols = [col for col in utils.exp_Col_traverse(col, []) ]
+            all_high_cols = [col for col in utils.exp_Col_traverse(col, []) ]
 
             low_objects = []
             for obj in low_objects:
@@ -1337,7 +1319,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             # for obj in final_objects:
             #     obj.select_set(True)
             export_External_Col_name += export_final_name
-            col = get_col(export_External_Col_name)
+            col = utils.get_col(export_External_Col_name)
             
             # Link all objects to an additional temp collection
             for obj in final_objects:
@@ -1373,7 +1355,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             #     obj.select_set(True)
 
             export_External_Col_name += export_final_name
-            col = get_col(export_External_Col_name)
+            col = (export_External_Col_name)
 
             # Could use a key-map for {obj: obj.hide_viewport for obj in final_objs}
             # To store hide info
@@ -1596,331 +1578,18 @@ class OBJECT_OT_TAMT_EXPORTCOL_REMCOL(bpy.types.Operator):
         collection_group.remove(self.index)
         return {'FINISHED'}
 
-def exp_Col_traverse(Col , Exclude):
-    # Call out the childrens
-    if Col not in Exclude:
-        yield Col
-        for c in Col.children:
-            yield from exp_Col_traverse(c, Exclude)
-
-
-
-testing = {
-    'painter_path' : utils.substance_painter_path()
-}
-
-def get_preferences(context):
-    if __name__ == '__main__':
-        return testing
-    else:
-        prefs = context.preferences.addons[__package__].preferences
-
-        return {
-            'painter_path': prefs.painter_path
-        }
-
-
-# Materials Functions
-
-def get_mat(mat_name = 'Base_Mat'):
-    if mat_name in bpy.data.materials:
-        mat = bpy.data.materials[mat_name]
-    else:
-        mat = bpy.data.materials.new(mat_name)
-        mat.use_nodes = True
-    
-    return mat
-
-def add_mat (obj ,mat, apply , mat_name = 'New_Mat') :
-    exist_mat = False
-
-    if ( mat is None) :
-        if mat_name in bpy.data.materials:
-            mat = bpy.data.materials[mat_name]
-        
-        else:
-            mat = bpy.data.materials.new(mat_name)
-            mat.use_nodes = True
-    
-    assign = True
-    # Checking if the material already exists in the object mats
-    if mat_name not in [m.name for m in obj.data.materials if m ]:
-        obj.data.materials.append(mat)
-        # print(f"Assigned material: {mat.name}")
-
-    
-    mat_index = obj.data.materials.find(mat.name)
-
-    if mat_index != -1 and apply:
-        for poly in obj.data.polygons:
-            poly.material_index = mat_index
-    
-    return {"FINISHED"}
-
-def rem_mat(obj):
-    if obj.data.materials:
-        obj.data.materials.clear()
-
-def add_triangulate(obj , tri_name = "Export_Triangulate_T" ):
-    # print('I triangulate')
-    
-    if obj.type=='MESH':
-        if obj.modifiers:
-            index_tri = -1
-            index_wt = -1
-            for i,mod in enumerate(obj.modifiers):
-#                if mod.type == 'WEIGHTED_NORMAL':
-#                    index_wt = i
-                if mod.type == 'TRIANGULATE':
-                    index_tri = i
-                    mod.keep_custom_normals = True
-            
-            if index_tri != -1 and index_wt != -1:
-                # Triangle exists
-                if index_wt > index_tri :
-                    # Trianle is at right location, no need to move
-                    pass
-                else:
-                    #move_above( obj , index_tri, index_wt)
-                    bpy.ops.object.modifier_move_to_index({'object':obj},modifier=obj.modifiers[index_tri].name, index=index_wt)
-                    modify.keep_custom_normals = True
-            elif index_wt != -1:
-                # add triangle above the index_wt
-                modify=obj.modifiers.new(name=tri_name,type='TRIANGULATE')
-                
-                bpy.ops.object.modifier_move_to_index({'object':obj}, modifier=modify.name, index=index_wt)
-                modify.keep_custom_normals = True
-            
-            elif index_tri == -1:
-                # just add triangulate
-                modify=obj.modifiers.new(name=tri_name,type='TRIANGULATE')
-                modify.keep_custom_normals = True
-        else:
-            modify=obj.modifiers.new(name=tri_name,type='TRIANGULATE')
-            modify.keep_custom_normals = True
-    return obj
-
-
-def rem_triangulate(obj , tri_name = "Export_Triangulate_T"):
-    if obj.type=='MESH':
-        i = 0
-        for modify in obj.modifiers:
-            if modify.name==tri_name:
-                if i != len(obj.modifiers)-1:
-                    if obj.modifiers[i+1].type == 'WEIGHTED_NORMAL':
-                        # Triangulate for Weighted normal
-                        modify.name = "Triangulate"
-                    else:
-                        obj.modifiers.remove(modify)
-                else:
-                    obj.modifiers.remove(modify)
-                    
-            i += 1
-    return obj
-
-def Global_Sym():
-    name = bpy.context.scene.sym_obj_name  
-    if not(bpy.data.objects.get(name)):
-        o=bpy.data.objects.new(name,None)
-        bpy.context.scene.collection.objects.link(o)
-    else:
-        o=bpy.data.objects[name]
-    
-    o.empty_display_size=1
-    o.empty_display_type='PLAIN_AXES'
-    return o
-
-def traverse_tree(col):
-    yield col
-    for col2 in col.children:
-        yield from traverse_tree(col2)    
-        
-
-def Col_traverse(col):
-    col_obj = None
-
-    # Create empty object of Col too?
-    if bpy.data.objects.get(col.name):
-        # current col objec extis
-        col_obj = bpy.data.objects[col.name]
-    else:
-        col_obj = get_empty_obj(col.name)
-
-    for c_col in col.children:
-        
-        #Object named after the current Collection
-        if not(bpy.data.objects.get(c_col.name)):
-            new_obj= bpy.data.objects.new(c_col.name,None)
-            c_col.objects.link(new_obj)
-        elif bpy.data.objects[c_col.name].type == 'EMPTY' and bpy.data.objects[c_col.name].instance_type == 'COLLECTION' and bpy.data.objects[c_col.name].instance_collection:
-            # Check whether empty object named col_name, and maybe it's an instance too lol
-            #rename this object
-            new_obj = bpy.data.objects[c_col.name] 
-            new_obj.name += '_instance'
-            
-
-        else: 
-            # Object with collection name exists
-            new_obj=bpy.data.objects[c_col.name]
-            old_cols=new_obj.users_collection
-            if not c_col in old_cols:
-                c_col.objects.link(new_obj)
-            for o in old_cols:
-                o.objects.unlink(new_obj)
-        
-        new_obj.parent = col_obj
-
-        if col != bpy.context.scene.collection :
-            new_obj.parent=bpy.data.objects[col.name]
-        else:
-            pass
-
-
-        # Make collection named object first 
-        # Traverse children collection
-        Col_traverse(c_col)
-        
-    # Traverse all collection so far
-    for obj in col.objects:
-        if not(obj.name == col.name ):
-            if not(obj.parent):
-                obj.parent = get_empty_obj(col.name)
-
-
-
-def get_empty_obj(name):
-    my_col = get_col(name)
-    
-    if not bpy.data.objects.get(name):
-        obj = bpy.data.objects.new(name,None)
-        my_col.objects.link(obj)
-    else:
-        # Exists
-        obj = bpy.data.objects[name]
-        old_cols = obj.users_collection
-        if my_col not in old_cols:
-            my_col.objects.link(obj)
-
-    return obj
-
-def Obj_retraverse(obj, rem_parent = False):
-
-    if obj.type=='EMPTY':
-        if not(bpy.data.collections.get(obj.name)):
-            new_col=bpy.data.collections.new(name=obj.name)
-            if not(obj.parent):
-                bpy.context.scene.collection.children.link(new_col)
-            else:
-                # Could be error prone, if obj_parent col doesn't exist :P
-                bpy.data.collections[obj.parent.name].children.link(new_col)
-
-        else:
-            new_col=bpy.data.collections.get(obj.name)
-            if obj.parent:
-                parent = get_col(obj.parent.name)
-                if not new_col in parent.children.values():
-                    # Making collection sit under correct parent_col
-                    col_parents = [c2 for c2 in traverse_tree(bpy.context.scene.collection) if c2.user_of_id(new_col)]
-                    
-                    if not(bpy.data.collections[obj.parent.name] in col_parents ):
-                        bpy.data.collections[obj.parent.name].children.link(new_col)
-                    for col in col_parents:
-                        if (col == bpy.data.collections[obj.parent.name]):
-                            continue
-                        else:
-                            col.children.unlink(new_col)
-
-        # moving to new collection and removing object from prev collection
-        old_col=obj.users_collection
-        if not(new_col in old_col):
-            new_col.objects.link(obj)
-        for o in old_col:
-            if not(o.name==new_col.name):
-                o.objects.unlink(obj)
-
-        # Traver childrent of current Empty object
-        for ob in obj.children:
-            Obj_retraverse(ob, rem_parent)
-
-        if rem_parent:
-            obj.parent = None
-            remove_obj(obj)
-
-    else:
-        #zprint(obj.name)
-
-        # only After Traversing all parent, we un-parent child too
-        if obj.parent and obj.parent.type == 'EMPTY':
-            old=obj.users_collection
-            new_col=get_col(obj.parent.name)
-            if not(new_col in old):
-                new_col.objects.link(obj)
-            for o in old:
-                if not(o == new_col):
-                    o.objects.unlink(obj)
-        if rem_parent and obj.parent.type == 'EMPTY':
-            obj.parent = None
-            
-        
-def remove_obj(obj):
-    obj = bpy.data.objects.get(obj.name)
-    if obj:
-        for cols in obj.users_collection:
-            cols.objects.unlink(obj)
-        bpy.data.objects.remove(obj, do_unlink=True)
-    else:
-        return
-                            
-def sel_object(obj, suffix, s_suffix, target_col):
-
-    c_obj = bpy.data.objects.get(( obj.name[  : -1*(len(suffix))] + s_suffix))
-
-    if c_obj:
-        if( target_col in c_obj.users_collection):
-            # Present in the High poly collection
-            c_obj.select_set(True)
 
 
 
 
-#  Function to get a Collection of given name
-
-def get_col(col_name ):
-
-    if not(bpy.data.collections.get(col_name)):
-        my_col = bpy.data.collections.new(name = col_name)
-        bpy.context.scene.collection.children.link(my_col)
-    else:
-        my_col = bpy.data.collections.get(col_name)
-
-    return my_col
 
 
-#  Function to move object to given collection
-def move_obj(self, obj, Col):
-    my_col = get_col(Col)
 
-    old_colls = obj.users_collection
 
-    if not(my_col in old_colls):
-        my_col.objects.link(obj)
-    for o in old_colls:
-        if not( o == my_col):
-            o.objects.unlink(obj)
-        self.report({'INFO'}, f"{o.name} Object already in {Col} Collection")
 
-def move_mult_obj(self, all_obj, Col):
-    my_col = get_col(Col)
 
-    for obj in all_obj:
-        old_colls = obj.users_collection
 
-        if not(my_col in old_colls):
-            my_col.objects.link(obj)
-        for o in old_colls:
-            if not( o == my_col):
-                o.objects.unlink(obj)
-            self.report({'INFO'}, f"{o.name} Object already in {Col} Collection")
+
 
 
 classes = [
