@@ -836,7 +836,7 @@ class OBJECT_OT_TAMT_UV_OFFSET(bpy.types.Operator):
                             mod.offset_u = 1.0 
                             flag = False
                         else : 
-                            modd_offset_v = 1.0
+                            mod.offset_v = 1.0
                             flag = True
         
         return {'FINISHED'}
