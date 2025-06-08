@@ -214,6 +214,7 @@ class TAMT_PT_UVOperators_panel(bpy.types.Panel):
         col4.label(text = "Rename UVMap")
         col4.prop(tamt, "uvmap_ren_enum", text = "Select")
         if uv_ren_option == 'OP1':
+            col4.prop(tamt, "uvmap_ren_create", text = "Create")
             col4.prop(tamt, "uvmap_ren_name", text = "UV Name", icon="UV")
         elif uv_ren_option == 'OP2':
             col4.prop(tamt, "uvmap_f_name", text ="Find", icon = "UV")
