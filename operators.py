@@ -1374,7 +1374,8 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             bpy.ops.object.select_all(action='DESELECT')
 
             for obj in final_objects:
-                col.objects.link(obj)
+                if col not in obj.users_collection:
+                    col.objects.link(obj)
                 obj.hide_viewport = False
                 obj.hide_set(False)
                 obj.select_set(True)
@@ -1415,7 +1416,8 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             col = utils.get_col(export_External_Col_name)
 
             for obj in final_objects:
-                col.objects.link(obj)
+                if col not in obj.users_collection:
+                    col.objects.link(obj)
                 obj.hide_viewport = False
                 obj.hide_set(False)
                 obj.select_set(True)
