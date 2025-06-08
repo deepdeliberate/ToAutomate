@@ -494,7 +494,7 @@ class OBJECT_OT_TAMT_MOD_ARRAY(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.mode == "OBJECT"
+        return context.mode == 'OBJECT' and len(context.selected_objects) == 2
     
     def invoke(self, context, event):
         wm = context.window_manager
