@@ -528,7 +528,7 @@ class OBJECT_OT_TAMT_MOD_ARRAY(bpy.types.Operator):
            self.report({'ERROR'}, "You must select two objects")
            return {'CANCELLED'}
 
-        if context.active_object.type != 'MESH' or context.active_object.type != 'CURVE' :
+        if not(context.active_object.type == 'MESH' or context.active_object.type == 'CURVE') :
             self.report({'ERROR'}, "Incompatible Object")
             return {'CANCELLED'}
         
