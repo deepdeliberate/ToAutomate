@@ -531,7 +531,7 @@ class OBJECT_OT_TAMT_MOD_ARRAY(bpy.types.Operator):
         s_obj = bpy.context.active_object
         mod = None
         if s_obj.modifiers:
-            for m in obj.modifiers:
+            for m in s_obj.modifiers:
                 if m.type == 'ARRAY' and m.name == 'D_Array':
                     mod = m
                     break
