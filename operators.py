@@ -1272,8 +1272,10 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             export_ext = '.fbx'
         elif exp_format == 'OP2':
             export_ext = '.obj'
-        else:
+        elif exp_format == 'OP3':
             export_ext = '.usdc'
+        else:
+            export_ext = '.dae'
 
         exp_mesh = ''
 
@@ -1390,6 +1392,27 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 col.objects.unlink(obj)
 
             utils.rem_col(col)
+        
+        elif exp_format == 'OP4':
+            export_ext = '.dae'
+            export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
+
+            exp_mesh = export_Path
+
+            bpy.ops.object.select_all(action='DESELECT')
+
+            for obj in final_objects:
+                obj.select_set(True)
+
+            bpy.ops.wm.collada_export(
+                filepath=str(export_Path),
+                apply_modifiers=True,
+                export_mesh_type=0,
+                export_mesh_type_selection='render',
+                triangulate=True,
+                selected=True,
+            )
+
         
 
         # Updating the current frame to original location

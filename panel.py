@@ -294,7 +294,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
             preset = collection.presets[preset_index]
 
             row.prop(preset, "name")
-            row.prop(preset,"exp_meshSource", text = "Export Type", icon = "OBJECT_DATA")
+            row.prop(preset,"exp_meshSource", text = "Export Src", icon = "OBJECT_DATA")
             row.prop(preset, "exp_nameMethod", text = "File Name")
             if preset.exp_nameMethod == 'OP2':
                 row.prop(preset, "exp_name")
