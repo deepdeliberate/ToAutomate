@@ -939,21 +939,24 @@ class OBJECT_OT_TAMT_UV_Create(bpy.types.Operator):
         mk_active=tamt.uvmap_mk_active
         # mk_activeRender=tamt.uvmap_mk_activerender
 
-        for obj in context.selected_objects:
+        for obj in bpy.context.selected_objects:
             exist = False
             if obj.type=='MESH':
                 target_uv = None
-                for uv_tex in obj.data.uv_layers:
-                    if uv_tex.name==uv_name:
-                        target_uv = uv_tex
-                        exist = True
-                if not(exist):
-                    target_uv = obj.data.uv_layers.new(name=uv_name)
-                if mk_active:
-                    obj.data.uv_layers.active = target_uv
-                    target_uv.active_render=True
-                # if mk_activeRender: 
-                #     obj.data.uv_layers[uv_name].active_render=True
+                if obj.data.uv_layers.get(uv_name) == None:
+                    print("I BORK")
+                    test = obj.data.uv_layers.new(name = uv_name)
+                    if mk_active:
+                        obj.data.uv_layers.active = obj.data.uv_layers[ len(obj.data.uv_layers)-1]
+                        obj.data.uv_layers[len(obj.data.uv_layers)-1].active_render = True
+                    
+                else:
+                    if mk_active:
+                        for i,uv in enumerate(obj.data.uv_layers):
+                            if uv.name == uv_name:
+                                obj.data.uv_layers.active =  obj.data.uv_layers[i]
+                                obj.data.uv_layers[i].active_render = True
+
         return {'FINISHED'}    
 
 class OBJECT_OT_TAMT_UV_Rename(bpy.types.Operator):
