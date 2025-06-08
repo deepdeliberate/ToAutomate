@@ -363,7 +363,8 @@ def Col_traverse(col):
             if not c_col in old_cols:
                 c_col.objects.link(new_obj)
             for o in old_cols:
-                o.objects.unlink(new_obj)
+                if not( o == c_col):
+                    o.objects.unlink(new_obj)
         
         new_obj.parent = col_obj
 
