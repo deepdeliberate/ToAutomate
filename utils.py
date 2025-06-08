@@ -203,14 +203,6 @@ def remove_obj(obj):
         return
     
 
-def sel_object(obj, suffix, s_suffix, target_col):
-    c_obj = bpy.data.objects.get(( obj.name[  : -1*(len(suffix))] + s_suffix))
-
-    if c_obj:
-        if( target_col in c_obj.users_collection):
-            # Present in the High poly collection
-            c_obj.select_set(True)
-
 testing = {
     'painter_path' : substance_painter_path()
 }
@@ -394,7 +386,7 @@ def Col_traverse(col):
 
 
 def get_empty_obj(name):
-    my_col = (name)
+    my_col = get_col(name)
     
     if not bpy.data.objects.get(name):
         obj = bpy.data.objects.new(name,None)

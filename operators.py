@@ -145,33 +145,10 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     # for selection
-    only_LP: bpy.props.BoolProperty(description= "Select Only Low Poly, When ON, only searches LP no HP",default= True)
-    only_HP: bpy.props.BoolProperty(description= "Select Only High Poly, When ON, only searches HP no LP", default=True)
-
-    only_col: bpy.props.BoolProperty(description="Select from Collection if ON, otherwise searches whole scene", default = True)
 
     @classmethod
     def poll(cls, context):
-        return len(context.selected_objects) > 0
-    
-    def draw(self, context):
-        layout = self.layout
-        row = layout.row(align= True)
-        # row.alignment = 'CENTER'
-
-        row.label(text = "Find in: ")
-        row.prop(self,'only_col', text="Collection Only")
-        
-        # # Low and High Only props
-        # row2 = layout.column(align= True)
-        # # row2.alignment = 'CENTER'
-        
-        # tamt = context.scene.tamt
-        # Select_option = tamt.col_sel_enum
-
-        # if Select_option == 'OP1':
-        #     row2.prop(self,'only_LP', text = "Low Poly")
-        #     row2.prop(self, 'only_HP', text= "High Poly")
+        return len(context.selected_objects) >= 0
 
     
     def execute(self, context):
@@ -193,69 +170,110 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
         H_Col = bpy.data.collections.get(col_HP_name)
 
         # OP1: Selecting the objects with no significant others
+        final_selection = []
 
-        if Select_option == 'OP1':
-            for obj in context.scene.objects: obj.select_set(False)
-
-            if not(L_Col):
+        all_objs = [o for o in context.selected_objects]
+        if not(L_Col):
                 self.report({'ERROR'}, "No HP Collection Found")
                 return {'CANCELLED'}
+        
+        if not(H_Col):
+            self.report({'ERROR'}, "No LP Collection Found")
+            return {'CANCELLED'}
+
+        if Select_option == 'OP1':
+            bpy.ops.object.select_all(action='DESELECT')
+
             
-            if not(H_Col):
-                self.report({'ERROR'}, "No LP Collection Found")
-                return {'CANCELLED'}
             
-            if self.only_LP:
-                for obj in L_Col.objects:
-                    if not((obj.name[ : -1*(len(LP))] + HP) in H_Col.objects):
-                        obj.select_set(True)
-            
-            if self.only_HP:
-                for h_obj in H_Col.objects:
-                    if not((h_obj.name[  : -1*(len(HP)) ]   + LP ) in L_Col.objects):
-                        obj.select_set(True)
+            for col in {L_Col, H_Col}:
+                for obj in col.objects:
+                    if obj.name.endswith(LP):
+                        if bpy.data.objects.get(obj.name.replace(LP, HP)):
+                            pair_obj = bpy.data.objects.get(obj.name.replace(LP, HP))
+                            for col in pair_obj.users_collection:
+                                if col != H_Col:
+                                    final_selection.append(pair_obj)
+                                    self.report({'INFO'},f"{pair_obj.name} isn't in {col_HP_name} collection, found in {col.name}")
+                        else:
+                            self.report({'INFO'},f"{obj.name}'s pair object doesn't exist")
+                            final_selection.append(obj)
+
+                    elif obj.name.endswith(HP):
+                        print(f"name {obj.name}")
+                        if bpy.data.objects.get(obj.name.replace(HP, LP)):
+                            pair_obj = bpy.data.objects.get(obj.name.replace(HP, LP))
+                            for col in pair_obj.users_collection:
+                                if col != L_Col:
+                                    final_selection.append(pair_obj)
+                                    self.report({'INFO'},f"{pair_obj.name} isn't in {col_HP_name} collection, found in {col.name}")
+                        else:
+                            self.report({'INFO'},f"{obj.name}'s pair object doesn't exist")
+                            final_selection.append(obj)
+
+                    else:
+                        self.report({'INFO'},f"{obj.name} isn't named properly")
+                        final_selection.append(obj)
+
+            for obj in final_selection:
+                obj.select_set(True)
+
+            if final_selection:
+                context.view_layer.objects.active = final_selection[0]
+                
+
         
         # OP2: Selecting the significant other in the object 
 
         else:
+            if len(context.selected_objects) == 0:
+                self.report({'WARNING'},"NO Objects Selected to check")
+                return {'CANCELLED'}
+
+
             if d_sel:
-                des_obj = [o for o in context.selected_objects]
+                bpy.ops.object.select_all(action='DESELECT')
 
-            # If needs to check from the scene objects
-            if not(self.only_col):
-                for obj in context.selected_objects:
-                    if(obj.name.endswith(LP )):
-                        ob = bpy.data.objects.get( obj.name[  : -1*(len(LP))] + HP)
-                        if ob:
-                            # Set object to visible collection
-                            ob.select_set(True)
+            for obj in all_objs:
+                if (obj.name.endswith(LP)):
+                    pair_obj = bpy.data.objects.get( obj.name.replace(LP, HP))
+                    if pair_obj:
+                        if H_Col not in pair_obj.users_collection:
+                            self.report({'INFO'},f"{pair_obj.name} found, but in non-LP_HP collection {pair_obj.users_collection[0]}")
+                        else:
+                            final_selection.append(pair_obj)
+                    else:
+                        self.report({'INFO'},f"{obj.name}'s pair not found, expected {obj.name.replace(LP, HP)}")
+                        
 
-                    elif(obj.name.endswith(HP)):
-                        ob = bpy.data.objects.get( obj.name[  : -1*(len(HP))] + LP)
-                        if ob:
-                            ob.select_set(True)
-            else:
 
-                # if object is LP check in HP Collection
-                # If it's significant other is there?
+                elif (obj.name.endswith(HP)):
+                    pair_obj = bpy.data.objects.get( obj.name.replace(HP, LP))
+                    if pair_obj:
+                        if L_Col not in pair_obj.users_collection:
+                            self.report({'INFO'},f"{pair_obj.name} found, but in non-LP_HP collection {pair_obj.users_collection[0]}")
+                        else:
+                            final_selection.append(pair_obj)
 
-                for obj in context.selected_objects:
-                    if (obj.name.endswith(LP)):
-                        utils.sel_object(obj, LP, HP, H_Col)
-                    
-                    elif(obj.name.endswith(HP)):
-                        utils.sel_object(obj, HP, LP, L_Col)
-            
-            # Deselecting original if option enabled
+                    else:
+                        self.report({'INFO'},f"{obj.name}'s pair not found, expected {obj.name.replace(HP, LP)}")
+                        final_selection.append(obj)
+                else:
+                    self.report({'INFO'},f"{obj.name} isn't named properly")
+                    final_selection.append(obj)
+
             if d_sel:
-                for ob in des_obj:
-                    ob.select_set(False)
+                for obj in all_objs:
+                    obj.select_set(False)
+
+            for obj in final_selection:
+                obj.select_set(True)
+
+            if final_selection:
+                context.view_layer.objects.active = final_selection[0]
+        
 
         return {'FINISHED'}
-    
-    # self layout improvement
-    # sel_LP_only, sel_HP_only
-    # and bug fixes
 
 class OBJECT_OT_TAMT_COLORGANIZE(bpy.types.Operator):
     bl_idname = "to_automate.col_organize"
