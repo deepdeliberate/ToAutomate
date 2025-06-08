@@ -982,7 +982,7 @@ class OBJECT_OT_TAMT_UV_Rename(bpy.types.Operator):
                         if uv_tex==obj.data.uv_layers.active:
                             exist=1
                             uv_tex.name=uv_name
-                    if not(exist):
+                    if not(exist) and create:
                         obj.data.uv_layers.new(name=uv_name)
         if option =='OP2':
             for obj in context.selected_objects:
@@ -1030,6 +1030,7 @@ class OBJECT_OT_TAMT_UV_Remove(bpy.types.Operator):
                         if uvr_enum=='OP1':
                             if uv_tex==obj.data.uv_layers.active:
                                 obj.data.uv_layers.remove(uv_tex)
+                                break
                         elif uvr_enum=='OP2':
                             if uv_tex.name==uv_name:
                                 obj.data.uv_layers.remove(uv_tex)
