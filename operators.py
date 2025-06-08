@@ -1309,42 +1309,6 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 axis_up='Y',
                 filepath = str(export_Path),
                 )
-
-        elif exp_format == 'OP2':
-            export_ext = '.obj'
-            export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
-
-            exp_mesh = export_Path
-
-            # bpy.ops.object.select_all(action='DESELECT')
-
-            # for obj in final_objects:
-            #     obj.select_set(True)
-            export_External_Col_name += export_final_name
-            col = utils.get_col(export_External_Col_name)
-            
-            # Link all objects to an additional temp collection
-            for obj in final_objects:
-                col.objects.link(obj)
-
-            bpy.ops.wm.obj_export(
-                filepath= str(export_Path),
-                export_selected_objects=False,
-                export_triangulated_mesh=True,
-                forward_axis='NEGATIVE_Z',
-                up_axis='Y',
-                collection=f"{col.name}",
-            )
-
-            # unlink objects from temp collection
-            for obj in final_objects:
-                col.objects.unlink(obj)
-
-            utils.rem_col(col)
-
-
-
-
         elif exp_format == 'OP3':
             export_ext = '.usdc'
             export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
@@ -1357,7 +1321,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             #     obj.select_set(True)
 
             export_External_Col_name += export_final_name
-            col = (export_External_Col_name)
+            col = utils.get_col(export_External_Col_name)
 
             # Could use a key-map for {obj: obj.hide_viewport for obj in final_objs}
             # To store hide info
@@ -1392,6 +1356,48 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 col.objects.unlink(obj)
 
             utils.rem_col(col)
+
+        elif exp_format == 'OP2' :
+            export_ext = '.obj'
+            export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
+
+            exp_mesh = export_Path
+
+            export_External_Col_name += export_final_name
+            col = utils.get_col(export_External_Col_name)
+            
+            # Link all objects to an additional temp collection
+            initial_obj_hide_set = {obj: obj.hide_get() for obj in final_objects}
+            initial_obj_hide_viewport = {obj: obj.hide_viewport for obj in final_objects}
+            initial_obj_hide_render = {obj: obj.hide_render for obj in final_objects}
+
+            bpy.ops.object.select_all(action='DESELECT')
+
+            for obj in final_objects:
+                col.objects.link(obj)
+                obj.hide_viewport = False
+                obj.hide_set(False)
+                obj.select_set(True)
+                
+
+            bpy.ops.wm.obj_export(
+                filepath= str(export_Path),
+                export_selected_objects=False,
+                export_triangulated_mesh=True,
+                forward_axis='NEGATIVE_Z',
+                up_axis='Y',
+                collection=f"{col.name}",
+            )
+
+            # unlink objects from temp collection
+            for obj in final_objects:
+                col.objects.unlink(obj)
+                obj.select_set(False)
+                obj.hide_set( initial_obj_hide_set[obj] )
+                obj.hide_viewport = initial_obj_hide_viewport[obj]
+                obj.hide_render = initial_obj_hide_render[obj]
+
+            utils.rem_col(col)
         
         elif exp_format == 'OP4':
             export_ext = '.dae'
@@ -1401,7 +1407,17 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
             bpy.ops.object.select_all(action='DESELECT')
 
+            initial_obj_hide_set = {obj: obj.hide_get() for obj in final_objects}
+            initial_obj_hide_viewport = {obj: obj.hide_viewport for obj in final_objects}
+            initial_obj_hide_render = {obj: obj.hide_render for obj in final_objects}
+
+            export_External_Col_name += export_final_name
+            col = utils.get_col(export_External_Col_name)
+
             for obj in final_objects:
+                col.objects.link(obj)
+                obj.hide_viewport = False
+                obj.hide_set(False)
                 obj.select_set(True)
 
             bpy.ops.wm.collada_export(
@@ -1412,6 +1428,16 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 triangulate=True,
                 selected=True,
             )
+
+            for obj in final_objects:
+                col.objects.unlink(obj)
+                obj.select_set(False)
+                obj.hide_set( initial_obj_hide_set[obj] )
+                obj.hide_viewport = initial_obj_hide_viewport[obj]
+                obj.hide_render = initial_obj_hide_render[obj]
+
+
+            utils.rem_col(col)
 
         
 
