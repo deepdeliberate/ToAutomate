@@ -47,8 +47,8 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         row3 = col.row()
 
         if my_rnm_ord_type == 'OP1':
-            row1.prop(tamt, 'move_LP', text = "LP Col")
-            row2.prop(tamt, 'move_HP', text= "HP Col")
+            row1.prop(tamt, 'move_LP', text = "LP Col", icon = "OUTLINER_COLLECTION")
+            row2.prop(tamt, 'move_HP', text= "HP Col" , icon= "OUTLINER_COLLECTION")
 
 
         if my_rnm_ord_type == 'OP1':
@@ -295,13 +295,13 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
             preset = collection.presets[preset_index]
 
             row.prop(preset, "name")
-            row.prop(preset,"exp_meshSource", text = "Export Src", icon = "OBJECT_DATA")
+            row.prop(preset,"exp_meshSource", text = "Source", icon = "OBJECT_DATA")
             row.prop(preset, "exp_nameMethod", text = "File Name")
             if preset.exp_nameMethod == 'OP2':
-                row.prop(preset, "exp_name")
-            row.prop(preset, "exp_format", text = "Export as", icon = "EXPORT")
+                row.prop(preset, "exp_name", text = "Name")
+            row.prop(preset, "exp_format", text = "Export Type", icon = "EXPORT")
             if not preset.exp_inDirectory:
-                row.prop(preset, "exp_meshPath", text="Export Pathq")
+                row.prop(preset, "exp_meshPath", text="Export Path")
             
             row.prop(preset, "exp_openSubstance", text = "Substance File?", icon = "BLANK1")
 
@@ -314,15 +314,13 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
                 row.prop(preset, "exp_sppTexPath", text= "Textures Path", icon = "TEXTURE")
             
             row.prop(preset, "exp_inDirectory", text = "Use File Directory")
-            row.prop(context.scene, "exp_tngt", text = "Triangulate")
+            row.prop(preset, "exp_triangulate", text = "Triangulate")
             row.prop(preset, "exp_targetKeyframe", text = "Export Frame")
-
             
 
-            row = layout.row()
-            row1 = row.box()
-
             if preset.exp_meshSource == 'OP1':
+                row = layout.row()
+                row1 = row.box()
                 collection_group = preset.inc_collections if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections
 
                 

@@ -1178,6 +1178,8 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
         preferences = utils.get_preferences(context)
         painter_path = preferences["painter_path"]
 
+        do_triangulate = preset.exp_triangulate
+
         sppFileName = "My_substance"
 
         avoid_suffix_check = False
@@ -1259,7 +1261,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
         elif exp_nameMethod == 'OP2':
             # Custom name
             # make sure it ain't empty
-            if len(exp_name.replace(" ","")) > 0:
+            if len(exp_name.strip()) > 0:
                 export_final_name = exp_name
             else:
                 self.report({'ERROR'}, "Please create non-empty name")
@@ -1290,8 +1292,12 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
 
         if len(final_objects) == 0:
-            self.report({'ERROR'}, "Final Export Object count is 0")
+            self.report({'INFO'}, "Final Export Object count is 0")
             return {'CANCELLED'}
+        
+        if do_triangulate:
+            for obj in final_objects:
+                utils.add_triangulate(obj, "TAMT_Triangulate_T")
 
         # Export File Format
         if exp_format == 'OP1':
@@ -1323,10 +1329,10 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
                 bpy.ops.export_scene.fbx(
                 use_selection= True,
-                mesh_smooth_type='EDGE',
+                mesh_smooth_type='OFF',
                 use_mesh_modifiers= True,
                 add_leaf_bones= False,
-                use_triangles= True,
+                use_triangles= do_triangulate,
                 apply_scale_options= 'FBX_SCALE_ALL',
                 bake_anim= False,
                 bake_anim_use_nla_strips= False,
@@ -1364,7 +1370,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 use_instancing=False,
                 export_textures=False,
                 export_textures_mode='NEW',
-                triangulate_meshes=True,
+                triangulate_meshes=do_triangulate,
                 quad_method='SHORTEST_DIAGONAL',
                 ngon_method='BEAUTY',
                 export_normals=True,
@@ -1410,7 +1416,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             bpy.ops.wm.obj_export(
                 filepath= str(export_Path),
                 export_selected_objects=False,
-                export_triangulated_mesh=True,
+                export_triangulated_mesh=do_triangulate,
                 forward_axis='NEGATIVE_Z',
                 up_axis='Y',
                 collection=f"{col.name}",
@@ -1453,7 +1459,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 apply_modifiers=True,
                 export_mesh_type=0,
                 export_mesh_type_selection='render',
-                triangulate=True,
+                triangulate=do_triangulate,
                 selected=True,
             )
 
@@ -1466,6 +1472,10 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
 
             utils.rem_col(col)
+        
+        if do_triangulate:
+            for obj in final_objects:
+                utils.rem_triangulate(obj, "TAMT_Triangulate_T")
 
         
 
@@ -1552,6 +1562,7 @@ class OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET(bpy.types.Operator):
         new_preset.exp_meshSource = 'OP1'
         new_preset.exp_format = 'OP1'
         new_preset.exp_openSubstance = False
+        new_preset.exp_triangulate = True
 
         #Update the enum property items
         tamt.export_presets.selected_preset = str(len(tamt.export_collection.presets) - 1)
@@ -1603,7 +1614,7 @@ class OBJECT_OT_TAMT_EXPORTCOL_REMPRESET(bpy.types.Operator):
 class OBJECT_OT_TAMT_EXPORTCOL_ADDCOL(bpy.types.Operator):
     bl_idname="to_automate.atmt_exportcol_addcol"
     bl_label = "Add Collection"
-    bl_description = "Add Collection to Include/Exclude it's object and children collection for Export"
+    bl_description = "Add Active Collection in Outliner to Include/Exclude it's object and children collection for Export"
 
     def execute(self, context):
         tamt = context.scene.tamt

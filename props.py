@@ -57,8 +57,8 @@ class exportProperties(bpy.types.PropertyGroup):
     exp_meshSource: bpy.props.EnumProperty(
         name="Export Source",
         description="Select Export Method",
-        items=[('OP1',"Export_Collection Objects","Export Specific Collection, Include or Exclude Collections to Export"),
-                ('OP2',"Export Selected Objects","Exports the selected objects only!")])
+        items=[('OP1',"Collection Objects","Export Specific Collection, Include or Exclude Collections to Export"),
+                ('OP2',"Selected Objects","Exports the selected objects only!")])
     
     exp_format : bpy.props.EnumProperty(
         name="Export File Type",
@@ -72,6 +72,12 @@ class exportProperties(bpy.types.PropertyGroup):
         name = "Edit Preset",
         description="Edit Properties of Preset.",
         default= False,
+    )
+
+    exp_triangulate: bpy.props.BoolProperty(
+        name = 'Triangulate',
+        description="Triangulate the meshes during export",
+        default= True,
     )
     
     exp_openSubstance: bpy.props.BoolProperty(
