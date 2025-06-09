@@ -943,7 +943,6 @@ class OBJECT_OT_TAMT_UV_Create(bpy.types.Operator):
             if obj.type=='MESH':
                 target_uv = None
                 if obj.data.uv_layers.get(uv_name) == None:
-                    print("I BORK")
                     test = obj.data.uv_layers.new(name = uv_name)
                     if mk_active:
                         obj.data.uv_layers.active = obj.data.uv_layers[ len(obj.data.uv_layers)-1]
