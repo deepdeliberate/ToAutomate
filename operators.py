@@ -15,6 +15,11 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
     bl_description = "Rename selected objects with desired suffix"
     bl_options = {"REGISTER", "UNDO"}
 
+    new_name: bpy.props.StringProperty(
+        name="Name",
+        description="Enter the name for the active object"
+    )
+
     @classmethod
     def poll(cls, context):
         if not(context.selected_objects):
@@ -26,6 +31,15 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
         if context.mode != "OBJECT":
             return False
         return True
+    
+    def invoke(self, context, event):
+        active_object = context.object
+        if active_object:
+            self.new_name = active_object.name
+        else:
+            return {'CANCELLED'}
+
+        return context.window_manager.invoke_props_dialog(self)
     
     def execute(self, context):
         tamt = context.scene.tamt
@@ -56,7 +70,11 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
         act_object = context.active_object
         hp_objects = [obj for obj in context.selected_objects if obj != act_object] 
 
-        name = act_object.name
+        name = ''
+        if self.new_name:
+            name = self.new_name
+        else:
+            name = act_object.name
         obj_col_name = name
 
         # Making sure the basename has proper prefix and suffix
