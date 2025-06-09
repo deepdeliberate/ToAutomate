@@ -41,7 +41,7 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
         # Rename Order Method Properties
         enum_rnm_method = tamt.rnm_ord_type
         crt_object_col = tamt.rnm_ord_3rd
-        prnt_obj_col_name = tamt.rnm_ord_parent
+        parent_col_name = tamt.rnm_ord_parent
 
         # rnm_ord_type , rnm_ord_3rd ,rnm_ord_parent
 
@@ -49,76 +49,64 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
             if not context.active_object:
                 self.report({'ERROR'},"No active object")
                 return {'CANCELLED'}
-            # Getting the active object name
-        name = context.active_object.name
+            
+        # Getting the active object name
+        
 
-        # Collection Name per object for OP2
+        act_object = context.active_object
+        hp_objects = [obj for obj in context.selected_objects if obj != act_object] 
+
+        name = act_object.name
         obj_col_name = name
 
         # Making sure the basename has proper prefix and suffix
         # Can improve algorithm by using string [ : - len(LP)] 
         if LP in name:
-            if name.endswith(HP):
-                name = name.replace(HP,"")
-                obj_col_name = obj_col_name.replace(HP)
+            name = name.replace( LP, "")
 
-            name = name.replace( LP, "" )
-            obj_col_name = obj_col_name.replace(LP, "")
-        context.active_object.name = name + LP
+        if HP in name:
+            name = name.replace(HP, "")
+
+        obj_col_name = name
+
+        if bpy.data.objects.get(name + LP) != None :
+            # Named object already exists
+            print("I Tried")
+            bpy.data.objects[name + LP].name = name + '_1' + LP 
+
+        print("I Tried2")
+        
+
+        act_object.name = name + LP
+
+        for i,obj in enumerate(hp_objects):
+            if i == 0:
+                obj.name = name + HP 
+            else:
+                obj.name = name + HP + '_' + str( i )
+
 
         if enum_rnm_method == 'OP1':
             if move_LP :
                 # low_col = get_col(col_LP_name)
-                utils.move_obj(self, context.object, col_LP_name) 
-            
-            utils.move_obj_LP_HP(self, context, context.active_object , context.selected_objects, name, col_HP_name, move_HP)
-            # Add functionality to rename the active object while renaming
+                utils.move_object( [context.object], col_LP_name )
 
+            my_objs = [obj for obj in context.selected_objects if obj != context.object]
+            if move_HP:
+                utils.move_object( my_objs, col_HP_name )
+
+            
         elif enum_rnm_method == 'OP2':
             # move to object collection
-            base_obj_col = utils.get_col(obj_col_name )
+            col = utils.get_col(obj_col_name)
+            utils.move_object( context.selected_objects, obj_col_name)
 
             # got the collection
-            if prnt_obj_col_name != "" :
-                prnt_obj_col = utils.get_col(prnt_obj_col_name)
-                # move_col(base_obj_col, prnt_obj_col)q
+            if len(parent_col_name.strip()) > 0 :
+                parent_col = utils.get_col(parent_col_name)
+                utils.move_col(col , parent_col)
             
-            # Move LP and HP both here after renaming
-            if move_LP :
-                # low_col = get_col(col_LP_name)
-                utils.move_obj(self, context.object, obj_col_name) 
-            utils.move_obj_LP_HP( self, context, context.active_object, context.selected_objects, name, obj_col_name)
             
-        
-        else:
-            low_objects = []
-            high_objects = []
-
-            for obj in context.selected_objects:
-                if obj.name.endswith(LP):
-                    low_objects.append(obj)
-
-                elif obj.name.endswith(HP):
-                    high_objects.append(obj)
-
-            # Parent property option?
-                    
-            if not crt_object_col:
-                utils.move_mult_obj(self, low_objects, col_LP_name)
-                utils.move_mult_obj(self, high_objects, col_HP_name)
-            else:
-                # move to object name collection
-                for obj in low_objects:
-                    base_obj_col_name = obj.name[ : -1*(len(LP))]  
-                    utils.move_obj(self, obj, base_obj_col_name) 
-
-                for obj in high_objects:
-                    base_obj_col_name =  obj.name[ : -1*(len(HP))]
-                    utils.move_obj(self,obj, base_obj_col_name) 
-
-
-
-
         
         return {'FINISHED'}   
     
@@ -127,12 +115,7 @@ class OBJECT_OT_TAMT_rename(bpy.types.Operator):
     
 
 
-def move_col(col, parent_col):
 
-    if not (col in parent_col.children):
-        parent_col.children.link(col)
-
-    # Check tree traverse for any other parent of collectionq
 
 
 
@@ -183,8 +166,6 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
 
         if Select_option == 'OP1':
             bpy.ops.object.select_all(action='DESELECT')
-
-            
             
             for col in {L_Col, H_Col}:
                 for obj in col.objects:

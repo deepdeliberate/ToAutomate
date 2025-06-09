@@ -48,23 +48,16 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
             row1.prop(tamt, 'move_LP', text = "LP Col")
             row2.prop(tamt, 'move_HP', text= "HP Col")
 
-        if my_rnm_ord_type == 'OP2':
-            row1.label(text="LP Col")
-            row2.label(text="HP Col")
 
-
-        if my_rnm_ord_type != 'OP3':
+        if my_rnm_ord_type == 'OP1':
             main_row.label(text = "Collection Names")
             row1.prop(tamt, 'col_LP', text = "", expand= False)
             row2.prop(tamt, 'col_HP', text = "", expand=False)
         
-        
-
-        if my_rnm_ord_type == 'OP3':
-            row_mid.prop(tamt,'rnm_ord_3rd', text = "Object Col")
 
         if my_rnm_ord_type != 'OP1':
-            row3.prop(tamt, 'rnm_ord_parent', text = "Parent Col")
+            row3.label(text="Parent Col")
+            row3.prop(tamt, 'rnm_ord_parent', text = "")
 
 
 # -------  Selecting Significant Other ----------------

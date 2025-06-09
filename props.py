@@ -211,7 +211,7 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
     rnm_ord_parent: bpy.props.StringProperty(
         name = "Parent Collection",
         description= "Name for Parent collection of the object collections / if empty : under Scene Collection",
-        default = ""
+        default = "P_Col"
     )
 
     # ------- Collection Organize/De-Organize -------------

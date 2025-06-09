@@ -192,6 +192,29 @@ def move_obj_LP_HP( self, context, act_obj , objects, base_name, target_col_name
                 # high_col = get_col(col_HP_name)
                 move_obj(self, obj, target_col_name) 
 
+def move_object( all_objs , col_name ):
+    col = get_col(col_name)
+
+    for obj in all_objs:
+        if col not in obj.users_collection:
+            old_cols = [c for c in obj.users_collection]
+            col.objects.link(obj)
+            for c in old_cols:
+                c.objects.unlink(obj)
+
+def move_col(col, parent_col):
+    all_cols = [col for col in traverse_tree(bpy.context.scene.collection)]
+
+    for c in all_cols:
+        if c != col:
+            if (c.user_of_id(col)):
+                c.children.unlink(col)
+    
+    if not parent_col.user_of_id(col):
+        parent_col.children.link(col)
+
+
+
 
 def remove_obj(obj):
     obj = bpy.data.objects.get(obj.name)
