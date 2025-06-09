@@ -11,6 +11,8 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
     bl_category = "To Automate"
+    bl_options = {'DEFAULT_CLOSED'}
+
 
     def draw(self, context):
         tamt = context.scene.tamt
@@ -115,6 +117,8 @@ class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
     bl_region_type = "UI"
     bl_category = "To Automate"
     # bl_parent_id = "to_automate.3D_panel"
+    bl_options = {'DEFAULT_CLOSED'}
+
 
     def draw(self, context):
         tamt = context.scene.tamt
@@ -172,6 +176,8 @@ class TAMT_PT_UVOperators_panel(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
     bl_category = "To Automate"
+    bl_options = {'DEFAULT_CLOSED'}
+
 
     def draw(self, context):
         tamt = context.scene.tamt
@@ -234,6 +240,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
     bl_category = "To Automate"
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         tamt = context.scene.tamt
