@@ -45,64 +45,71 @@ def update_presets(self, context):
         items = [('0', 'No Presets', '')]
     return items
 
+def _get_macos_paths(year_suffix = ''):
+    """Generates potential macOS Substance 3d Painter Paths"""
+    base_app_name = f'Adobe Substance 3D Painter { f"{year_suffix}" if year_suffix else ""}.app'
+    base_exe_path = f'Contents/MacOS/Adobe Substance 3D Painter'
+
+    return [
+        Path('/Applications') / base_app_name/base_exe_path,
+        Path('/Applications/Adobe Substance 3D Painter') / base_app_name / base_exe_path,
+        Path('~/Library/Application Support/Steam/steamapps/common') / \
+        f'Substance 3D Painter{f" {year_suffix}" if year_suffix else ""}' / base_app_name / base_exe_path
+    ]
+
+def _get_windows_paths(drive_letter, year_suffix = ''):
+    """Generate Windows Substance 3D Painter paths for a given drive letter"""
+    app_exe = 'Adobe Substance 3D Painter.exe'
+
+    cc_folder_name = f'Adobe Substance 3D Painter{f" {year_suffix}" if year_suffix else ""}'
+    steam_folder_name_3d = f'Substance 3D Painter{f" {year_suffix}" if year_suffix else ""}'
+    steam_folder_name_no_3d = f'Substance Painter{f" {year_suffix}" if year_suffix else ""}'
+
+    final_paths = []
+
+    # Adobe Creative Cloud Paths
+    final_paths.extend([
+        Path(f'{drive_letter}:/Program Files/Adobe') / cc_folder_name / app_exe,
+        Path(f'{drive_letter}:/Program Files (x86)/Adobe') / cc_folder_name / app_exe,
+    ])
+
+    # Steam Paths
+    final_paths.extend([
+        #Steam with '3D' in folder name
+        Path(f'{drive_letter}:/Program Files/Steam/steamapps/common') / steam_folder_name_3d / app_exe,
+        Path(f'{drive_letter}:/Program Files (x86)/Steam/steamapps/common') / steam_folder_name_3d / app_exe,
+
+        # Steam without '3D' in folder name (for older/different Steam installs)
+        Path(f'{drive_letter}:/Program Files/Steam/steamapps/common') / steam_folder_name_no_3d / app_exe,
+        Path(f'{drive_letter}:/Program Files (x86)/Steam/steamapps/common') / steam_folder_name_no_3d / app_exe,
+        
+    ])
+    return final_paths
+
+
 def substance_painter_path():
-    paths = []
-    
-    curr_os = os.name
+    candidates_paths = []
 
-    # MACOS
-    if curr_os == 'posix':
-        paths.extend([
-            f'/Applications/Adobe Substance 3D Painter.app/Contents/MacOS/Adobe Substance 3D Painter',
-            f'/Applications/Adobe Substance 3D Painter/Adobe Substance 3D Painter.app/Contents/MacOS/Adobe Substance 3D Painter',
-            f'~/Library/Application Support/Steam/steamsapps/common/Substance 3D Painter/Adobe Substance 3D Painter.app/Contents/ MacOS/Adobe Substance 3D Painter'
-        ])
-        for year in range(2020,2027):
-            paths.extend([
-                f'/Applications/Adobe Substance 3D Painter {year}.app/Contents/MacOS/Adobe Substance 3D Painter',
-                f'/Applications/Adobe Substance 3D Painter/Adobe Substance 3D Painter {year}.app/Contents/MacOS/Adobe Substance 3D Painter',
-                f'~/Library/Application Support/Steam/steamapps/common/Substance 3D Painter {year}/Adobe Substance 3D Painter.app/Contents/MacOS/Adobe Substance 3D Painter'
-            ])
-    elif curr_os == 'nt':
-        # Windows
-        for ch in 'CDEFGHIJKLMNOPQRSTUVWXYZ':
-            paths.extend([
-                #CC
-                f'{ch}:\\Program Files\\Adobe\\Adobe Substance 3D Painter\\Adobe Substance 3D Painter.exe',
-                f'{ch}:\\Program Files (x86)\\Adobe\\Adobe Substance 3D Painter\\Adobe Substance 3D Painter.exe',
-                
-                # Steam without 3D
-                f'{ch}:\\Program Files\\Steam||steamapps\\common\\Substance Painter\\Adobe Substance 3D Painter.exe',
-                f'{ch}:\\Program Files (x86)\\Steam\\steamapps\\common\\Substance Painter\\Adobe Substance 3D Painter.exe',
-                
-                # Steam with 3D
-                f'{ch}:\\Program Files\\Steam\\steamapps\\common\\Substance 3D Painter\\Adobe Substance 3D Painter.exe',
-                f'{ch}:\\Program Files (x86)\\Steam\\steamapps\\common\\Substance 3D Painter\\Adobe Substance 3D Painter.exe'
-            ])
-        # Windows with year
-        for year in range(2020,2027):
-            paths.extend([
-                # CC
-                f'{ch}:\\Program Files\\Adobe\\Adobe Substance 3D Painter {year}\\Adobe Substance 3D Painter.exe',
-                f'{ch}:\\Program Files (x86)\\Adobe\\Adobe Substance 3D Painter {year}\\Adobe Substance 3D Painter.exe',
-                
-                # Steam without 3D
-                f'{ch}:\\Program Files\\Steam||steamapps\\common\\Substance Painter {year}\\Adobe Substance 3D Painter.exe',
-                f'{ch}:\\Program Files (x86)\\Steam\\steamapps\\common\\Substance Painter {year}\\Adobe Substance 3D Painter.exe',
-                
-                # Steam with 3D
-                f'{ch}:\\Program Files\\Steam\\steamapps\\common\\Substance 3D Painter {year}\\Adobe Substance 3D Painter.exe',
-                f'{ch}:\\Program Files (x86)\\Steam\\steamapps\\common\\Substance 3D Painter {year}\\Adobe Substance 3D Painter.exe'
-            ])
+    # macOS Paths including Steam
+    if os.name == 'posix':
+        candidates_paths.extend(_get_macos_paths())
+        for year in range(2020,2030):
+            candidates_paths.extend(_get_macos_paths(year_suffix=year))
+    elif os.name == 'nt':
+       # Check common drive letters
+       for drive_letter in 'CDEFGHIJKLMNOPQRSTUVWXYZ':
+           candidates_paths.extend(_get_windows_paths(drive_letter))
+           for year in range(2020, 2030):
+               candidates_paths.extend(_get_windows_paths(drive_letter, year_suffix=year))
 
-    # Check each path for the current operating system and return the first one that exists
-    for path in paths:
-        path = os.path.expanduser(path)
+    for path_obj in candidates_paths:
         try:
-            if Path(path).exists():
-                return path
+            expanded_path = Path(os.path.expanduser(str(path_obj)))
+            if expanded_path.exists():
+                return str(expanded_path)
         except Exception as e:
-            pass
+            continue
+    
     return ''
 
 def sync_batch_presets(context):
