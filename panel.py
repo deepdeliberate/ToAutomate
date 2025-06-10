@@ -41,20 +41,20 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         col.prop(tamt, 'rnm_ord_type', text = "Method")
         
         main_row = col.row()
-        row1 = col.row().split(factor=0.5, align=True)
-        row2 = col.row().split(factor=0.5, align=True)
+        row1 = col.row().split(factor=0.3, align=True)
+        row2 = col.row().split(factor=0.3, align=True)
         row_mid = col.row()
         row3 = col.row()
 
         if my_rnm_ord_type == 'OP1':
-            row1.prop(tamt, 'move_LP', text = "LP Col", icon = "OUTLINER_COLLECTION")
-            row2.prop(tamt, 'move_HP', text= "HP Col" , icon= "OUTLINER_COLLECTION")
+            row1.prop(tamt, 'move_LP', text = "LP Col")
+            row2.prop(tamt, 'move_HP', text= "HP Col" )
 
 
         if my_rnm_ord_type == 'OP1':
             main_row.label(text = "Collection Names")
-            row1.prop(tamt, 'col_LP', text = "", expand= False)
-            row2.prop(tamt, 'col_HP', text = "", expand=False)
+            row1.prop(tamt, 'col_LP', text = "", expand= False, icon = "OUTLINER_COLLECTION")
+            row2.prop(tamt, 'col_HP', text = "", expand=False, icon = "OUTLINER_COLLECTION")
         
 
         if my_rnm_ord_type != 'OP1':
@@ -254,7 +254,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
         ## Batch Export Menu
         b_row.label(text = "Batch Export Presets")
 
-        b_row.operator(operators.OBJECT_OT_TAMT_BatchSycnList.bl_idname, text = "Refresh",icon='INFO')
+        b_row.operator(operators.OBJECT_OT_TAMT_BatchSycnList.bl_idname, text = "Refresh",icon='FILE_REFRESH')
 
 
         batch_selection_list = tamt.batch_selection_list
@@ -270,9 +270,9 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
 
             flow = col.column_flow(columns=2, align=True)
 
-            for item in batch_selection_list:
+            for i,item in enumerate(batch_selection_list):
                 frow = flow.row(align=True)
-                frow.prop(item, "is_selected", text = item.name_id)
+                frow.prop(item, "is_selected", text = f"{str( i + 1)} {item.name_id}")
             b_row.separator()
             lrow = b_row.row(align=True)
             lrow.operator( operators.OBJECT_OT_TAMT_BATCHEXPORT.bl_idname, text = "Batch Export", icon = 'PLAY')
@@ -280,7 +280,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
         else:  
             row1 = b_row.column()
             row1.label(text = "No Export Presets available", icon = 'INFO')
-            row1.label(text = "Add presets in 'Collection Export'")
+            row1.label(text = "Refresh / Add presets in 'Collection Export'")
 
         row.label(text="Collection Exporter")
 
@@ -313,8 +313,9 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
                 row.prop(preset, "exp_sppPath", text= "Path Spp", icon="SHADING_TEXTURE")
                 row.prop(preset, "exp_sppTexPath", text= "Textures Path", icon = "TEXTURE")
             
-            row.prop(preset, "exp_inDirectory", text = "Use File Directory")
-            row.prop(preset, "exp_triangulate", text = "Triangulate")
+            option_row = row.row().split(factor=0.5, align=True)
+            option_row.prop(preset, "exp_triangulate", text = "Triangulate",  icon="BLANK1")
+            option_row.prop(preset, "exp_inDirectory", text = "Use File Directory")
             row.prop(preset, "exp_targetKeyframe", text = "Export Frame")
             
 
