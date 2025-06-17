@@ -93,7 +93,7 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         r11.prop(tamt, "ORG_p_col", text = "", icon="OUTLINER_COLLECTION")
         r2.prop(tamt, "ORG_option", text="Parent?")
         if tamt.ORG_option:
-            r2.prop(tamt, "ORG_name", text="Name", icon="PARTICLES")
+            r2.prop(tamt, "ORG_name", text="", icon="PARTICLES")
 
         box3.operator(operators.OBJECT_OT_TAMT_COLORGANIZE.bl_idname, text = "Organize")
 
@@ -105,7 +105,7 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         r31.prop(tamt, "DORG_obj", text="", icon="PARTICLES")
         r4.prop(tamt, "DORG_option", text="Root Col?")
         if tamt.DORG_option:
-            r4.prop(tamt, "DORG_name", text = "Name", icon="OUTLINER_COLLECTION")
+            r4.prop(tamt, "DORG_name", text = "", icon="OUTLINER_COLLECTION")
         box4.prop(tamt,"del_emp", text="Delete Empties?")
         box4.operator(operators.OBJECT_OT_TAMT_COL_REORGANIZE.bl_idname, text = "Reset Collections")
 
@@ -284,17 +284,22 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
 
         row.label(text="Collection Exporter")
 
-        row.prop(tamt.export_presets, "selected_preset")
-        row.operator(operators.OBJECT_OT_TAMT_EXPORTCOLL.bl_idname, text="EXPORT")
-        row.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET.bl_idname, text = "Add Preset" )
-        row.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_REMPRESET.bl_idname, text= "Delete Preset")
+        r1 = row.row(align=True)
+        r1.prop(tamt.export_presets, "selected_preset", text="", icon="COLLAPSEMENU")
+        if len(collection.presets) > 0:
+            preset_index = int(tamt.export_presets.selected_preset)
+            preset = collection.presets[preset_index]
+            r1.prop(preset,"name", text="")
+        r1.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET.bl_idname, text = "", icon = "ADD" )
+        r1.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_REMPRESET.bl_idname, text= "", icon = 'REMOVE')
 
+        row.operator(operators.OBJECT_OT_TAMT_EXPORTCOLL.bl_idname, text="EXPORT")
+        
         if len(collection.presets) > 0:
 
             preset_index = int(tamt.export_presets.selected_preset)
             preset = collection.presets[preset_index]
 
-            row.prop(preset, "name")
             row.prop(preset,"exp_meshSource", text = "Source", icon = "OBJECT_DATA")
             row.prop(preset, "exp_nameMethod", text = "File Name")
             if preset.exp_nameMethod == 'OP2':
@@ -329,7 +334,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
                 row1.prop(preset,"collection_type", expand=True)
                 
                 row1.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_ADDCOL.bl_idname, text = "Add Collection")
-                row1.prop(preset,"collections_expanded", text="EDIT Collections", icon="NONE")
+                row1.prop(preset,"collections_expanded", text="EDIT Collections", icon="BLANK1")
                 
                 if preset.collections_expanded:
                     row1.label(text="INCLUDED Collections" if preset.collection_type == 'INC_COLLECTIONS' else "EXCLUDED Collections")
