@@ -20,11 +20,6 @@ class exportBatchPresetItem(bpy.types.PropertyGroup):
         description="Internal ID for Preset",
     )
 
-    is_selected: bpy.props.BoolProperty(
-        name = "Select",
-        description = "Include this preset in the batch export",
-        default = False
-    )
 
 class exportProperties(bpy.types.PropertyGroup):
 
@@ -115,6 +110,12 @@ class exportProperties(bpy.types.PropertyGroup):
         name= "Set Export at Frame",
         description="Select the keyframe at which to export object",
         default= 0,
+    )
+
+    exp_for_batch: bpy.props.BoolProperty(
+        name="Enable in Batch Export",
+        description="Enable this preset for the Batch Export",
+        default= False
     )
 
     
@@ -369,18 +370,15 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         default = True
     )
 
+    
+
     # Export Menu
 
     export_collection: bpy.props.PointerProperty(type = exportCollection)
     export_presets: bpy.props.PointerProperty(type = exportPresetActive)
 
-    batch_selection_list: bpy.props.CollectionProperty(type= exportBatchPresetItem)
 
-    batch_sync: bpy.props.BoolProperty(
-        name="Needs Batch sync",
-        description="To Resync batch preset list",
-        default=True
-    )
+    
 
 
 

@@ -112,34 +112,14 @@ def substance_painter_path():
     
     return ''
 
-def sync_batch_presets(context):
-    tamt = context.scene.tamt
-    if not tamt or not tamt.export_collection:
-        tamt.batch_selection_list.clear()
-        return
-    
-    main_presets = tamt.export_collection.presets
-    batch_items = tamt.batch_selection_list
-
-    existing_batch_states = {item.name_id: item.is_selected for item in batch_items}
-
-    batch_items.clear()
-
-    for i, preset in enumerate(main_presets):
-        item = batch_items.add()
-        item.name_id = preset.name
-
-        # Restore selection state based on preset's name
-        if preset.name in existing_batch_states:
-            item.is_selected = existing_batch_states[preset.name]
-        else:
-            item.is_selected = False
-
 def batch_select_all_presets(context, select: bool):
     tamt = context.scene.tamt
-    if tamt and tamt.batch_selection_list:
-        for item in tamt.batch_selection_list:
-            item.is_selected = select
+    if not tamt or not tamt.export_collection:
+        return
+    
+    for i, preset in enumerate(tamt.export_collection.presets):
+        preset.exp_for_batch = select
+
 
 #  Function to get a Collection of given name
 

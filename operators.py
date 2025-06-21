@@ -1048,17 +1048,6 @@ class OBJECT_OT_TAMT_UV_Remove(bpy.types.Operator):
 
 # Batch Export Operator
 
-class OBJECT_OT_TAMT_BatchSycnList(bpy.types.Operator):
-    bl_idname="to_automate.batch_sync_presets"
-    bl_label="Sync Batch Presets"
-    bl_description="Synchroize Batch Presets"  
-    bl_options={"REGISTER","UNDO"}
-    
-    def execute(self, context):
-        utils.sync_batch_presets(context)
-        context.scene.tamt.batch_sync = False
-
-        return {'FINISHED'}
 
 class OBJECT_OT_TAMT_BatchSelectDeselectAll(bpy.types.Operator):
     bl_idname="to_automate.batch_select_deselect_all"
@@ -1093,40 +1082,31 @@ class OBJECT_OT_TAMT_BATCHEXPORT(bpy.types.Operator):
 
         current_preset = tamt.export_presets.selected_preset
 
-        utils.sync_batch_presets(context)
-
         preset_by_name = {p.name: p for p in tamt.export_collection.presets}
-        
-        for batch_item in tamt.batch_selection_list:
-            if batch_item.is_selected :
-                actual_preset = preset_by_name.get(batch_item.name_id)
-
-                if actual_preset:
-                    try:
-                        active_id = list(tamt.export_collection.presets).index(actual_preset)
-                    except ValueError:
-                        self.report({'WARNING'}, f"Selected preset '{actual_preset.name}' not found in main collection. Skipping.")
-                        continue
-                    
-                    tamt.export_presets.selected_preset = str(active_id)
-                    context.view_layer.update()
-
+        all_count = 0
+        for i,preset in enumerate(tamt.export_collection.presets):
+            if preset.exp_for_batch:
+                tamt.export_presets.selected_preset = str(i)
+                all_count += 1
+                if preset:
                     try: 
                         bpy.ops.to_automate.atm_exportcol('INVOKE_DEFAULT')
                         selected_count += 1
-                        self.report({'INFO'},f"Exported: '{actual_preset.name}'")
+                        self.report({'INFO'},f"Exported: '{preset.name}'")
 
                     except Exception as e:
-                        self.report({'WARNING'}, f"Failed to export Preset '{actual_preset.name}': {e}")
+                        self.report({'WARNING'}, f"Failed to export Preset '{preset.name}': {e}")
                 else:
-                    self.report({'WARNING'}, f"Selected preset '{batch_item.name_id}' not found in current presets. Skipping")
-            elif batch_item.is_selected:
-                self.report({'WARNING'}, f"Selected preset item has no valid link. Skipping.")
+                    self.report({'WARNING'}, f"Selected preset '{preset.name}' not found in current presets. Skipping")
+            
             
         tamt.export_presets.selected_preset = current_preset
 
         if selected_count > 0:
-            self.report({'INFO'}, f"Batch export finished: {selected_count} preset(s) exported.")
+            add_message = ""
+            if all_count - selected_count > 0:
+                add_message = f"{all_count - selected_count} Preset(s) Cancelled"
+            self.report({'INFO'}, f"Batch export finished: {selected_count} preset(s) exported. {add_message}")
             return{'FINISHED'}
         else:
             self.report({'INFO'}, "No Valid presets selected for batch export.")
@@ -1703,7 +1683,6 @@ classes = [
     OBJECT_OT_TAMT_UV_Rename,
     OBJECT_OT_TAMT_UV_Remove,
 
-    OBJECT_OT_TAMT_BatchSycnList,
     OBJECT_OT_TAMT_BatchSelectDeselectAll,
     OBJECT_OT_TAMT_BATCHEXPORT,
     OBJECT_OT_TAMT_EXPORTCOLL,

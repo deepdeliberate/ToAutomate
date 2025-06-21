@@ -254,33 +254,27 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
         ## Batch Export Menu
         b_row.label(text = "Batch Export Presets")
 
-        b_row.operator(operators.OBJECT_OT_TAMT_BatchSycnList.bl_idname, text = "Refresh",icon='FILE_REFRESH')
+        all_presets = collection.presets
 
-
-        batch_selection_list = tamt.batch_selection_list
-
-        if batch_selection_list:
+        if len(all_presets) > 0:
             col = b_row.column(align=True)
-            col.label(text="Include Presets")
+            col.label(text="PRESETS TO INCLUDE")
             head_row = col.row(align=True)
             r1 = head_row.row()
             r2 = head_row.row()
             r1.row().operator(operators.OBJECT_OT_TAMT_BatchSelectDeselectAll.bl_idname, text = "All").select_all = True
             r2.row().operator(operators.OBJECT_OT_TAMT_BatchSelectDeselectAll.bl_idname, text = "None").select_all = False
-
+            col.separator()
             flow = col.column_flow(columns=2, align=True)
-
-            for i,item in enumerate(batch_selection_list):
+            for i,item in enumerate(all_presets):
                 frow = flow.row(align=True)
-                frow.prop(item, "is_selected", text = f"{str( i + 1)} {item.name_id}")
-            b_row.separator()
+                frow.prop(item, "exp_for_batch", text = f"{item.name}", icon="BLANK1")
             lrow = b_row.row(align=True)
             lrow.operator( operators.OBJECT_OT_TAMT_BATCHEXPORT.bl_idname, text = "Batch Export", icon = 'PLAY')
 
         else:  
             row1 = b_row.column()
             row1.label(text = "No Export Presets available", icon = 'INFO')
-            row1.label(text = "Refresh / Add presets in 'Collection Export'")
 
         row.label(text="Collection Exporter")
 
@@ -301,12 +295,12 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
             preset = collection.presets[preset_index]
 
             row.prop(preset,"exp_meshSource", text = "Source", icon = "OBJECT_DATA")
-            row.prop(preset, "exp_nameMethod", text = "File Name")
+            row.prop(preset, "exp_nameMethod", text = "Name by")
             if preset.exp_nameMethod == 'OP2':
                 row.prop(preset, "exp_name", text = "Name")
-            row.prop(preset, "exp_format", text = "Export Type", icon = "EXPORT")
+            row.prop(preset, "exp_format", text = "Type", icon = "EXPORT")
             if not preset.exp_inDirectory:
-                row.prop(preset, "exp_meshPath", text="Export Path")
+                row.prop(preset, "exp_meshPath", text="Path")
             
             row.prop(preset, "exp_openSubstance", text = "Substance File?", icon = "BLANK1")
 
