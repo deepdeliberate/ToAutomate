@@ -14,12 +14,6 @@ class CollectionItem(bpy.types.PropertyGroup):
 class exportPresetActive(bpy.types.PropertyGroup):
     selected_preset: bpy.props.EnumProperty(name = "Preset", items =  utils.update_presets )
 
-class exportBatchPresetItem(bpy.types.PropertyGroup):
-    name_id: bpy.props.StringProperty(
-        name="Preset Name ID",
-        description="Internal ID for Preset",
-    )
-
 
 class exportProperties(bpy.types.PropertyGroup):
 
