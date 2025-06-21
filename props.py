@@ -15,10 +15,11 @@ class exportPresetActive(bpy.types.PropertyGroup):
     selected_preset: bpy.props.EnumProperty(name = "Preset", items =  utils.update_presets )
 
 class fbxExportProperties(bpy.types.PropertyGroup):
+
     object_types: bpy.props.EnumProperty(
         name="Object Types",
         description="Object Types to Export",
-        options={'ENUM+FLAG'},
+        options={'ENUM_FLAG'},
         items=[
             ('ARMATURE', "Armature", ""),
             ('CAMERA', "Camera", ""),
@@ -27,7 +28,7 @@ class fbxExportProperties(bpy.types.PropertyGroup):
             ('MESH', "Mesh", ""),
             ('OTHER', "Other", ""),
         ],
-        default = {'ARMATURE', 'CAMERA', 'EMPTY', 'LIGHT', 'MESH', 'OTHER'}
+        default = {'ARMATURE', 'CAMERA', 'EMPTY', 'LIGHT', 'MESH', 'OTHER'},
     )
 
     use_custom_props: bpy.props.BoolProperty(
@@ -52,14 +53,14 @@ class fbxExportProperties(bpy.types.PropertyGroup):
 
     apply_scale_options: bpy.props.EnumProperty(
         name="Scale",
-        description="Apply Scalings, How to apply custom and units scalings in generated FBX file (Blender uses FBX scale to detect units on import, but many other applications do not handle the same way)"
+        description="Apply Scalings, How to apply custom and units scalings in generated FBX file (Blender uses FBX scale to detect units on import, but many other applications do not handle the same way)",
         items=[
             ('FBX_SCALE_NONE', "All Local", "Apply custom scaling and units scaling to each object transformation, FBX scale remains at 1.0"),
             ('FBX_SCALE_UNITS', "FBX Units Scale", "Apply custom scaling to each object transformation, and units scaling to FBX scale"),
-            ('FBX_SCALE_CUSTOM', "FBX Custom Scale", "Apply custom scaling to FBX scale, and units scaling to each object transformation")
+            ('FBX_SCALE_CUSTOM', "FBX Custom Scale", "Apply custom scaling to FBX scale, and units scaling to each object transformation"),
             ('FBX_SCALE_ALL', "FBX All", "Apply custom scaling and units scaling to FBX scale"),
         ],
-        default='FBX_SCALE_NONE'
+        default='FBX_SCALE_NONE',
     )
 
     use_space_transform: bpy.props.BoolProperty(
@@ -83,7 +84,7 @@ class fbxExportProperties(bpy.types.PropertyGroup):
             ('-Y', "-Y Forward", ""),
             ('-Z', "-Z Forward", ""),
         ],
-        default= = '-Z',
+        default = '-Z',
     )
 
     axis_up: bpy.props.EnumProperty(
@@ -307,6 +308,10 @@ class exportProperties(bpy.types.PropertyGroup):
                 ('OP2',"OBJ Export","Export the file as Project.obj"),
                 ('OP3',"USD Export", "Export as file.usdc"),
                 ('OP4',"DAE Export","Export as .dae (Collada)")])
+    
+
+    exp_FBXProperties: bpy.props.PointerProperty(type=fbxExportProperties)
+
     
     exp_editPresetDetails: bpy.props.BoolProperty(
         name = "Edit Preset",
@@ -630,7 +635,7 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
 classes = (
     CollectionItem,
     exportPresetActive,
-    exportBatchPresetItem,
+    fbxExportProperties,
     exportProperties,
     exportCollection,
     TAMT_Addon_Props,

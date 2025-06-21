@@ -14,3 +14,4 @@ def reload_modules():
     reload(operators)
     reload(panel)
     reload(utils)
+    reload(utils_panel)

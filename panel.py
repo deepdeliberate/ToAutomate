@@ -2,6 +2,7 @@ import bpy
 
 from . import operators
 from . import utils
+from . import utils_panel
 from bpy.props import IntProperty, BoolProperty, StringProperty
 
 class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
@@ -185,6 +186,7 @@ class TAMT_PT_UVOperators_panel(bpy.types.Panel):
         layout = self.layout
         row = layout.row(align = True)
         mbox = layout.box()
+        
         col = mbox.column()
 
         col.label(text='UV PRE-CHECK')
@@ -299,6 +301,23 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
             if preset.exp_nameMethod == 'OP2':
                 row.prop(preset, "exp_name", text = "Name")
             row.prop(preset, "exp_format", text = "Type", icon = "EXPORT")
+
+            exp_PropRow = row.box()
+            expProperties = preset.exp_FBXProperties
+            
+            if preset.exp_format == 'OP1': # FBX
+                utils_panel.fbx_properties(exp_PropRow, expProperties)
+
+            elif preset.exp_format == 'OP2': # OBJ
+                utils_panel.obj_properties(exp_PropRow, expProperties)
+            
+            elif preset.exp_format == 'OP3': # USD
+                utils_panel.usd_properties(exp_PropRow, expProperties)
+            
+            elif preset.exp_format == 'OP4': # DAE
+                utils_panel.dae_properties(exp_PropRow, expProperties)
+            
+
             if not preset.exp_inDirectory:
                 row.prop(preset, "exp_meshPath", text="Path")
             

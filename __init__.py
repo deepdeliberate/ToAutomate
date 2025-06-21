@@ -21,6 +21,7 @@ from . import operators
 from . import _refresh_
 from . import props
 from . import utils
+from . import utils_panel
 
 _refresh_.reload_modules()
 
