@@ -1333,35 +1333,35 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 use_visible=False,
                 collection='', 
 
-                global_scale= settings.global_scale,
-                apply_unit_scale= settings.apply_unit_scale,
-                apply_scale_options= settings.apply_scale_options,
-                use_space_transform= settings.use_space_transform,
-                bake_space_transform= settings.bake_space_transform,
-                object_types= settings.object_types,
+                global_scale=           settings.global_scale,
+                apply_unit_scale=       settings.apply_unit_scale,
+                apply_scale_options=    settings.apply_scale_options,
+                use_space_transform=    settings.use_space_transform,
+                bake_space_transform=   settings.bake_space_transform,
+                object_types=           settings.object_types,
                 
-                use_mesh_modifiers= settings.use_mesh_modifiers,
-                mesh_smooth_type= settings.mesh_smooth_type,
-                colors_type= settings.colors_type,
-                prioritize_active_color= settings.prioritize_active_color,
-                use_subsurf= settings.use_subsurf,
-                use_mesh_edges= settings.use_mesh_edges,
-                use_tspace= settings.use_tspace,
-                use_triangles= settings.use_triangles,
+                use_mesh_modifiers=          settings.use_mesh_modifiers,
+                mesh_smooth_type=           settings.mesh_smooth_type,
+                colors_type=                settings.colors_type,
+                prioritize_active_color=    settings.prioritize_active_color,
+                use_subsurf=                settings.use_subsurf,
+                use_mesh_edges=             settings.use_mesh_edges,
+                use_tspace=                 settings.use_tspace,
+                use_triangles=              settings.use_triangles,
 
-                add_leaf_bones= settings.add_leaf_bones,
-                primary_bone_axis= settings.primary_bone_axis,
-                secondary_bone_axis= settings.secondary_bone_axis,
-                use_armature_deform_only= settings.use_armature_deform_only,
-                armature_nodetype= settings.armature_nodetype,
+                add_leaf_bones=             settings.add_leaf_bones,
+                primary_bone_axis=          settings.primary_bone_axis,
+                secondary_bone_axis=        settings.secondary_bone_axis,
+                use_armature_deform_only=   settings.use_armature_deform_only,
+                armature_nodetype=          settings.armature_nodetype,
 
-                bake_anim= settings.bake_anim,
-                bake_anim_use_all_bones= settings.bake_anim_use_all_bones,
-                bake_anim_use_nla_strips= settings.bake_anim_use_nla_strips,
+                bake_anim=                  settings.bake_anim,
+                bake_anim_use_all_bones=    settings.bake_anim_use_all_bones,
+                bake_anim_use_nla_strips=   settings.bake_anim_use_nla_strips,
                 bake_anim_use_all_actions = settings.bake_anim_use_all_actions,
                 bake_anim_force_startend_keying= settings.bake_anim_force_startend_keying,
-                bake_anim_step= settings.bake_anim_step,
-                bake_anim_simplify_factor= settings.bake_anim_simplify_factor,
+                bake_anim_step=             settings.bake_anim_step,
+                bake_anim_simplify_factor=  settings.bake_anim_simplify_factor,
 
                 axis_forward= settings.axis_forward,
                 axis_up= settings.axis_up,
@@ -1369,7 +1369,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
 
 
-        elif exp_format == 'OP3':
+        elif exp_format == 'OP3':  #USDz
             export_ext = '.usdc'
             export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
 
@@ -1391,6 +1391,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
             for obj in final_objects:
                 col.objects.link(obj)
             
+            """OG USD Export
             bpy.ops.wm.usd_export(
                 filepath = str(export_Path),
                 selected_objects_only=False,
@@ -1409,6 +1410,65 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 export_global_forward_selection='NEGATIVE_Z',
                 export_global_up_selection='Y',
                 collection = f"{col.name}",
+            )
+            """
+
+            settings = preset.exp_USDProperties
+
+            bpy.ops.wm.usd_export(
+                filepath = str(export_Path),
+                selected_objects_only=False,
+                visible_objects_only= settings.visible_objects_only,
+                collection = f"{col.name}",
+
+                export_animation=   settings.export_animation,
+                export_hair=        settings.export_hair,
+                export_uvmaps=      settings.export_uvmaps,
+                rename_uvmaps=      settings.rename_uvmaps,
+                export_mesh_colors= settings.export_mesh_colors,
+                export_normals=     settings.export_normals,
+                export_materials=   settings.export_materials,
+                export_subdivision= settings.export_subdivision,
+                export_armatures=   settings.export_armatures,
+                only_deform_bones=  settings.only_deform_bones,
+                export_shapekeys=   settings.export_shapekeys,
+
+                use_instancing=             settings.use_instancing,
+                evaluation_mode=            settings.evaluation_mode,
+                generate_preview_surface=   settings.generate_preview_surface,
+                generate_materialx_network= settings.generate_materialx_network,
+                convert_orientation=        settings.convert_orientation,
+                export_global_forward_selection= settings.export_global_forward_selection,
+                export_global_up_selection= settings.export_global_up_selection,
+            
+                export_textures=        settings.export_textures,
+                export_textures_mode=   settings.export_textures_mode,
+                overwrite_textures=     settings.overwrite_textures,
+                relative_paths=         settings.relative_paths,
+                xform_op_mode=          settings.xform_op_mode,
+
+                export_custom_properties=       settings.export_custom_properties,
+                custom_properties_namespace=    settings.custom_properties_namespace,
+                author_blender_name=            settings.author_blender_name,
+                convert_world_material=         settings.convert_world_material,
+                allow_unicode=                  settings.allow_unicode,
+
+                export_meshes=  settings.export_meshes,
+                export_lights=  settings.export_lights,
+                export_cameras= settings.export_cameras,
+                export_curves=  settings.export_curves,
+                export_points=  settings.export_points,
+                export_volumes= settings.export_volumes,
+
+                triangulate_meshes=         settings.triangulate_meshes,
+                quad_method=                settings.quad_method,
+                ngon_method=                settings.ngon_method,
+                usdz_downscale_size=        settings.usdz_downscale_size,
+                usdz_downscale_custom_size= settings.usdz_downscale_custom_size,
+                merge_parent_xform=         settings.merge_parent_xform,
+                convert_scene_units=        settings.convert_scene_units,
+                meters_per_unit=            settings.meters_per_unit,
+
             )
 
             # unlink objects from temp collection
