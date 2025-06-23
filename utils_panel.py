@@ -1,7 +1,7 @@
 import bpy
 
 def TAMT_fbx_export_panel_transform(layout, operator):
-    header, body = layout.panel("TAMT_FBX_export_transform", default_closed=False)
+    header, body = layout.panel("TAMT_FBX_export_transform", default_closed=True)
     header.label(text="Transform")
     if body:
         body.prop(operator, "global_scale")
@@ -37,7 +37,7 @@ def TAMT_fbx_export_panel_armature(layout, operator):
     if body:
         body.prop(operator, "primary_bone_axis")
         body.prop(operator, "secondary_bone_axis")
-        body.prop(operator, "armature_nodetype")
+        body.prop(operator, "armature_node_type")
         body.prop(operator, "use_armature_deform_only")
         body.prop(operator, "add_leaf_bones")
 
@@ -58,10 +58,101 @@ def TAMT_fbx_export_panel_animation(layout, operator):
 
 
 def fbx_properties(layout, operator):
-    header, body = layout.panel("TAMT_FBX_export_properties", default_closed=True)
-    header.label(text="FBX Settings")
+    TAMT_fbx_export_panel_transform(layout, operator)
+    TAMT_fbx_export_panel_geometry(layout, operator)
+    TAMT_fbx_export_panel_armature(layout, operator)
+    TAMT_fbx_export_panel_animation(layout, operator)
+
+
+
+
+def obj_properties(layout, operator):
+    pass
+
+
+def TAMT_usd_General_panel(layout, operator):
+    header, body = layout.panel("TAMT_USD_export_general", default_closed = True)
+    header.label(text = "General")
     if body:
-        TAMT_fbx_export_panel_transform(layout, operator)
-        TAMT_fbx_export_panel_geometry(layout, operator)
-        TAMT_fbx_export_panel_armature(layout, operator)
-        TAMT_fbx_export_panel_animation(layout, operator)
+        body.prop(operator,"visible_objects_only")
+        body.prop(operator,"export_animation")
+        body.prop(operator,"export_custom_properties")
+        body.prop(operator,"custom_properties_namespace")
+        body.prop(operator,"author_blender_name")
+        body.prop(operator,"allow_unicode")
+        body.prop(operator,"relative_paths")
+        body.prop(operator,"convert_orientation")
+        if operator.convert_orientation:
+            body.prop(operator,"export_global_forward_selection")
+            body.prop(operator,"export_global_up_selection")
+        body.prop(operator,"convert_scene_units")
+        if operator.convert_scene_units == 'CUSTOM':
+            body.prop(operator,"meters_per_unit")
+        body.prop(operator,"xform_op_mode")
+        body.prop(operator,"evaluation_mode")
+
+def TAMT_usd_OBJECTYPE_panel(layout, operator):
+    header, body = layout.panel("TAMT_USD_export_ObjectType", default_closed = True)
+    header.label(text = "Object Types")
+    if body:
+        body.prop(operator,"export_meshes")
+        body.prop(operator,"export_lights")
+        body.prop(operator,"convert_world_material")
+        body.prop(operator,"export_cameras")
+        body.prop(operator,"export_curves")
+        body.prop(operator,"export_points")
+        body.prop(operator,"export_volumes")
+        body.prop(operator,"export_hair")
+
+def TAMT_usd_GEOMETRY_panel(layout, operator):
+    header, body = layout.panel("TAMT_USD_export_Geometry", default_closed = True)
+    header.label(text = "Geometry")
+    if body:
+        body.prop(operator, "export_uvmaps")
+        body.prop(operator, "rename_uvmaps")
+        body.prop(operator, "export_normals")
+        body.prop(operator, "merge_parent_xform")
+        body.prop(operator, "triangulate_meshes")
+        body.prop(operator, "quad_method")
+        body.prop(operator, "ngon_method")
+        body.prop(operator, "export_subdivision")
+
+def TAMT_usd_RIGGING_panel(layout, operator):
+    header, body = layout.panel("TAMT_USD_export_Rigging", default_closed = True)
+    header.label(text = "Rigging")
+    if body:
+        body.prop(operator,"export_shapekeys")
+        body.prop(operator,"export_armatures")
+        body.prop(operator,"only_deform_bones")
+
+def TAMT_usd_MATERIALS_panel(layout, operator):
+    header, body = layout.panel("TAMT_USD_export_Materials", default_closed = True)
+    header.label(text = "Materials")
+    if body:
+        body.prop(operator,"generate_preview_surface")
+        body.prop(operator,"generate_materialx_network")
+        body.prop(operator,"export_textures_mode")
+        body.prop(operator,"overwrite_textures")
+        body.prop(operator,"usdz_downscale_size")
+        if operator.usdz_downscale_size == 'CUSTOM':
+            body.prop(operator, "usdz_downscale_custom_size")
+
+def TAMT_usd_EXPERIMENTAL_panel(layout, operator):
+    header, body = layout.panel("TAMT_USD_export_Experimental", default_closed = True)
+    header.label(text = "Experimental")
+
+    if body:
+        body.prop(operator,"use_instancing")
+
+
+def usd_properties(layout, operator):
+    TAMT_usd_General_panel(layout, operator)
+    TAMT_usd_OBJECTYPE_panel(layout, operator)
+    TAMT_usd_GEOMETRY_panel(layout, operator)
+    TAMT_usd_RIGGING_panel(layout, operator)
+    TAMT_usd_MATERIALS_panel(layout, operator)
+    TAMT_usd_EXPERIMENTAL_panel(layout, operator)
+
+
+def dae_properties(layout, operator):
+    pass

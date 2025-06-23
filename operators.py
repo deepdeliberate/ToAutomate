@@ -6,6 +6,7 @@ import subprocess
 
 from . import props
 from . import utils
+from . import utils_panel
 from pathlib import Path
 
 class OBJECT_OT_TAMT_rename(bpy.types.Operator):
@@ -1645,8 +1646,45 @@ class OBJECT_OT_TAMT_EXPORTCOL_REMCOL(bpy.types.Operator):
         collection_group = preset.inc_collections if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections
         collection_group.remove(self.index)
         return {'FINISHED'}
+    
 
+class OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS(bpy.types.Operator):
+    """Export Collections With Presets"""
+    bl_idname="to_automate.atm_preset_exp_settings"
+    bl_label="Export Settings"
+    bl_description="Edit Export File Settings for selected"  
+    bl_options={"REGISTER","UNDO"}
 
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+
+        tamt = context.scene.tamt
+        collection = tamt.export_collection
+
+        preset_index = int(tamt.export_presets.selected_preset)
+        preset = collection.presets[preset_index]
+
+            
+        if preset.exp_format == 'OP1': # FBX
+            utils_panel.fbx_properties(layout, preset.exp_FBXProperties)
+        elif preset.exp_format == 'OP2': # OBJ
+            utils_panel.obj_properties(layout, preset.exp_OBJProperties)
+        elif preset.exp_format == 'OP3': # USD
+            utils_panel.usd_properties(layout, preset.exp_USDProperties)
+        elif preset.exp_format == 'OP4': # DAE
+            utils_panel.dae_properties(layout, preset.exp_DAEProperties)
+
+    def execute(self, context):
+        
+        return {'FINISHED'}
+
+        
+        
 
 
 
@@ -1690,6 +1728,7 @@ classes = [
     OBJECT_OT_TAMT_EXPORTCOL_REMPRESET,
     OBJECT_OT_TAMT_EXPORTCOL_ADDCOL,
     OBJECT_OT_TAMT_EXPORTCOL_REMCOL,
+    OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS,
 
 ]
 

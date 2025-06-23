@@ -263,8 +263,456 @@ class fbxExportProperties(bpy.types.PropertyGroup):
     )
 
 
+class objExportProperties(bpy.types.PropertyGroup):
+    
+    use_animation: bpy.props.BoolProperty(
+        name="Animation",
+        description="Write out an OBJ for each frame",
+        default=False,
+    )
+
+    # object group
+    use_mesh_modifiers: bpy.props.BoolProperty(
+        name="Apply Modifiers",
+        description="Apply modifiers",
+        default=True,
+    )
+    # extra data group
+    use_edges: bpy.props.BoolProperty(
+        name="Include Edges",
+        description="",
+        default=True,
+    )
+    use_smooth_groups: bpy.props.BoolProperty(
+        name="Smooth Groups",
+        description="Write sharp edges as smooth groups",
+        default=False,
+    )
+    use_smooth_groups_bitflags: bpy.props.BoolProperty(
+        name="Bitflag Smooth Groups",
+        description="Same as 'Smooth Groups', but generate smooth groups IDs as bitflags "
+        "(produces at most 32 different smooth groups, usually much less)",
+        default=False,
+    )
+    use_normals: bpy.props.BoolProperty(
+        name="Write Normals",
+        description="Export one normal per vertex and per face, to represent flat faces and sharp edges",
+        default=True,
+    )
+    use_uvs: bpy.props.BoolProperty(
+        name="Include UVs",
+        description="Write out the active UV coordinates",
+        default=True,
+    )
+    use_materials: bpy.props.BoolProperty(
+        name="Write Materials",
+        description="Write out the MTL file",
+        default=True,
+    )
+    use_triangles: bpy.props.BoolProperty(
+        name="Triangulate Faces",
+        description="Convert all faces to triangles",
+        default=False,
+    )
+    use_nurbs: bpy.props.BoolProperty(
+        name="Write Nurbs",
+        description="Write nurbs curves as OBJ nurbs rather than "
+        "converting to geometry",
+        default=False,
+    )
+    use_vertex_groups: bpy.props.BoolProperty(
+        name="Polygroups",
+        description="",
+        default=False,
+    )
+
+    # grouping group
+    use_blen_objects: bpy.props.BoolProperty(
+        name="OBJ Objects",
+        description="Export Blender objects as OBJ objects",
+        default=True,
+    )
+    group_by_object: bpy.props.BoolProperty(
+        name="OBJ Groups",
+        description="Export Blender objects as OBJ groups",
+        default=False,
+    )
+    group_by_material: bpy.props.BoolProperty(
+        name="Material Groups",
+        description="Generate an OBJ group for each part of a geometry using a different material",
+        default=False,
+    )
+    keep_vertex_order: bpy.props.BoolProperty(
+        name="Keep Vertex Order",
+        description="",
+        default=False,
+    )
+
+    global_scale: bpy.props.FloatProperty(
+        name="Scale",
+        min=0.01, max=1000.0,
+        default=1.0,
+    )
+
+class usdExportProperties(bpy.types.PropertyGroup):
+
+    visible_objects_only: bpy.props.BoolProperty(
+        name="Visible Only",
+        description="Only export visible objects. Invisible parents of exported objects are exported as empty transforms",
+        default=False,
+    )
+
+    export_animation: bpy.props.BoolProperty(
+        name="Animation",
+        description="Export all frames in the render frame range, rather than only the current frame",
+        default=False,
+    )
+
+    export_hair: bpy.props.BoolProperty(
+        name="Hair",
+        description="Export hair particle systems as USD curves",
+        default=False,
+    )
+    
+    export_uvmaps: bpy.props.BoolProperty(
+        name="UV Maps",
+        description="Include all mesh UV maps in the export",
+        default=True,
+    )
+
+    rename_uvmaps: bpy.props.BoolProperty(
+        name= "Rename UV Maps",
+        description="Rename active render UV map to “st” to match USD conventions",
+        default=True,
+    )
 
 
+    export_mesh_colors: bpy.props.BoolProperty(
+        name="Color Attributes",
+        description="Include mesh color attributes in the export",
+        default=True,
+    )
+
+
+    export_normals: bpy.props.BoolProperty(
+        name="Normals",
+        description="Include normals of exported meshes in the export",
+        default=True,
+    ) 
+
+    export_materials: bpy.props.BoolProperty(
+        name="Materials",
+        description="Export viewport settings of materials as USD preview materials, and export material assignments as geometry subsets",
+        default=True,
+    )
+
+    export_subdivision: bpy.props.EnumProperty(
+        name="Subdivision",
+        description="Choose how subdivision modifiers will be mapped to the USD subdivision scheme during export",
+        items=[
+            ('IGNORE',"Ignore", ""),
+            ('TESSELLATE',"Tessellate", ""),
+            ('BEST_MATCH',"Best Match", ""),
+        ],
+        default='BEST_MATCH', 
+    )
+
+    export_armatures: bpy.props.BoolProperty(
+        name="Armatures",
+        description="Export armatures and meshes with armature modifiers as USD skeletons and skinned meshes",
+        default=True,
+    )
+
+    only_deform_bones:bpy.props.BoolProperty(
+        name="Only Deform Bones",
+        description="Only export deform bones and their parents",
+        default=False, 
+    )
+
+    export_shapekeys: bpy.props.BoolProperty(
+        name="Shape Keys",
+        description="Export shape keys as USD blend shapes",
+        default=True,
+    )
+
+    use_instancing: bpy.props.BoolProperty(
+        name = "Instancing",
+        description= "Export instanced objects as references in USD rather than real objects",
+        default=False,   
+    )
+
+    evaluation_mode: bpy.props.EnumProperty(
+        name="Use Settings for",
+        description="Determines visibility of objects, modifier settings, and other areas where there are different settings for viewport and rendering",
+        items=[
+            ('RENDER',"Render", "Use Render settings for object visibility, modifier settings, etc."),
+            ('VIEWPORT',"Viewport", "Use Viewport settings for object visibility, modifier settings, etc."),
+        ],
+        default='RENDER',
+    )
+    
+    generate_preview_surface: bpy.props.BoolProperty(
+        name="USD Preview Surface",
+        description="Network, Generate an approximate USD Preview Surface shader representation of a Principled BSDF node network",
+        default=True,
+    )
+
+    generate_materialx_network: bpy.props.BoolProperty(
+        name="MaterialX Network",
+        description="Generate a MaterialX network representation of the materials",
+        default=False,
+    )
+    
+    convert_orientation: bpy.props.BoolProperty(
+        name="Convert Orientation",
+        description="Convert orientation axis to a different convention to match other",
+        default=False,
+    ) 
+
+    generate_preview_surface: bpy.props.BoolProperty(
+    name="USD Preview Surface Network",
+    description="Generate an approximate USD Preview Surface shader representation of a Principled BSDF node network",
+    default=False,
+)
+
+    generate_materialx_network: bpy.props.BoolProperty(
+        name="MaterialX Network",
+        description="Generate a MaterialX network representation of the materials",
+        default=False,
+    )
+
+    convert_orientation: bpy.props.BoolProperty(
+        name="Convert Orientation",
+        description="Convert orientation axis to a different convention to match other applications",
+        default=False,
+    )
+
+    export_global_forward_selection: bpy.props.EnumProperty(
+        name="Forward Axis",
+        description="Forward Axis",
+        items=[
+            ('X', "X", "Positive X axis"),
+            ('Y', "Y", "Positive Y axis"),
+            ('Z', "Z", "Positive Z axis"),
+            ('NEGATIVE_X', "-X", "Positive X axis"),
+            ('NEGATIVE_Y', "-Y", "Positive X axis"),
+            ('NEGATIVE_Z', "-Z", "Positive X axis"),
+        ],
+        default='NEGATIVE_Z',
+    )
+
+    export_global_up_selection: bpy.props.EnumProperty(
+        name="Up Axis",
+        description="Up Axis",
+        items=[
+            ('X', "X", "Positive X axis"),
+            ('Y', "Y", "Positive Y axis"),
+            ('Z', "Z", "Positive Z axis"),
+            ('NEGATIVE_X', "-X", "Positive X axis"),
+            ('NEGATIVE_Y', "-Y", "Positive X axis"),
+            ('NEGATIVE_Z', "-Z", "Positive X axis"),
+        ],
+        default='Y',
+    )
+
+    export_textures: bpy.props.BoolProperty(
+        name="Export Textures",
+        description="If exporting materials, export textures referenced by material nodes to a ‘textures’ directory in the same directory as the USD file",
+        default=False,
+    )
+
+    export_textures_mode: bpy.props.EnumProperty(
+        name="Export Textures",
+        description="Texture export method",
+        items=[
+            ('KEEP',"Keep", "Use original location of textures"),
+            ('PRESERVE',"Preserve", "Preserve file paths of textures from already imported USD files. Export remaining textures to a ‘textures’ folder next to the USD file."),
+            ('NEW',"New Path", "Export textures to a ‘textures’ folder next to the USD file"),
+        ],
+        default='NEW',
+    )
+
+    overwrite_textures: bpy.props.BoolProperty(
+        name="Overwrite Textures",
+        description="Overwrite existing files when exporting textures",
+        default=False,
+    )
+
+    relative_paths: bpy.props.BoolProperty(
+        name="Relative Paths",
+        description="Use relative paths to reference external files (i.e. textures, volumes) in USD, otherwise use absolute paths",
+        default=False,
+    )
+
+    xform_op_mode: bpy.props.EnumProperty(
+        name="Xform Ops",
+        description="The type of transform operators to write",
+        items=[
+            ('TRS', "Translate, Rotate, Scale", "Export with Translate, rotate, and scale Xform operators"),
+            ('TOS', "Translate, Orient, Scale", "Export with Translate, orient quaternion, and scale Xform operators"),
+            ('MAT', "Matrix", "Export matrix operator"),
+        ],
+        default='TRS',
+    )
+
+    # Doubtful
+    root_prim_path: bpy.props.StringProperty(
+        name="Root Prim",
+        description="If set, add a transform primitive with the given path to the stage as the parent of all exported data",
+        default='/root',
+    )
+
+    export_custom_properties: bpy.props.BoolProperty(
+        name="Custom Properties",
+        description="Export custom properties as USD attributes",
+        default=False,
+    )
+
+    custom_properties_namespace: bpy.props.StringProperty(
+        name="Namespace",
+        description="If set, add the given namespace as a prefix to exported custom property names. This only applies to property names that do not already have a prefix (e.g., it would apply to name ‘bar’ but not ‘foo:bar’) and does not apply to blender object and data names which are always exported in the ‘userProperties:blender’ namespace",
+        default='userProperties',
+    )
+
+    author_blender_name: bpy.props.BoolProperty(
+        name="Blender Names",
+        description="Author USD custom attributes containing the original Blender object and object data names",
+        default=True,
+    )
+
+    convert_world_material: bpy.props.BoolProperty(
+        name="World Dome Light",
+        description="Convert the world material to a USD dome light. Currently works for simple materials, consisting of an environment texture connected to a background shader, with an optional vector multiply of the texture color",
+        default=True,
+    )
+
+    allow_unicode: bpy.props.BoolProperty(
+        name="Allow Unicode",
+        description="Preserve UTF-8 encoded characters when writing USD prim and property names (requires software utilizing USD 24.03 or greater when opening the resulting files)",
+        default=False,
+    )
+
+    export_meshes: bpy.props.BoolProperty(
+        name="Meshes",
+        description="Export all meshes",
+        default=True,
+    )
+
+    export_lights: bpy.props.BoolProperty(
+        name="Lights",
+        description="Export all lights",
+        default=True,
+    )
+
+    export_cameras: bpy.props.BoolProperty(
+        name="Cameras",
+        description="Export all cameras",
+        default=True,
+    )
+
+    export_curves: bpy.props.BoolProperty(
+        name="Curves",
+        description="Export all curves",
+        default=True,
+    )
+
+    export_points: bpy.props.BoolProperty(
+        name="Point Clouds",
+        description="Export all point clouds",
+        default=True,
+    )
+
+    export_volumes: bpy.props.BoolProperty(
+        name="Volumes",
+        description="Export all volumes",
+        default=True,
+    )
+
+    triangulate_meshes: bpy.props.BoolProperty(
+        name="Triangulate Meshes",
+        description="Triangulate meshes during export",
+        default=True,
+    )
+
+
+    quad_method: bpy.props.EnumProperty(
+        name="Quad Method",
+        description="Method for splitting the quads into triangles",
+        items = [
+            ('BEAUTY', "Beauty", "Split the quads in nice triangles, slower method"),
+            ('FIXED', "Fixed", "Split the quads on the first and third vertices"),
+            ('FIXED_ALTERNATIVE', "Fixed Alternative", "Split the quads on the 2nd and 4th vertices"),
+            ('SHORTEST_DIAGONAL', "Shortest Diagonal", "Split the quads along their shortest diagonal"),
+            ('LONGEST_DIAGONAL', "Longest Diagonal", "Split the quads along their longest diagonal"),
+        ],
+        default='SHORTEST_DIAGONAL',
+    )
+
+    ngon_method: bpy.props.EnumProperty(
+        name="Polygons",
+        description="Method for splitting the quads into triangles",
+        items = [
+            ('BEAUTY',"Beauty","Arrange the new triangles evenly (slow)"),
+            ('CLIP',"Clip","Split the polygons with an ear clipping algorithm"),
+        ],
+        default='BEAUTY',
+    )
+
+    usdz_downscale_size: bpy.props.EnumProperty(
+        name="USDZ Custom Downscale Size",
+        description="Custom size for downscaling exported textures",
+        items=[
+            ('KEEP', "Keep", "Keep all current texture sizes."),
+            ('256', "256", "Resize to a maximum of 256 pixels."),
+            ('512', "512", "Resize to a maximum of 512 pixels."),
+            ('1024', "1024", "Resize to a maximum of 1024 pixels."),
+            ('2048', "2048", "Resize to a maximum of 2048 pixels."),
+            ('4096', "4096", "Resize to a maximum of 4096 pixels."),
+            ('CUSTOM', "Custom", "Resize to a maximum of 256 pixels."),
+        ],
+        default='KEEP',
+    )
+
+    usdz_downscale_custom_size: bpy.props.IntProperty(
+        name="USDZ Custom Downscale Size",
+        description="Custom size for downscaling exported textures",
+        default=128,
+        min=64,
+        max=16384,
+    )
+
+    merge_parent_xform: bpy.props.BoolProperty(
+        name="Merge parent Xform",
+        description="Merge USD primitives with their Xform parent if possible. USD does not allow nested UsdGeomGprims, intermediary Xform prims will be defined to keep the USD file valid when encountering object hierarchies.",
+        default=False,
+    )
+
+    convert_scene_units: bpy.props.EnumProperty(
+        name="Units",
+        description="Set the USD Stage meters per unit to the chosen measurement, or a custom value",
+        items=[
+            ('METERS', "Meters", "Scene meters per unit to 1.0."),
+            ('KILOMETERS', "Kilometers", "Scene meters per unit to 1000.0."),
+            ('CENTIMETERS', "Centimeters", "Scene meters per unit to 0.01."),
+            ('MILLIMETERS', "Millimeters", "Scene meters per unit to 0.001."),
+            ('INCHES', "Inches", "Scene meters per unit to 0.0254."),
+            ('FEET', "Feet", "Scene meters per unit to 0.3048."),
+            ('YARDS', "Yards", "Scene meters per unit to 0.9144."),
+            ('CUSTOM', "Custom", "Specify a custom scene meters per unit value."),
+        ],
+        default='METERS',
+    )
+
+    meters_per_unit: bpy.props.FloatProperty(
+        name="Meters Per Unit",
+        description="Custom value for meters per unit in the USD Stage",
+        default=1.0,
+        min= 0.0001,
+        max=1000,
+    )
+
+class daeExportProperties(bpy.types.PropertyGroup):
+    pass    
 
 
 class exportProperties(bpy.types.PropertyGroup):
@@ -311,6 +759,10 @@ class exportProperties(bpy.types.PropertyGroup):
     
 
     exp_FBXProperties: bpy.props.PointerProperty(type=fbxExportProperties)
+    exp_OBJProperties: bpy.props.PointerProperty(type=objExportProperties)
+    exp_USDProperties: bpy.props.PointerProperty(type=usdExportProperties)
+    exp_DAEProperties: bpy.props.PointerProperty(type=daeExportProperties)
+
 
     
     exp_editPresetDetails: bpy.props.BoolProperty(
@@ -321,7 +773,7 @@ class exportProperties(bpy.types.PropertyGroup):
 
     exp_triangulate: bpy.props.BoolProperty(
         name = 'Triangulate',
-        description="Triangulate the meshes during export",
+        description="Explicitly Triangulate the meshes using modifier during export, best for consistent results",
         default= True,
     )
     
@@ -636,6 +1088,9 @@ classes = (
     CollectionItem,
     exportPresetActive,
     fbxExportProperties,
+    objExportProperties,
+    usdExportProperties,
+    daeExportProperties,
     exportProperties,
     exportCollection,
     TAMT_Addon_Props,

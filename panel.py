@@ -300,23 +300,9 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
             row.prop(preset, "exp_nameMethod", text = "Name by")
             if preset.exp_nameMethod == 'OP2':
                 row.prop(preset, "exp_name", text = "Name")
-            row.prop(preset, "exp_format", text = "Type", icon = "EXPORT")
-
-            exp_PropRow = row.box()
-            expProperties = preset.exp_FBXProperties
-            
-            if preset.exp_format == 'OP1': # FBX
-                utils_panel.fbx_properties(exp_PropRow, expProperties)
-
-            elif preset.exp_format == 'OP2': # OBJ
-                utils_panel.obj_properties(exp_PropRow, expProperties)
-            
-            elif preset.exp_format == 'OP3': # USD
-                utils_panel.usd_properties(exp_PropRow, expProperties)
-            
-            elif preset.exp_format == 'OP4': # DAE
-                utils_panel.dae_properties(exp_PropRow, expProperties)
-            
+            r1 = row.row()
+            r1.prop(preset, "exp_format", text = "Type", icon = "EXPORT")
+            r1.operator(operators.OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS.bl_idname, text="", icon="TOOL_SETTINGS")
 
             if not preset.exp_inDirectory:
                 row.prop(preset, "exp_meshPath", text="Path")
