@@ -1307,6 +1307,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
             exp_mesh = export_Path
 
+            """ OG FBX Export 
             with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
                 bpy.ops.export_scene.fbx(
                 use_selection= True,
@@ -1322,6 +1323,52 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 axis_up='Y',
                 filepath = str(export_Path),
                 )
+            """
+            settings = preset.exp_FBXProperties
+            with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
+                bpy.ops.export_scene.fbx(
+                filepath = str(export_Path),
+                check_existing=False,
+                use_selection= True,
+                use_visible=False,
+                collection='', 
+
+                global_scale= settings.global_scale,
+                apply_unit_scale= settings.apply_unit_scale,
+                apply_scale_options= settings.apply_scale_options,
+                use_space_transform= settings.use_space_transform,
+                bake_space_transform= settings.bake_space_transform,
+                object_types= settings.object_types,
+                
+                use_mesh_modifiers= settings.use_mesh_modifiers,
+                mesh_smooth_type= settings.mesh_smooth_type,
+                colors_type= settings.colors_type,
+                prioritize_active_color= settings.prioritize_active_color,
+                use_subsurf= settings.use_subsurf,
+                use_mesh_edges= settings.use_mesh_edges,
+                use_tspace= settings.use_tspace,
+                use_triangles= settings.use_triangles,
+
+                add_leaf_bones= settings.add_leaf_bones,
+                primary_bone_axis= settings.primary_bone_axis,
+                secondary_bone_axis= settings.secondary_bone_axis,
+                use_armature_deform_only= settings.use_armature_deform_only,
+                armature_nodetype= settings.armature_nodetype,
+
+                bake_anim= settings.bake_anim,
+                bake_anim_use_all_bones= settings.bake_anim_use_all_bones,
+                bake_anim_use_nla_strips= settings.bake_anim_use_nla_strips,
+                bake_anim_use_all_actions = settings.bake_anim_use_all_actions,
+                bake_anim_force_startend_keying= settings.bake_anim_force_startend_keying,
+                bake_anim_step= settings.bake_anim_step,
+                bake_anim_simplify_factor= settings.bake_anim_simplify_factor,
+
+                axis_forward= settings.axis_forward,
+                axis_up= settings.axis_up,
+                )
+
+
+
         elif exp_format == 'OP3':
             export_ext = '.usdc'
             export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )

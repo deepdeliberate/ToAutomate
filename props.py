@@ -71,7 +71,8 @@ class fbxExportProperties(bpy.types.PropertyGroup):
 
     bake_space_transform: bpy.props.BoolProperty(
         name= "Apply Transform",
-        description="Bake space transform into object data, avoids getting unwanted rotations to objects when target space is not aligned with Blender’s space (WARNING! experimental option, use at own risk, known to be broken with armatures/animations)"
+        description="Bake space transform into object data, avoids getting unwanted rotations to objects when target space is not aligned with Blender’s space (WARNING! experimental option, use at own risk, known to be broken with armatures/animations)",
+        default=False,
     )
 
     axis_forward: bpy.props.EnumProperty(
@@ -202,7 +203,7 @@ class fbxExportProperties(bpy.types.PropertyGroup):
         default=False,
     )
 
-    armature_node_type: bpy.props.EnumProperty(
+    armature_nodetype: bpy.props.EnumProperty(
         name="Armature FBX Node Type",
         description="FBX type of node (object) used to represent Blender’s armatures (use the Null type unless you experience issues with the other app, as other choices may not import back perfectly into Blender…)",
         items=[

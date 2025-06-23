@@ -1,5 +1,12 @@
 import bpy
 
+def TAMT_fbx_export_panel_Include(layout, operator):
+    header, body = layout.panel("TAMT_FBX_export_include", default_closed=True)
+    header.label(text="Include")
+    if body:
+        body.prop(operator, "object_types")
+        body.prop(operator, "use_custom_props")
+
 def TAMT_fbx_export_panel_transform(layout, operator):
     header, body = layout.panel("TAMT_FBX_export_transform", default_closed=True)
     header.label(text="Transform")
@@ -37,7 +44,7 @@ def TAMT_fbx_export_panel_armature(layout, operator):
     if body:
         body.prop(operator, "primary_bone_axis")
         body.prop(operator, "secondary_bone_axis")
-        body.prop(operator, "armature_node_type")
+        body.prop(operator, "armature_nodetype")
         body.prop(operator, "use_armature_deform_only")
         body.prop(operator, "add_leaf_bones")
 
@@ -58,6 +65,7 @@ def TAMT_fbx_export_panel_animation(layout, operator):
 
 
 def fbx_properties(layout, operator):
+    TAMT_fbx_export_panel_Include(layout, operator)
     TAMT_fbx_export_panel_transform(layout, operator)
     TAMT_fbx_export_panel_geometry(layout, operator)
     TAMT_fbx_export_panel_armature(layout, operator)
