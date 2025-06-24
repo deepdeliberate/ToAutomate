@@ -1,5 +1,8 @@
 import bpy
 
+#------------------------ FBX Panel ----------------------------
+
+
 def TAMT_fbx_export_panel_Include(layout, operator):
     header, body = layout.panel("TAMT_FBX_export_include", default_closed=True)
     header.label(text="Include")
@@ -73,9 +76,75 @@ def fbx_properties(layout, operator):
 
 
 
+#------------------------ OBJ Panel ----------------------------
+
+
+def TAMT_obj_General_panel(layout, operator):
+    header, body = layout.panel("TAMT_OBJ_export_general", default_closed = True)
+    header.label(text = "General")
+    if body:
+        body.prop(operator, "global_scale")
+        body.prop(operator, "forward_axis")
+        body.prop(operator, "up_axis")
+
+def TAMT_obj_Geometry_panel(layout, operator):
+    header, body = layout.panel("TAMT_OBJ_export_geometry", default_closed = True)
+    header.label(text = "Geometry")
+
+    if body:
+        body.prop(operator, "export_uv")
+        body.prop(operator, "export_normals")
+        body.prop(operator, "export_colors")
+        body.prop(operator, "export_curves_as_nurbs", text = "Curves as NURBS")
+        body.prop(operator, "export_triangulated_mesh", text = "Triangulated Mesh")
+        body.prop(operator, "apply_modifiers")
+        body.prop(operator, "export_eval_mode")
+
+        
+def TAMT_obj_Grouping_panel(layout, operator):
+    header, body = layout.panel("TAMT_OBJ_export_grouping", default_closed = True)
+    header.label(text = "Grouping")
+
+    if body:
+        body.prop(operator, "export_object_groups")
+        body.prop(operator, "export_material_groups")
+        body.prop(operator, "export_vertex_groups")
+        body.prop(operator, "export_smooth_groups")
+        body.prop(operator, "smooth_group_bitflags")
+
+        
+def TAMT_obj_Material_panel(layout, operator):
+    header, body = layout.panel("TAMT_OBJ_export_material", default_closed = True)
+    header.label(text = "Materials")
+
+    if body:
+        body.prop(operator, "export_materials")
+        body.prop(operator, "export_pbr_extensions", text = "PBR Extensions")
+        body.prop(operator, "path_mode")
+
+
+def TAMT_obj_Animation_panel(layout, operator):
+    header, body = layout.panel("TAMT_OBJ_export_animation", default_closed = True)
+    header.label(text = "Animation")
+
+    if body:
+        body.prop(operator, "export_animation")
+        body.prop(operator, "start_frame")
+        body.prop(operator, "end_frame")
+
+
+
+
 
 def obj_properties(layout, operator):
-    pass
+    TAMT_obj_General_panel(layout, operator)
+    TAMT_obj_Geometry_panel(layout, operator)
+    TAMT_obj_Material_panel(layout, operator)
+    TAMT_obj_Animation_panel(layout, operator)
+
+
+#------------------------ USD Panel ----------------------------
+
 
 
 def TAMT_usd_General_panel(layout, operator):
@@ -160,6 +229,12 @@ def usd_properties(layout, operator):
     TAMT_usd_RIGGING_panel(layout, operator)
     TAMT_usd_MATERIALS_panel(layout, operator)
     TAMT_usd_EXPERIMENTAL_panel(layout, operator)
+
+
+
+#------------------------ DAE COLLADA Panel ----------------------------
+
+
 
 def TAMT_COLLADA_Main_panel(layout, operator):
     header, body = layout.panel("TAMT_COLLADA_export_Main", default_closed = True)

@@ -370,6 +370,20 @@ class objExportProperties(bpy.types.PropertyGroup):
         default=False,
     )
 
+    path_mode: bpy.props.EnumProperty(
+        name="Path Mode",
+        description= "Method used to reference paths",
+        items=[
+            ('AUTO',"Auto", "Use relative paths with subdirectories only."),
+            ('ABSOLUTE', "Absolute", "Always write absolute paths."),
+            ('RELATIVE', "Relative", "Write relative paths where possible"),
+            ('MATCH', "Match", "Match absolute/relative setting with input path."),
+            ('STRIP', "Strip", "Write filename only."),
+            ('COPY', "Copy", "Copy the file to the destination path."),
+        ],
+        default='AUTO',
+    )
+
     export_triangulated_mesh: bpy.props.BoolProperty(
         name="Export Triangulated Mesh",
         description="All ngons with four or more vertices will be triangulated. Meshes in the scene will not be affected. Behaves like Triangulate Modifier with ngon-method: “Beauty”, quad-method: “Shortest Diagonal”, min vertices: 4",
