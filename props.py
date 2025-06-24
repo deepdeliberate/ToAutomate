@@ -263,96 +263,153 @@ class fbxExportProperties(bpy.types.PropertyGroup):
         max=100,
     )
 
-
 class objExportProperties(bpy.types.PropertyGroup):
     
-    use_animation: bpy.props.BoolProperty(
-        name="Animation",
-        description="Write out an OBJ for each frame",
+    export_animation: bpy.props.BoolProperty(
+        name="Export Animation",
+        description="Export multiple frames instead of the current frame only",
         default=False,
     )
 
-    # object group
-    use_mesh_modifiers: bpy.props.BoolProperty(
+    start_frame: bpy.props.IntProperty(
+        name="Start Frame",
+        description="The first frame to be exported",
+        default=0,
+    )
+
+    end_frame: bpy.props.IntProperty(
+        name= "End Frame",
+        description= "The last frame to be exported",
+        default=0,
+    )
+
+    forward_axis: bpy.props.EnumProperty(
+        name= "Forward Axis",
+        items=[
+            ('X', "X", "Positive X axis"),
+            ('Y', "Y", "Positive Y axis"),
+            ('Z', "Z", "Positive Z axis"),
+            ('NEGATIVE_X', "-X", "Negative X axis"),
+            ('NEGATIVE_Y', "-Y", "Negative Y axis"),
+            ('NEGATIVE_Z', "-Z", "Negative Z axis"),
+        ],
+        default= 'NEGATIVE_Z',
+    )
+
+    up_axis: bpy.props.EnumProperty(
+        name= "Up Axis",
+        items=[
+            ('X', "X", "Positive X axis"),
+            ('Y', "Y", "Positive Y axis"),
+            ('Z', "Z", "Positive Z axis"),
+            ('NEGATIVE_X', "-X", "Negative X axis"),
+            ('NEGATIVE_Y', "-Y", "Negative Y axis"),
+            ('NEGATIVE_Z', "-Z", "Negative Z axis"),
+        ],
+        default= 'Y',
+    )
+
+
+    global_scale: bpy.props.FloatProperty(
+        name= "Scale",
+        description= "Value by which to enlarge or shrink the objects with respect to the world's origin",
+        default= 1.0,
+        min=  0.0001,
+        max= 10000,
+    )
+
+    apply_modifiers: bpy.props.BoolProperty(
         name="Apply Modifiers",
-        description="Apply modifiers",
-        default=True,
-    )
-    # extra data group
-    use_edges: bpy.props.BoolProperty(
-        name="Include Edges",
-        description="",
-        default=True,
-    )
-    use_smooth_groups: bpy.props.BoolProperty(
-        name="Smooth Groups",
-        description="Write sharp edges as smooth groups",
-        default=False,
-    )
-    use_smooth_groups_bitflags: bpy.props.BoolProperty(
-        name="Bitflag Smooth Groups",
-        description="Same as 'Smooth Groups', but generate smooth groups IDs as bitflags "
-        "(produces at most 32 different smooth groups, usually much less)",
-        default=False,
-    )
-    use_normals: bpy.props.BoolProperty(
-        name="Write Normals",
-        description="Export one normal per vertex and per face, to represent flat faces and sharp edges",
-        default=True,
-    )
-    use_uvs: bpy.props.BoolProperty(
-        name="Include UVs",
-        description="Write out the active UV coordinates",
-        default=True,
-    )
-    use_materials: bpy.props.BoolProperty(
-        name="Write Materials",
-        description="Write out the MTL file",
-        default=True,
-    )
-    use_triangles: bpy.props.BoolProperty(
-        name="Triangulate Faces",
-        description="Convert all faces to triangles",
-        default=False,
-    )
-    use_nurbs: bpy.props.BoolProperty(
-        name="Write Nurbs",
-        description="Write nurbs curves as OBJ nurbs rather than "
-        "converting to geometry",
-        default=False,
-    )
-    use_vertex_groups: bpy.props.BoolProperty(
-        name="Polygroups",
-        description="",
+        description="Apply modifiers to exported meshes",
         default=False,
     )
 
-    # grouping group
-    use_blen_objects: bpy.props.BoolProperty(
-        name="OBJ Objects",
-        description="Export Blender objects as OBJ objects",
-        default=True,
+    export_eval_mode: bpy.props.EnumProperty(
+        name= "Object Properties",
+        description= "Determines properties like object visibility, modifiers etc., where they differ for Render and Viewport",
+        items=[
+            ('DAG_EVAL_RENDER', "Render", "Export objects as they appear in render."),
+            ('DAG_EVAL_VIEWPORT', "Viewport", "Export objects as they appear in the viewport"),
+        ],
+        default= 'DAG_EVAL_VIEWPORT',
     )
-    group_by_object: bpy.props.BoolProperty(
-        name="OBJ Groups",
-        description="Export Blender objects as OBJ groups",
+
+    export_selected_objects: bpy.props.BoolProperty(
+        name="Export Selected Objects",
+        description="Export only selected objects instead of all supported objects",
         default=False,
     )
-    group_by_material: bpy.props.BoolProperty(
-        name="Material Groups",
+
+    export_uv: bpy.props.BoolProperty(
+        name="Export UVs",
+        description="",
+        default=True,
+    )
+
+    export_normals: bpy.props.BoolProperty(
+        name="Export Normals",
+        description="Export per-face normals if the face is flat-shaded, per-face-per-loop normals if smooth-shaded",
+        default=True,
+    )
+
+    export_colors: bpy.props.BoolProperty(
+        name="Export Colors",
+        description="Export per-vertex colors",
+        default=False,
+    )
+
+    export_materials: bpy.props.BoolProperty(
+        name="Export Materials",
+        description="Export MTL library. There must be a Principled-BSDF node for image textures to be exported to the MTL file",
+        default=True,
+    )
+
+    export_pbr_extensions: bpy.props.BoolProperty(
+        name="Export Materials with PBR Extensions",
+        description="Export MTL library using PBR extensions (roughness, metallic, sheen, coat, anisotropy, transmission)",
+        default=False,
+    )
+
+    export_triangulated_mesh: bpy.props.BoolProperty(
+        name="Export Triangulated Mesh",
+        description="All ngons with four or more vertices will be triangulated. Meshes in the scene will not be affected. Behaves like Triangulate Modifier with ngon-method: “Beauty”, quad-method: “Shortest Diagonal”, min vertices: 4",
+        default=True,
+    )
+
+    export_curves_as_nurbs: bpy.props.BoolProperty(
+        name="Export Curves as NURBS",
+        description="Export curves in parametric form instead of exporting as mesh",
+        default=False,
+    )
+
+    export_object_groups: bpy.props.BoolProperty(
+        name="Export Object Groups",
+        description="Append mesh name to object name, separated by a ‘_’",
+        default=False,
+    )
+
+    export_material_groups: bpy.props.BoolProperty(
+        name="Export Material Groups",
         description="Generate an OBJ group for each part of a geometry using a different material",
         default=False,
     )
-    keep_vertex_order: bpy.props.BoolProperty(
-        name="Keep Vertex Order",
-        description="",
+
+    export_vertex_groups: bpy.props.BoolProperty(
+        name="Export Vertex Groups",
+        description="Export the name of the vertex group of a face. It is approximated by choosing the vertex group with the most members among the vertices of a face",
         default=False,
     )
 
-    global_scale: bpy.props.FloatProperty(
-        name="Scale",
-        min=0.01, max=1000.0,
-        default=1.0,
+    export_smooth_groups: bpy.props.BoolProperty(
+        name="Export Smooth Groups",
+        description="Every smooth-shaded face is assigned group “1” and every flat-shaded face “off”",
+        default=False,
+    )
+
+    smooth_group_bitflags: bpy.props.BoolProperty(
+        name="Generate Bitflags for Smooth Groups",
+        description="",
+        default=False,
     )
 
 class usdExportProperties(bpy.types.PropertyGroup):
@@ -713,7 +770,224 @@ class usdExportProperties(bpy.types.PropertyGroup):
     )
 
 class daeExportProperties(bpy.types.PropertyGroup):
-    pass    
+    apply_modifiers: bpy.props.BoolProperty(
+        name="Apply Modifiers",
+        description="Apply modifiers to exported mesh (non destructive)",
+        default=False,
+    )
+
+    export_mesh_type: bpy.props.IntProperty(
+        name= "Resolution",
+        description="Modifier resolution for export",
+        default=0,
+    )
+
+    export_mesh_type_selection: bpy.props.EnumProperty(
+        name="Resolution",
+        description= "Modifier resolution for export",
+        items=[
+            ('view', "Viewport", "Apply modifier's viewport settings"),
+            ('render', "Render", "Apply modifier's render settings")
+        ],
+        default= 'view',
+    )
+
+    export_global_forward_selection: bpy.props.EnumProperty(
+        name= "Global Forward Axis",
+        description= "Global Forward axis for export",
+        items= [
+            ('X', "X", "Global Forward is positive X Axis"),
+            ('Y', "Y", "Global Forward is positive Y Axis"),
+            ('Z', "Z", "Global Forward is positive Z Axis"),
+            ('-X', "-X", "Global Forward is negative X Axis"),
+            ('-Y', "-Y", "Global Forward is negative Y Axis"),
+            ('-Z', "-Z", "Global Forward is negative Z Axis"),
+        ],
+        default= 'Y',
+    )
+
+    export_global_up_selection: bpy.props.EnumProperty(
+        name= "Global Up Axis",
+        description= "Global Up axis for export",
+        items= [
+            ('X', "X", "Global Up is positive X Axis"),
+            ('Y', "Y", "Global Up is positive Y Axis"),
+            ('Z', "Z", "Global Up is positive Z Axis"),
+            ('-X', "-X", "Global Up is negative X Axis"),
+            ('-Y', "-Y", "Global Up is negative Y Axis"),
+            ('-Z', "-Z", "Global Up is negative Z Axis"),
+        ],
+        default= 'Z',
+    )
+
+    apply_global_orientation: bpy.props.BoolProperty(
+        name="Apply Global Orientation",
+        description="Rotate all root objects to match the global orientation settings otherwise set the global orientation per Collada asset",
+        default=False,
+    )
+
+    # selected: bpy.props.BoolProperty(
+    #     name="Selection Only",
+    #     description="Export only selected elements",
+    #     default=False,
+    # )
+
+    # include_children: bpy.props.BoolProperty(
+    #     name="Include Children",
+    #     description="Export all children of selected objects (even if not selected)",
+    #     default=False,
+    # )
+
+    # include_armatures: bpy.props.BoolProperty(
+    #     name="Include Armatures",
+    #     description="Export related armatures (even if not selected)",
+    #     default=False,
+    # )
+
+    # include_shapekeys: bpy.props.BoolProperty(
+    #     name="Include Shape Keys",
+    #     description="Export all Shape Keys from Mesh Objects",
+    #     default=False,
+    # )
+
+    deform_bones_only: bpy.props.BoolProperty(
+        name="Deform Bones Only",
+        description="Only export deforming bones with armatures",
+        default=False,
+    )
+
+    include_animations: bpy.props.BoolProperty(
+        name="Include Animations",
+        description="Export animations if available (exporting animations will enforce the decomposition of node transforms into <translation> <rotation> and <scale> components)",
+        default=False,
+    )
+
+    include_all_actions: bpy.props.BoolProperty(
+        name="Include all Actions",
+        description="Export also unassigned actions (this allows you to export entire animation libraries for your character(s))",
+        default=True,
+    )
+
+    export_animation_type_selection: bpy.props.EnumProperty(
+        name= "Key Type",
+        description="Type for exported animations (use sample keys or Curve keys)",
+        items=[
+            ('sample', "Samples", "Export Sampled points guided by sampling rate"),
+            ('keys', "Curves", "Export Curves (note: guided by curve keys)."),
+        ],
+        default= 'sample',
+    )
+
+    sampling_rate: bpy.props.IntProperty(
+        name="Sampling Rate",
+        description= "The distance between 2 keyframes (1 to key every frame)",
+        min=1,
+        default= 1,
+    )
+
+    keep_smooth_curves: bpy.props.BoolProperty(
+        name="Keep Smooth curves",
+        description="Export also the curve handles (if available) (this does only work when the inverse parent matrix is the unity matrix, otherwise you may end up with odd results)",
+        default=False,
+    )
+
+    keep_keyframes: bpy.props.BoolProperty(
+        name="Keep Keyframes",
+        description="Use existing keyframes as additional sample points (this helps when you want to keep manual tweaks)",
+        default=False,
+    )
+
+    keep_flat_curves: bpy.props.BoolProperty(
+        name="All Keyed Curves",
+        description="Export also curves which have only one key or are totally flat",
+        default=False,
+    )
+
+    active_uv_only: bpy.props.BoolProperty(
+        name="Only Selected UV Map",
+        description="Export only the selected UV Map",
+        default=False,
+    )
+
+    use_texture_copies: bpy.props.BoolProperty(
+        name="Copy",
+        description="Copy textures to same folder where the .dae file is exported",
+        default=True,
+    )
+
+    triangulate: bpy.props.BoolProperty(
+        name="Triangulate",
+        description="Export polygons (quads and n-gons) as triangles",
+        default=True,
+    )
+
+    use_object_instantiation: bpy.props.BoolProperty(
+        name="Use Object Instances",
+        description="Instantiate multiple Objects from same Data",
+        default=True,
+    )
+
+    use_blender_profile: bpy.props.BoolProperty(
+        name="Use Blender Profile",
+        description="Export additional Blender specific information (for material, shaders, bones, etc.)",
+        default=True,
+    )
+
+    sort_by_name: bpy.props.BoolProperty(
+        name="Sort by Object name",
+        description="Sort exported data by Object name",
+        default=False,
+    )
+
+    export_object_transformation_type: bpy.props.IntProperty(
+        name= "Transform",
+        description= "Object Transformation type for translation, scale and rotation",
+        default= 0,
+    )
+
+    export_object_transformation_type_selection: bpy.props.EnumProperty(
+        name= "Transform",
+        description= "Object Transformation type for translation, scale and rotation",
+        items=[
+            ('matrix', "Matrix", "Use <matrix> representation for exported transformations."),
+            ('decomposed', "Decomposed", "Use <rotate>, <translate> and <scale> representation for exported transformations."),
+        ],
+        default= 'matrix',
+    )
+
+    export_animation_transformation_type: bpy.props.IntProperty(
+        name= "Transform",
+        description= "Transformation type for translation, scale and rotation. Note: The Animation transformation type in the Anim Tab is always equal to the Object transformation type in the Geom tab",
+        default= 0,
+    )
+
+    export_animation_transformation_type_selection: bpy.props.EnumProperty(
+        name= "Transform",
+        description= "Transformation type for translation, scale and rotation. Note: The Animation transformation type in the Anim Tab is always equal to the Object transformation type in the Geom tab",
+        items=[
+            ('matrix', "Matrix", "Use <matrix> representation for exported transformations."),
+            ('decomposed', "Decomposed", "Use <rotate>, <translate> and <scale> representation for exported transformations."),
+        ],
+        default= 'matrix',
+    )
+
+    open_sim: bpy.props.BoolProperty(
+        name="Export to SL/OpenSim",
+        description="Compatibility mode for Second Life, OpenSimulator and other compatible online worlds",
+        default=False,
+    )
+
+    limit_precision: bpy.props.BoolProperty(
+        name="Limit Precision",
+        description="Reduce the precision of the exported data to 6 digits",
+        default=False,
+    )
+
+    keep_bind_info: bpy.props.BoolProperty(
+        name="Keep Bind Info",
+        description="Store Bindpose information in custom bone properties for later use during Collada export",
+        default=False,
+    )
 
 
 class exportProperties(bpy.types.PropertyGroup):

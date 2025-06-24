@@ -161,6 +161,76 @@ def usd_properties(layout, operator):
     TAMT_usd_MATERIALS_panel(layout, operator)
     TAMT_usd_EXPERIMENTAL_panel(layout, operator)
 
+def TAMT_COLLADA_Main_panel(layout, operator):
+    header, body = layout.panel("TAMT_COLLADA_export_Main", default_closed = True)
+    header.label(text = "Main")
+
+    if body:
+        box1=body.box()
+        box1.label(text = "Global Orientation")
+        box1.prop(operator, "apply_global_orientation", text="Apply Orientation")
+        box1.prop(operator, "export_global_forward_selection"),
+        box1.prop(operator, "export_global_up_selection"),
+
+
+def TAMT_COLLADA_Geo_panel(layout, operator):
+    header, body = layout.panel("TAMT_COLLADA_export_Geo", default_closed = True)
+    header.label(text = "Geometry")
+
+    if body:
+        body.prop(operator, "triangulate"),
+        body.prop(operator,"apply_modifiers")
+        body.prop(operator,"export_mesh_type_selection", text = "Modifier Settings")
+        body.prop(operator, "export_object_transformation_type_selection")
+
+def TAMT_COLLADA_ARM_panel(layout, operator):
+    header, body = layout.panel("TAMT_COLLADA_export_ARM", default_closed = True)
+    header.label(text = "Armature")
+
+    if body:
+        body.prop(operator, "deform_bones_only")
+        body.prop(operator, "open_sim")
+
+
+def TAMT_COLLADA_ANIMATION_panel(layout, operator):
+    header, body = layout.panel("TAMT_COLLADA_export_ANIMATION", default_closed = True)
+    header.label(text = "Animation")
+    if body:
+        body.prop(operator, "include_animations")
+        enable_anim = operator.include_animations
+
+        curve_key = True
+        if operator.export_animation_type_selection == 'sample':
+            curve_key = False,
+        else:
+            curve_key = True
+
+        body.prop(operator, "export_animation_type_selection",expand = True )
+        body.prop(operator, "keep_smooth_curves")
+
+        enabled_samples = enable_anim and not curve_key
+        row = body.column()
+        row.prop(operator, "sampling_rate" )
+        row.prop(operator, "keep_keyframes" )
+        row.prop(operator, "keep_flat_curves")
+        row.prop(operator, "include_all_actions" )
+        row.prop(operator, "export_animation_transformation_type_selection"  )
+        
+
+def TAMT_COLLADA_EXTRA_panel(layout, operator):
+    header, body = layout.panel("TAMT_COLLADA_export_EXTRA", default_closed = True)
+    header.label(text = "Extra")
+    if body:
+        body.prop(operator, "use_object_instantiation")
+        body.prop(operator, "use_blender_profile")
+        body.prop(operator, "sort_by_name")
+        body.prop(operator, "keep_bind_info")
+        body.prop(operator, "limit_precision")
+
+
 
 def dae_properties(layout, operator):
-    pass
+    TAMT_COLLADA_Main_panel(layout, operator)
+    TAMT_COLLADA_Geo_panel(layout, operator)
+    TAMT_COLLADA_ANIMATION_panel(layout, operator)
+    TAMT_COLLADA_EXTRA_panel(layout, operator)
