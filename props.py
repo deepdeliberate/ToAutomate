@@ -342,7 +342,7 @@ class objExportProperties(bpy.types.PropertyGroup):
 
     export_uv: bpy.props.BoolProperty(
         name="Export UVs",
-        description="",
+        description="Export UVs of the meshes",
         default=True,
     )
 
@@ -787,7 +787,7 @@ class daeExportProperties(bpy.types.PropertyGroup):
     apply_modifiers: bpy.props.BoolProperty(
         name="Apply Modifiers",
         description="Apply modifiers to exported mesh (non destructive)",
-        default=False,
+        default=True,
     )
 
     export_mesh_type: bpy.props.IntProperty(

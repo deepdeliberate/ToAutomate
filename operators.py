@@ -1500,13 +1500,44 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 obj.hide_set(False)
                 obj.select_set(True)
                 
-
+            """
             bpy.ops.wm.obj_export(
                 filepath= str(export_Path),
                 export_selected_objects=False,
                 export_triangulated_mesh=do_triangulate,
                 forward_axis='NEGATIVE_Z',
                 up_axis='Y',
+                collection=f"{col.name}",
+            )
+            """
+            settings = preset.exp_OBJProperties
+            
+            bpy.ops.wm.obj_export(
+                filepath= str(export_Path),
+                export_animation=   settings.export_animation,
+                start_frame=        settings.start_frame,
+                end_frame=          settings.end_frame,
+                forward_axis=       settings.forward_axis,
+                up_axis=            settings.up_axis,
+                global_scale=       settings.global_scale,
+
+                export_selected_objects=False,
+
+                export_uv=          settings.export_uv,
+                export_normals=     settings.export_normals,
+                export_colors=      settings.export_colors,
+                export_materials=   settings.export_materials,
+                export_pbr_extensions=  settings.export_pbr_extensions,
+                path_mode=          settings.path_mode,
+                export_triangulated_mesh=   settings.export_triangulated_mesh,
+
+                export_curves_as_nurbs=     settings.export_curves_as_nurbs,
+                export_object_groups=       settings.export_object_groups,
+                export_material_groups=     settings.export_material_groups,
+                export_vertex_groups=       settings.export_vertex_groups,
+                export_smooth_groups=       settings.export_smooth_groups,
+                smooth_group_bitflags=       settings.smooth_group_bitflags,
+
                 collection=f"{col.name}",
             )
 
@@ -1542,6 +1573,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 obj.hide_set(False)
                 obj.select_set(True)
 
+            """
             bpy.ops.wm.collada_export(
                 filepath=str(export_Path),
                 apply_modifiers=True,
@@ -1549,6 +1581,50 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 export_mesh_type_selection='render',
                 triangulate=do_triangulate,
                 selected=True,
+            )
+            """
+
+            settings = preset.exp_DAEProperties
+
+            bpy.ops.wm.collada_export(
+                filepath=str(export_Path),
+
+                apply_modifiers=                 settings.apply_modifiers,
+                export_mesh_type=               settings.export_mesh_type,
+                export_mesh_type_selection=     settings.export_mesh_type_selection,
+                export_global_forward_selection=settings.export_global_forward_selection,
+                export_global_up_selection=     settings.export_global_up_selection,
+                apply_global_orientation=       settings.apply_global_orientation,
+
+                deform_bones_only=              settings.deform_bones_only,
+                include_animations=             settings.include_animations,
+                include_all_actions=            settings.include_all_actions,
+                export_animation_type_selection=settings.export_animation_type_selection,
+
+                sampling_rate=                  settings.sampling_rate,
+                keep_smooth_curves=             settings.keep_smooth_curves,
+                keep_keyframes=                 settings.keep_keyframes,
+                keep_flat_curves=                settings.keep_flat_curves,
+                active_uv_only=                 settings.active_uv_only,
+                use_texture_copies=             settings.use_texture_copies,
+
+                selected=                       True,
+                triangulate=                    settings.triangulate,
+
+                use_object_instantiation=       settings.use_object_instantiation,
+                use_blender_profile=             settings.use_blender_profile,
+
+                sort_by_name=                   settings.sort_by_name,
+                export_object_transformation_type=      settings.export_object_transformation_type,
+                export_object_transformation_type_selection=        settings.export_object_transformation_type_selection,
+
+                export_animation_transformation_type=               settings.export_animation_transformation_type,
+                export_animation_transformation_type_selection=     settings.export_animation_transformation_type_selection,
+
+                open_sim=                       settings.open_sim,
+                limit_precision=                settings.limit_precision,
+                keep_bind_info=                 settings.keep_bind_info,
+                
             )
 
             for obj in final_objects:
