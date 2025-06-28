@@ -4,7 +4,6 @@ from . import utils
 from bpy.props import PointerProperty
 
 
-
 class CollectionItem(bpy.types.PropertyGroup):
     collection: bpy.props.PointerProperty(
         name = "Collection",
@@ -14,7 +13,13 @@ class CollectionItem(bpy.types.PropertyGroup):
 class exportPresetActive(bpy.types.PropertyGroup):
     selected_preset: bpy.props.EnumProperty(name = "Preset", items =  utils.update_presets )
 
+
 class fbxExportProperties(bpy.types.PropertyGroup):
+    preset_name: bpy.props.StringProperty(
+        name= "FBX Preset Name",
+        description= "Name for this FBX preset",
+        default= 'Preset',
+    )
 
     object_types: bpy.props.EnumProperty(
         name="Object Types",
@@ -264,7 +269,12 @@ class fbxExportProperties(bpy.types.PropertyGroup):
     )
 
 class objExportProperties(bpy.types.PropertyGroup):
-    
+    preset_name: bpy.props.StringProperty(
+        name= "OBJ Preset Name",
+        description= "Name for this OBJ preset",
+        default= 'Preset',
+    )
+
     export_animation: bpy.props.BoolProperty(
         name="Export Animation",
         description="Export multiple frames instead of the current frame only",
@@ -427,6 +437,11 @@ class objExportProperties(bpy.types.PropertyGroup):
     )
 
 class usdExportProperties(bpy.types.PropertyGroup):
+    preset_name: bpy.props.StringProperty(
+        name= "USD Preset Name",
+        description= "Name for this USD preset",
+        default= 'Preset',
+    )
 
     visible_objects_only: bpy.props.BoolProperty(
         name="Visible Only",
@@ -784,6 +799,12 @@ class usdExportProperties(bpy.types.PropertyGroup):
     )
 
 class daeExportProperties(bpy.types.PropertyGroup):
+    preset_name: bpy.props.StringProperty(
+        name= "DAE Preset Name",
+        description= "Name for this DAE preset",
+        default= 'Preset',
+    )
+    
     apply_modifiers: bpy.props.BoolProperty(
         name="Apply Modifiers",
         description="Apply modifiers to exported mesh (non destructive)",
@@ -1004,7 +1025,7 @@ class daeExportProperties(bpy.types.PropertyGroup):
     )
 
 
-class exportProperties(bpy.types.PropertyGroup):
+class export_Preset_Properties(bpy.types.PropertyGroup):
 
     name: bpy.props.StringProperty(name="Preset Name")
 
@@ -1137,8 +1158,7 @@ class exportProperties(bpy.types.PropertyGroup):
 
 
 class exportCollection(bpy.types.PropertyGroup):
-    presets: bpy.props.CollectionProperty(type = exportProperties)
-
+    presets: bpy.props.CollectionProperty(type = export_Preset_Properties)
 
 
 
@@ -1380,7 +1400,7 @@ classes = (
     objExportProperties,
     usdExportProperties,
     daeExportProperties,
-    exportProperties,
+    export_Preset_Properties,
     exportCollection,
     TAMT_Addon_Props,
 )

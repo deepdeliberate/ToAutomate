@@ -45,6 +45,41 @@ def update_presets(self, context):
         items = [('0', 'No Presets', '')]
     return items
 
+
+def update_prefs_presets(self, context):
+    prefs = context.preferences.addons["ToAutomate"].preferences
+    preset_type = prefs.exp_Preset_Type
+
+    if preset_type == 'FBX':
+        presets = prefs.exp_Presets_FBX
+    elif preset_type == 'OBJ':
+        presets = prefs.exp_Presets_OBJ
+    elif preset_type == 'USD':
+        presets = prefs.exp_Presets_USD
+    else:
+        presets = prefs.exp_Presets_DAE
+
+    try:
+
+        items =[
+            (str(i), presets[i].preset_name  , "")
+            for i in range(len(presets))
+        ]
+    except Exception as e:
+        print(f"Error {e}")
+        items = []
+    if not items:
+        items = [('0', f"No {preset_type} Presets", '')]
+
+    return items
+
+
+def preFill_Export_list( prefs ):
+    if not prefs.exp_Presets_FBX:
+        prefs.exp_Presets_FBX.add()
+    
+
+
 def _get_macos_paths(year_suffix = ''):
     """Generates potential macOS Substance 3d Painter Paths"""
     base_app_name = f'Adobe Substance 3D Painter { f"{year_suffix}" if year_suffix else ""}.app'

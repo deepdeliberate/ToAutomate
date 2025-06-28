@@ -1,7 +1,7 @@
 bl_info = {
     "name": "ToAutomate",
     "author": "Naman Deep",
-    "version": (1,0,2),
+    "version": (1,0,3),
     "blender": (4, 4, 0),
     "location": "VIEW3D > Properties > To Automate",
     "description": "Addon to Partly Automate 3D Project Development",
@@ -27,9 +27,10 @@ _refresh_.reload_modules()
 
 def register():
     props.register_classes()
-    operators.register_classes()
     preferences.register_classes()
+    operators.register_classes()
     panel.register_classes()
+
     
 
 def unregister():

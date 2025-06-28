@@ -1167,8 +1167,6 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
         final_objects = []
 
-
-
         if exp_meshSource == 'OP1':
             inc_collections = preset.inc_collections
             exc_collections = preset.exc_collections
@@ -1869,15 +1867,85 @@ class OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS(bpy.types.Operator):
         
         
 
+#   ---------------------------- Export Preference Operators ------------------------------
 
 
 
+class OBJECT_OT_TAMT_PREFS_ADD_EXPPRESET(bpy.types.Operator):
+    """Export Format Presets"""
+    bl_idname="to_automate.atm_prefs_create_preset"
+    bl_label="Add Export Format Preset"
+    bl_description="Create a Preset for the selected Export Format"  
+    bl_options={"REGISTER","UNDO"}
+
+    def execute(self, context):
+        prefs = context.preferences.addons["ToAutomate"].preferences
+        preset_type = prefs.exp_Preset_Type
+
+        preset_map = {
+            'FBX': (prefs.exp_Presets_FBX, 'default_FBX_preset'),
+            'OBJ': (prefs.exp_Presets_OBJ, 'default_OBJ_preset'),
+            'USD': (prefs.exp_Presets_USD, 'default_USD_preset'),
+            'DAE': (prefs.exp_Presets_DAE, 'default_DAE_preset'),
+        }
+
+        presets, index_prop_name = preset_map.get(preset_type, (None, None))
+            
+        new_preset = presets.add()
+        new_preset.preset_name = f"Preset {len(presets)}"
+
+        current_index = str(len(presets)-1)
+
+        setattr(prefs, index_prop_name, current_index)
+
+        return  {'FINISHED'}
 
 
+class OBJECT_OT_TAMT_PREFS_REM_EXPPRESET(bpy.types.Operator):
+    bl_idname="to_automate.atm_prefs_remove_preset"
+    bl_label = "Remove Current Export Preset"
+    bl_description = "Remove current Preset of the selected Export Format"
 
+    confirmed: bpy.props.BoolProperty(default = True)
 
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Delete the Active Preset?")
 
+    def execute(self, context):
 
+        if not self.confirmed:
+            self.report({'INFO'}, "Operator Cancelled")
+            return {'CANCELLED'}
+
+        prefs = context.preferences.addons["ToAutomate"].preferences
+        preset_type = prefs.exp_Preset_Type
+
+        preset_map = {
+            'FBX': (prefs.exp_Presets_FBX, 'default_FBX_preset'),
+            'OBJ': (prefs.exp_Presets_OBJ, 'default_OBJ_preset'),
+            'USD': (prefs.exp_Presets_USD, 'default_USD_preset'),
+            'DAE': (prefs.exp_Presets_DAE, 'default_DAE_preset'),
+
+        }
+
+        presets, index_prop_name = preset_map.get(preset_type, (None, None))
+        
+        if len(presets) == 0:
+            self.report({'INFO'}, "No Presets to Delete")
+            return {'CANCELLED'}
+        
+        active_index = int(getattr(prefs, index_prop_name))
+        preset_name = presets[active_index].name
+        presets.remove(active_index)
+
+        new_index = str(min(active_index, len(presets) - 1) if presets else '0')
+        setattr(prefs, index_prop_name, new_index)
+
+        return {'FINISHED'}
 
 
 
@@ -1912,6 +1980,9 @@ classes = [
     OBJECT_OT_TAMT_EXPORTCOL_ADDCOL,
     OBJECT_OT_TAMT_EXPORTCOL_REMCOL,
     OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS,
+
+    OBJECT_OT_TAMT_PREFS_ADD_EXPPRESET,
+    OBJECT_OT_TAMT_PREFS_REM_EXPPRESET,
 
 ]
 

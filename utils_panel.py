@@ -134,8 +134,6 @@ def TAMT_obj_Animation_panel(layout, operator):
 
 
 
-
-
 def obj_properties(layout, operator):
     TAMT_obj_General_panel(layout, operator)
     TAMT_obj_Geometry_panel(layout, operator)
