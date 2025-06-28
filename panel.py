@@ -242,7 +242,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = "UI"
     bl_category = "To Automate"
-    bl_options = {'DEFAULT_CLOSED'}
+    # bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         tamt = context.scene.tamt

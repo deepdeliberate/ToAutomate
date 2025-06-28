@@ -1,7 +1,8 @@
 import bpy
 
-from . import utils
 from . import props
+from . import utils
+from . import utils_panel
 
 class ToAutomatePreferences(bpy.types.AddonPreferences):
     """ Addon preferences for ToAutomate"""
@@ -88,6 +89,20 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
         right_side.operator("to_automate.atm_prefs_create_preset", text= "", icon= 'ADD')
         right_side.operator("to_automate.atm_prefs_remove_preset", text= "", icon= 'REMOVE')
 
+
+        panel_map = {
+            'FBX': utils_panel.fbx_properties,
+            'OBJ': utils_panel.obj_properties,
+            'USD': utils_panel.usd_properties,
+            'DAE': utils_panel.dae_properties,
+        }
+
+        if len(presets) > 0:
+            setting_row = layout.box()
+
+            current_preset_panel = panel_map.get(self.exp_Preset_Type, None)
+            index = int(getattr(self, index_prop_name))
+            current_preset_panel(setting_row, presets[index])
 
 
 
