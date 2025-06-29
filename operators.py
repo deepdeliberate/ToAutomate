@@ -1876,7 +1876,7 @@ class OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS(bpy.types.Operator):
         preset_index = int(tamt.export_presets.selected_preset)
         preset = collection.presets[preset_index]
 
-            
+        layout.operator(TAMT_OT_PREFS_LoadPresetFromPrefs.bl_idname, text= "Load Presets")
         if preset.exp_format == 'FBX': # FBX
             utils_panel.fbx_properties(layout, preset.exp_FBXProperties)
         elif preset.exp_format == 'OBJ': # OBJ
@@ -1890,7 +1890,68 @@ class OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS(bpy.types.Operator):
         
         return {'FINISHED'}
 
+
+class TAMT_OT_PREFS_LoadPresetFromPrefs(bpy.types.Operator):
+    bl_idname="to_automate.atm_load_preset_prefs"
+    bl_label = "Load Preset from Preferences"
+    bl_description = "Import Settings from Preferences Presets"
+    bl_options={"REGISTER","UNDO"}
+
+    selected_prefs_preset: bpy.props.EnumProperty(
+        name= "Load Preset list",
+        description= "Choose a preset from preferences",
+        items= utils.update_panel_expFormat_presets,
+    )
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def execute(self, context):
+
+        tamt = context.scene.tamt
+        preset_collection = tamt.export_collection
+        current_preset_index = int(tamt.export_presets.selected_preset)
+
+        # this is current Preset's setting so accessing internal presets
+        cur_preset = preset_collection.presets[current_preset_index]
+        current_preset_type = cur_preset.exp_format
+
+        prefs = utils.get_addon_prefs()
+
+        prefs_preset_map = {
+            'FBX': prefs.exp_Presets_FBX,
+            'OBJ': prefs.exp_Presets_OBJ,
+            'USD': prefs.exp_Presets_USD,
+            'DAE': prefs.exp_Presets_DAE,
+        }
+
+        pref_presets = prefs_preset_map.get(current_preset_type, None)
+        selected = None
+
+        if len(pref_presets) == 0:
+            self.report({'INFO'}, "No Presets to Load from")
+            return {'CANCELLED'}
+
+        try:
+            index = int(self.selected_prefs_preset)
+            print(index)
+            if len(pref_presets) > 0:
+                selected = pref_presets[index]
+        except Exception as e:
+            self.report({'WARNING'}, f"Invalid preset selected {e}")
+            return {'CANCELLED'}
         
+        current_preset_settings_map = {
+            'FBX':cur_preset.exp_FBXProperties,
+            'OBJ':cur_preset.exp_OBJProperties,
+            'USD':cur_preset.exp_USDProperties,
+            'DAE':cur_preset.exp_DAEProperties,
+        }
+        
+        if selected and len(pref_presets) > 0 :
+            utils.copy_expFormat_presets( selected, current_preset_settings_map[current_preset_type] )
+
+        return {'FINISHED'}
         
 
 #   ---------------------------- Export Preference Operators ------------------------------
@@ -1971,7 +2032,7 @@ class OBJECT_OT_TAMT_PREFS_REM_EXPPRESET(bpy.types.Operator):
         setattr(prefs, index_prop_name, new_index)
 
         return {'FINISHED'}
-
+    
 
 
 classes = [
@@ -2008,6 +2069,8 @@ classes = [
 
     OBJECT_OT_TAMT_PREFS_ADD_EXPPRESET,
     OBJECT_OT_TAMT_PREFS_REM_EXPPRESET,
+    TAMT_OT_PREFS_LoadPresetFromPrefs,
+    
 
 ]
 

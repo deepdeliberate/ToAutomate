@@ -85,8 +85,43 @@ def update_prefs_presets(self, context):
 
     return items
 
+def update_panel_expFormat_presets(self, context):
+    tamt = context.scene.tamt
+    preset_collection = tamt.export_collection
+    current_preset = int(tamt.export_presets.selected_preset)
+
+    prefs = get_addon_prefs()
+
+    # this is current Preset's setting so accessing internal presets
+    preset_type = preset_collection.presets[current_preset].exp_format
+
+    if preset_type == 'FBX':
+        presets = prefs.exp_Presets_FBX
+    elif preset_type == 'OBJ':
+        presets = prefs.exp_Presets_OBJ
+    elif preset_type == 'USD':
+        presets = prefs.exp_Presets_USD
+    else:
+        presets = prefs.exp_Presets_DAE
+
+    try:
+
+        items =[
+            (str(i), presets[i].preset_name  , "")
+            for i in range(len(presets))
+        ]
+    except Exception as e:
+        print(f"Error {e}")
+        items = []
+    if not items:
+        items = [('0', f"No {preset_type} Presets", '')]
+
+    return items
 
 def preFill_Export_list( prefs ):
+
+    # Add some presets for each
+
     if not prefs.exp_Presets_FBX:
         prefs.exp_Presets_FBX.add()
     

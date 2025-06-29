@@ -302,6 +302,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
                 row.prop(preset, "exp_name", text = "Name")
             r1 = row.row()
             r1.prop(preset, "exp_format", text = "Type", icon = "EXPORT")
+            
             r1.operator(operators.OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS.bl_idname, text="", icon="TOOL_SETTINGS")
 
             if not preset.exp_inDirectory:
