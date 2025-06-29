@@ -1062,10 +1062,10 @@ class export_Preset_Properties(bpy.types.PropertyGroup):
     exp_format : bpy.props.EnumProperty(
         name="Export File Type",
         description="Select File Extensions",
-        items=[('OP1',"FBX Export","Exports the file as Project.fbx"),
-                ('OP2',"OBJ Export","Export the file as Project.obj"),
-                ('OP3',"USD Export", "Export as file.usdc"),
-                ('OP4',"DAE Export","Export as .dae (Collada)")])
+        items=[('FBX',"FBX Export","Exports the file as Project.fbx"),
+                ('OBJ',"OBJ Export","Export the file as Project.obj"),
+                ('USD',"USD Export", "Export as file.usdc"),
+                ('DAE',"DAE Export","Export as .dae (Collada)")])
     
 
     exp_FBXProperties: bpy.props.PointerProperty(type=fbxExportProperties)

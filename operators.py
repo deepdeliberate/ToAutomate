@@ -1279,11 +1279,11 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 utils.add_triangulate(obj, "TAMT_Triangulate_T")
 
         # Export File Format
-        if exp_format == 'OP1':
+        if exp_format == 'FBX':
             export_ext = '.fbx'
-        elif exp_format == 'OP2':
+        elif exp_format == 'OBJ':
             export_ext = '.obj'
-        elif exp_format == 'OP3':
+        elif exp_format == 'USD':
             export_ext = '.usdc'
         else:
             export_ext = '.dae'
@@ -1299,7 +1299,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
         export_External_Col_name = 'TAMTEXP_'
 
-        if exp_format == 'OP1' :
+        if exp_format == 'FBX' :
             export_ext = '.fbx'
             export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
 
@@ -1367,7 +1367,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
 
 
-        elif exp_format == 'OP3':  #USDz
+        elif exp_format == 'USD':  #USDz
             export_ext = '.usdc'
             export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
 
@@ -1475,7 +1475,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
             utils.rem_col(col)
 
-        elif exp_format == 'OP2' :
+        elif exp_format == 'OBJ' :
             export_ext = '.obj'
             export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
 
@@ -1549,7 +1549,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
             utils.rem_col(col)
         
-        elif exp_format == 'OP4':
+        elif exp_format == 'DAE':
             export_ext = '.dae'
             export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
 
@@ -1716,15 +1716,41 @@ class OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET(bpy.types.Operator):
         collection = tamt.export_collection
         new_preset = collection.presets.add()
 
+        prefs = utils.get_addon_prefs()
+        preset_type = prefs.exp_Preset_Type
+
+        preset_map = {
+            'FBX': (prefs.exp_Presets_FBX, 'default_FBX_preset'),
+            'OBJ': (prefs.exp_Presets_OBJ, 'default_OBJ_preset'),
+            'USD': (prefs.exp_Presets_USD, 'default_USD_preset'),
+            'DAE': (prefs.exp_Presets_DAE, 'default_DAE_preset'),
+        }
+
+        presets, index_prop_name = preset_map.get(preset_type, (None, None))
+
+
         new_preset.name = f"Preset {len(collection.presets)}"
         new_preset.exp_nameMethod = 'OP1'
         new_preset.exp_name = "My_mesh"
         new_preset.exp_conf_path = ""
         new_preset.exp_f_path = False
         new_preset.exp_meshSource = 'OP1'
-        new_preset.exp_format = 'OP1'
         new_preset.exp_openSubstance = False
         new_preset.exp_triangulate = True
+
+        new_preset.exp_format = prefs.exp_Preset_Type
+
+        new_settings_map = {
+            'FBX':new_preset.exp_FBXProperties,
+            'OBJ':new_preset.exp_OBJProperties,
+            'USD':new_preset.exp_USDProperties,
+            'DAE':new_preset.exp_DAEProperties,
+        }
+
+        if presets and len(presets) > 0:
+            active_index = int(getattr(prefs, index_prop_name))
+            if active_index >= 0:
+                utils.copy_expFormat_presets(presets[active_index], new_settings_map[preset_type] )
 
         #Update the enum property items
         tamt.export_presets.selected_preset = str(len(tamt.export_collection.presets) - 1)
@@ -1851,13 +1877,13 @@ class OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS(bpy.types.Operator):
         preset = collection.presets[preset_index]
 
             
-        if preset.exp_format == 'OP1': # FBX
+        if preset.exp_format == 'FBX': # FBX
             utils_panel.fbx_properties(layout, preset.exp_FBXProperties)
-        elif preset.exp_format == 'OP2': # OBJ
+        elif preset.exp_format == 'OBJ': # OBJ
             utils_panel.obj_properties(layout, preset.exp_OBJProperties)
-        elif preset.exp_format == 'OP3': # USD
+        elif preset.exp_format == 'USD': # USD
             utils_panel.usd_properties(layout, preset.exp_USDProperties)
-        elif preset.exp_format == 'OP4': # DAE
+        elif preset.exp_format == 'DAE': # DAE
             utils_panel.dae_properties(layout, preset.exp_DAEProperties)
 
     def execute(self, context):
@@ -1879,7 +1905,7 @@ class OBJECT_OT_TAMT_PREFS_ADD_EXPPRESET(bpy.types.Operator):
     bl_options={"REGISTER","UNDO"}
 
     def execute(self, context):
-        prefs = context.preferences.addons["ToAutomate"].preferences
+        prefs = utils.get_addon_prefs()
         preset_type = prefs.exp_Preset_Type
 
         preset_map = {
@@ -1921,7 +1947,7 @@ class OBJECT_OT_TAMT_PREFS_REM_EXPPRESET(bpy.types.Operator):
             self.report({'INFO'}, "Operator Cancelled")
             return {'CANCELLED'}
 
-        prefs = context.preferences.addons["ToAutomate"].preferences
+        prefs = utils.get_addon_prefs()
         preset_type = prefs.exp_Preset_Type
 
         preset_map = {
@@ -1939,10 +1965,9 @@ class OBJECT_OT_TAMT_PREFS_REM_EXPPRESET(bpy.types.Operator):
             return {'CANCELLED'}
         
         active_index = int(getattr(prefs, index_prop_name))
-        preset_name = presets[active_index].name
         presets.remove(active_index)
 
-        new_index = str(min(active_index, len(presets) - 1) if presets else '0')
+        new_index = str(min(active_index, len(presets) - 1) if presets else '-1')
         setattr(prefs, index_prop_name, new_index)
 
         return {'FINISHED'}

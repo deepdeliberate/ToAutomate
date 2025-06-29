@@ -11,6 +11,17 @@ def exp_Col_traverse(Col , Exclude):
             yield from exp_Col_traverse(c, Exclude)
 
 
+def get_addon_prefs():
+    addon_name = __package__ or "ToAutomate"
+
+    return bpy.context.preferences.addons[addon_name].preferences
+
+def copy_expFormat_presets(source, targetPreset):
+    for attr in source.bl_rna.properties.keys():
+        if attr in {"rna_type", "name"}:
+            continue
+
+        setattr(targetPreset, attr, getattr(source, attr))
 
 
 def rem_col(col):
@@ -19,6 +30,7 @@ def rem_col(col):
     
     bpy.context.scene.collection.children.unlink(col)
     bpy.data.collections.remove(col, do_unlink= True)
+
 
 def update_mesh_path(self,context):
     if self.exp_meshPath.startswith("//"):
@@ -47,7 +59,7 @@ def update_presets(self, context):
 
 
 def update_prefs_presets(self, context):
-    prefs = context.preferences.addons["ToAutomate"].preferences
+    prefs = get_addon_prefs()
     preset_type = prefs.exp_Preset_Type
 
     if preset_type == 'FBX':
@@ -69,7 +81,7 @@ def update_prefs_presets(self, context):
         print(f"Error {e}")
         items = []
     if not items:
-        items = [('0', f"No {preset_type} Presets", '')]
+        items = [('-1', f"No {preset_type} Presets", '')]
 
     return items
 
