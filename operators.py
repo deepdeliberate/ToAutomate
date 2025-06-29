@@ -1951,6 +1951,7 @@ class TAMT_OT_PREFS_LoadPresetFromPrefs(bpy.types.Operator):
         if selected and len(pref_presets) > 0 :
             utils.copy_expFormat_presets( selected, current_preset_settings_map[current_preset_type] )
 
+        self.report({'INFO'}, f"Successfully Imported {current_preset_type} Export Settings from {selected.preset_name}")
         return {'FINISHED'}
         
 
