@@ -8,7 +8,6 @@
 # For support or inquiries, contact @ https://github.com/deepdesperate 
 
 
-
 bl_info = {
     "name": "ToAutomate",
     "author": "Naman Deep",

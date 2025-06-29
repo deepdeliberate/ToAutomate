@@ -12,14 +12,14 @@ You may:
 - Install the addon on multiple machines you personally or professionally use
 
 You may NOT:
-- Redistribute, repackage or resell the addon or its source code
+- Redistribute, repackage, or resell the addon or its source code
 - Share the addon with others, even for free
-- Upload the addon to any public repository, store, or website
+- Upload the addon to any public repository, marketplace, or file host
 - Modify and redistribute derivative versions
 
 The software is provided "as is", without warranty of any kind.
 
-For support, updates, or different licensing inquiries, visit:
+For support, updates, or licensing inquiries, visit:
 https://github.com/deepdesperate
 
 All rights reserved.
