@@ -1,0 +1,25 @@
+ToAutomate Addon - Proprietary License
+---------------------------------------
+
+Copyright (c) 2025 Naman Deep
+
+This software is licensed, not sold.
+
+By purchasing or downloading the ToAutomate addon, you are granted a non-exclusive, non-transferable license to use this addon for personal or commercial use within Blender.
+
+You may:
+- Use this addon in personal or commercial Blender projects
+- Install the addon on multiple machines you personally or professionally use
+
+You may NOT:
+- Redistribute, repackage or resell the addon or its source code
+- Share the addon with others, even for free
+- Upload the addon to any public repository, store, or website
+- Modify and redistribute derivative versions
+
+The software is provided "as is", without warranty of any kind.
+
+For support, updates, or different licensing inquiries, visit:
+https://github.com/deepdesperate
+
+All rights reserved.

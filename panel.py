@@ -1,3 +1,15 @@
+# 
+# Developed by Naman Deep
+# 
+# You may use this addon in personal or commercial Blender projects.
+# Redistribution or resale without explicit permission is strictly prohibited.
+#
+# This file is part of the "ToAutomate" Blender Addon
+# For support or inquiries, contact @ https://github.com/deepdesperate 
+
+
+
+
 import bpy
 
 from . import operators
@@ -302,7 +314,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
                 row.prop(preset, "exp_name", text = "Name")
             r1 = row.row()
             r1.prop(preset, "exp_format", text = "Type", icon = "EXPORT")
-            
+
             r1.operator(operators.OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS.bl_idname, text="", icon="TOOL_SETTINGS")
 
             if not preset.exp_inDirectory:

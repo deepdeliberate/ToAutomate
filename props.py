@@ -1,3 +1,16 @@
+# 
+# Developed by Naman Deep
+# 
+# You may use this addon in personal or commercial Blender projects.
+# Redistribution or resale without explicit permission is strictly prohibited.
+#
+# This file is part of the "ToAutomate" Blender Addon
+# For support or inquiries, contact @ https://github.com/deepdesperate 
+
+
+
+
+
 import bpy
 
 from . import utils
