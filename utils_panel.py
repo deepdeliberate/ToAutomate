@@ -81,6 +81,8 @@ def TAMT_fbx_export_panel_animation(layout, operator):
 
 
 def fbx_properties(layout, operator):
+    layout.label(text = "FBX Preset Setting")
+
     TAMT_fbx_export_panel_Include(layout, operator)
     TAMT_fbx_export_panel_transform(layout, operator)
     TAMT_fbx_export_panel_geometry(layout, operator)
@@ -148,6 +150,8 @@ def TAMT_obj_Animation_panel(layout, operator):
 
 
 def obj_properties(layout, operator):
+    layout.label(text = "OBJ Preset Setting")
+
     TAMT_obj_General_panel(layout, operator)
     TAMT_obj_Geometry_panel(layout, operator)
     TAMT_obj_Material_panel(layout, operator)
@@ -234,6 +238,8 @@ def TAMT_usd_EXPERIMENTAL_panel(layout, operator):
 
 
 def usd_properties(layout, operator):
+    layout.label(text = "USD Preset Setting")
+
     TAMT_usd_General_panel(layout, operator)
     TAMT_usd_OBJECTYPE_panel(layout, operator)
     TAMT_usd_GEOMETRY_panel(layout, operator)
@@ -316,6 +322,7 @@ def TAMT_COLLADA_EXTRA_panel(layout, operator):
 
 
 def dae_properties(layout, operator):
+    layout.label(text = "DAE Preset Setting")
     TAMT_COLLADA_Main_panel(layout, operator)
     TAMT_COLLADA_Geo_panel(layout, operator)
     TAMT_COLLADA_ANIMATION_panel(layout, operator)
