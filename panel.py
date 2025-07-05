@@ -293,7 +293,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
         row.label(text="Collection Exporter")
 
         r1 = row.row(align=True)
-        r1.prop(tamt.export_presets, "selected_preset", text="", icon="COLLAPSEMENU")
+        r1.prop(tamt.export_presets, "selected_preset", text="", icon="COLLAPSEMENU", icon_only=True)
         if len(collection.presets) > 0:
             preset_index = int(tamt.export_presets.selected_preset)
             preset = collection.presets[preset_index]

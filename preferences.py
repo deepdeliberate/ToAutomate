@@ -92,7 +92,7 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
         right_side = layout_row.row(align= True)
         right_side.alignment = 'RIGHT'
 
-        right_side.prop(self, index_prop_name, text = "")
+        right_side.prop(self, index_prop_name, text = "", icon='PRESET',icon_only=True)
         if len(presets) > 0:
             index = int(getattr(self, index_prop_name))
             right_side.prop(presets[index], "preset_name", text = "")
