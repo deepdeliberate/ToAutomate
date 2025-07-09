@@ -29,6 +29,7 @@ After downloading, the addon can be installed with following steps: <br>
 1. Open **Blender** and go to **Edit > Preferences > addons.** 
 2. Click at Install from FIle and locate the pacakge releases [ToAutomate.zip](https://github.com/deepdesperate/ToAutomate/releases) file in the newly opened window. <br>
 3. The addon should now appear in your addons list and can be activated. 
+
 Please contact me in case you run into any issues.
 
 ## Feature Overview
