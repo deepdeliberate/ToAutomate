@@ -17,7 +17,7 @@ from . import utils
 from bpy.props import PointerProperty
 
 
-class CollectionItem(bpy.types.PropertyGroup):
+class TAMT_CollectionItem(bpy.types.PropertyGroup):
     collection: bpy.props.PointerProperty(
         name = "Collection",
         type = bpy.types.Collection,
@@ -27,7 +27,7 @@ class exportPresetActive(bpy.types.PropertyGroup):
     selected_preset: bpy.props.EnumProperty(name = "Preset", items =  utils.update_presets )
 
 
-class fbxExportProperties(bpy.types.PropertyGroup):
+class TAMT_fbxExportProperties(bpy.types.PropertyGroup):
     preset_name: bpy.props.StringProperty(
         name= "FBX Preset Name",
         description= "Name for this FBX preset",
@@ -281,7 +281,7 @@ class fbxExportProperties(bpy.types.PropertyGroup):
         max=100,
     )
 
-class objExportProperties(bpy.types.PropertyGroup):
+class TAMT_objExportProperties(bpy.types.PropertyGroup):
     preset_name: bpy.props.StringProperty(
         name= "OBJ Preset Name",
         description= "Name for this OBJ preset",
@@ -449,7 +449,7 @@ class objExportProperties(bpy.types.PropertyGroup):
         default=False,
     )
 
-class usdExportProperties(bpy.types.PropertyGroup):
+class TAMT_usdExportProperties(bpy.types.PropertyGroup):
     preset_name: bpy.props.StringProperty(
         name= "USD Preset Name",
         description= "Name for this USD preset",
@@ -811,7 +811,7 @@ class usdExportProperties(bpy.types.PropertyGroup):
         max=1000,
     )
 
-class daeExportProperties(bpy.types.PropertyGroup):
+class TAMT_daeExportProperties(bpy.types.PropertyGroup):
     preset_name: bpy.props.StringProperty(
         name= "DAE Preset Name",
         description= "Name for this DAE preset",
@@ -1038,7 +1038,7 @@ class daeExportProperties(bpy.types.PropertyGroup):
     )
 
 
-class export_Preset_Properties(bpy.types.PropertyGroup):
+class TAMT_export_Preset_Properties(bpy.types.PropertyGroup):
 
     name: bpy.props.StringProperty(name="Preset Name")
 
@@ -1081,10 +1081,10 @@ class export_Preset_Properties(bpy.types.PropertyGroup):
                 ('DAE',"DAE Export","Export as .dae (Collada)")])
     
 
-    exp_FBXProperties: bpy.props.PointerProperty(type=fbxExportProperties)
-    exp_OBJProperties: bpy.props.PointerProperty(type=objExportProperties)
-    exp_USDProperties: bpy.props.PointerProperty(type=usdExportProperties)
-    exp_DAEProperties: bpy.props.PointerProperty(type=daeExportProperties)
+    exp_FBXProperties: bpy.props.PointerProperty(type=TAMT_fbxExportProperties)
+    exp_OBJProperties: bpy.props.PointerProperty(type=TAMT_objExportProperties)
+    exp_USDProperties: bpy.props.PointerProperty(type=TAMT_usdExportProperties)
+    exp_DAEProperties: bpy.props.PointerProperty(type=TAMT_daeExportProperties)
 
 
     
@@ -1144,10 +1144,10 @@ class export_Preset_Properties(bpy.types.PropertyGroup):
     )
 
     
-    inc_collections: bpy.props.CollectionProperty(type= CollectionItem)
+    inc_collections: bpy.props.CollectionProperty(type= TAMT_CollectionItem)
     inc_collections_index: bpy.props.IntProperty(name = "Collections Index", default= -1)
 
-    exc_collections: bpy.props.CollectionProperty(type= CollectionItem)
+    exc_collections: bpy.props.CollectionProperty(type= TAMT_CollectionItem)
     exc_collections_index: bpy.props.IntProperty(name = "Collections Index", default= -1)
 
 
@@ -1170,8 +1170,8 @@ class export_Preset_Properties(bpy.types.PropertyGroup):
 
 
 
-class exportCollection(bpy.types.PropertyGroup):
-    presets: bpy.props.CollectionProperty(type = export_Preset_Properties)
+class TAMT_exportCollection(bpy.types.PropertyGroup):
+    presets: bpy.props.CollectionProperty(type = TAMT_export_Preset_Properties)
 
 
 
@@ -1398,7 +1398,7 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
 
     # Export Menu
 
-    export_collection: bpy.props.PointerProperty(type = exportCollection)
+    export_collection: bpy.props.PointerProperty(type = TAMT_exportCollection)
     export_presets: bpy.props.PointerProperty(type = exportPresetActive)
 
 
@@ -1407,14 +1407,14 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
 
 
 classes = (
-    CollectionItem,
+    TAMT_CollectionItem,
     exportPresetActive,
-    fbxExportProperties,
-    objExportProperties,
-    usdExportProperties,
-    daeExportProperties,
-    export_Preset_Properties,
-    exportCollection,
+    TAMT_fbxExportProperties,
+    TAMT_objExportProperties,
+    TAMT_usdExportProperties,
+    TAMT_daeExportProperties,
+    TAMT_export_Preset_Properties,
+    TAMT_exportCollection,
     TAMT_Addon_Props,
 )
 

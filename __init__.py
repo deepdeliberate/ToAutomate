@@ -37,8 +37,8 @@ _refresh_.reload_modules()
 
 def register():
     props.register_classes()
-    preferences.register_classes()
     operators.register_classes()
+    preferences.register_classes()
     panel.register_classes()
 
     

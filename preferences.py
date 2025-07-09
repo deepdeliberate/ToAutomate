@@ -45,16 +45,16 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
 
     # Make enum for selection and filling it with values using a function
     # Calling a class with presetPointerProperty
-    exp_Presets_FBX:            bpy.props.CollectionProperty(type = props.fbxExportProperties)
+    exp_Presets_FBX:            bpy.props.CollectionProperty(type = props.TAMT_fbxExportProperties)
     default_FBX_preset:            bpy.props.EnumProperty(name = "FBX Preset", items =  utils.update_prefs_presets )
     
-    exp_Presets_OBJ:            bpy.props.CollectionProperty(type = props.objExportProperties)
+    exp_Presets_OBJ:            bpy.props.CollectionProperty(type = props.TAMT_objExportProperties)
     default_OBJ_preset:            bpy.props.EnumProperty(name = "OBJ Preset", items =  utils.update_prefs_presets )
     
-    exp_Presets_USD:            bpy.props.CollectionProperty(type = props.usdExportProperties)
+    exp_Presets_USD:            bpy.props.CollectionProperty(type = props.TAMT_usdExportProperties)
     default_USD_preset:            bpy.props.EnumProperty(name = "USD Preset", items =  utils.update_prefs_presets )
     
-    exp_Presets_DAE:            bpy.props.CollectionProperty(type = props.daeExportProperties)
+    exp_Presets_DAE:            bpy.props.CollectionProperty(type = props.TAMT_daeExportProperties)
     default_DAE_preset:            bpy.props.EnumProperty(name = "DAE Preset", items =  utils.update_prefs_presets )
     
 
@@ -126,11 +126,11 @@ def register_classes():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    prefs = bpy.context.preferences.addons["ToAutomate"].preferences
-    if not prefs.first_run_complete:
-        print("Initial Setup for ToAutomate...")
-        utils.preFill_Export_list(prefs)
-        prefs.first_run_complete = True
+    # prefs = bpy.context.preferences.addons["ToAutomate"].preferences
+    # if not prefs.first_run_complete:
+    #     print("Initial Setup for ToAutomate...")
+    #     utils.preFill_Export_list(prefs)
+    #     prefs.first_run_complete = True
 
 
 def unregister_classes():
