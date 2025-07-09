@@ -140,14 +140,17 @@ def preFill_Export_list( prefs ):
 
 def _get_macos_paths(year_suffix = ''):
     """Generates potential macOS Substance 3d Painter Paths"""
-    base_app_name = f'Adobe Substance 3D Painter { f"{year_suffix}" if year_suffix else ""}.app'
-    base_exe_path = f'Contents/MacOS/Adobe Substance 3D Painter'
+    base_app_name = f"Adobe Substance 3D Painter {year_suffix}".strip()
+    base_app_name_without_year = f"Adobe Substance 3D Painter".strip()
+    base_exe_path = f"Contents/MacOS/Adobe Substance 3D Painter"
 
     return [
-        Path('/Applications') / base_app_name/base_exe_path,
-        Path('/Applications/Adobe Substance 3D Painter') / base_app_name / base_exe_path,
-        Path('~/Library/Application Support/Steam/steamapps/common') / \
-        f'Substance 3D Painter{f" {year_suffix}" if year_suffix else ""}' / base_app_name / base_exe_path
+        Path('/Applications') / f"{base_app_name}.app" / base_exe_path,
+        Path('/Applications/Adobe Substance 3D Painter') / f"{base_app_name}.app" / base_exe_path,
+        Path(os.path.expanduser('~/Library/Application Support/Steam/steamapps/common')) / \
+        f'Substance 3D Painter{f" {year_suffix}" if year_suffix else ""}' / f"{base_app_name}.app" / base_exe_path,
+        Path(os.path.expanduser('~/Library/Application Support/Steam/steamapps/common')) / \
+        f'Substance 3D Painter{f" {year_suffix}" if year_suffix else ""}' / f"{base_app_name_without_year}.app" / base_exe_path
     ]
 
 def _get_windows_paths(drive_letter, year_suffix = ''):
@@ -187,13 +190,13 @@ def substance_painter_path():
     if os.name == 'posix':
         candidates_paths.extend(_get_macos_paths())
         for year in range(2020,2030):
-            candidates_paths.extend(_get_macos_paths(year_suffix=year))
+            candidates_paths.extend(_get_macos_paths(year_suffix= str(year)))
     elif os.name == 'nt':
        # Check common drive letters
        for drive_letter in 'CDEFGHIJKLMNOPQRSTUVWXYZ':
            candidates_paths.extend(_get_windows_paths(drive_letter))
            for year in range(2020, 2030):
-               candidates_paths.extend(_get_windows_paths(drive_letter, year_suffix=year))
+               candidates_paths.extend(_get_windows_paths(drive_letter, year_suffix=str(year)))
 
     for path_obj in candidates_paths:
         try:

@@ -126,11 +126,11 @@ def register_classes():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    # prefs = bpy.context.preferences.addons["ToAutomate"].preferences
-    # if not prefs.first_run_complete:
-    #     print("Initial Setup for ToAutomate...")
-    #     utils.preFill_Export_list(prefs)
-    #     prefs.first_run_complete = True
+    prefs = bpy.context.preferences.addons["ToAutomate"].preferences
+    if not prefs.first_run_complete:
+        print("Initial Setup for ToAutomate...")
+        utils.preFill_Export_list(prefs)
+        prefs.first_run_complete = True
 
 
 def unregister_classes():
