@@ -28,3 +28,4 @@ def reload_modules():
     reload(panel)
     reload(utils)
     reload(utils_panel)
+    reload(export_utils)

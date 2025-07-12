@@ -47,19 +47,19 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
     # Make enum for selection and filling it with values using a function
     # Calling a class with presetPointerProperty
     exp_Presets_FBX:            bpy.props.CollectionProperty(type = props.TAMT_fbxExportProperties)
-    default_FBX_preset:            bpy.props.EnumProperty(name = "FBX Preset", items =  utils.update_prefs_presets, default= 0 )
+    default_FBX_preset:            bpy.props.EnumProperty(name = "FBX Preset", items =  utils.update_fbx_presets, default= 0 )
     
     exp_Presets_OBJ:            bpy.props.CollectionProperty(type = props.TAMT_objExportProperties)
-    default_OBJ_preset:            bpy.props.EnumProperty(name = "OBJ Preset", items =  utils.update_prefs_presets, default= 0 )
+    default_OBJ_preset:            bpy.props.EnumProperty(name = "OBJ Preset", items =  utils.update_obj_presets, default= 0 )
     
     exp_Presets_USD:            bpy.props.CollectionProperty(type = props.TAMT_usdExportProperties)
-    default_USD_preset:            bpy.props.EnumProperty(name = "USD Preset", items =  utils.update_prefs_presets, default= 0 )
+    default_USD_preset:            bpy.props.EnumProperty(name = "USD Preset", items =  utils.update_usd_presets, default= 0 )
     
     exp_Presets_DAE:            bpy.props.CollectionProperty(type = props.TAMT_daeExportProperties)
-    default_DAE_preset:            bpy.props.EnumProperty(name = "DAE Preset", items =  utils.update_prefs_presets, default= 0 )
+    default_DAE_preset:            bpy.props.EnumProperty(name = "DAE Preset", items =  utils.update_dae_presets, default= 0 )
     
     exp_Presets_GLTF:            bpy.props.CollectionProperty(type = props.TAMT_gltfExportProperties)
-    default_GLTF_preset:            bpy.props.EnumProperty(name = "GLTF Preset", items =  utils.update_prefs_presets, default= 0 )
+    default_GLTF_preset:            bpy.props.EnumProperty(name = "GLTF Preset", items =  utils.update_gltf_presets, default= 0 )
     
 
     def draw(self, context):

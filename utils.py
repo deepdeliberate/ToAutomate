@@ -14,129 +14,6 @@ import os
 
 from pathlib import Path
 
-def export_GLTF_Main_Func(final_objects, export_Path, settings ):
-    with bpy.context.temp_override(active_object = final_objects[0], selected_objects = final_objects):
-        result = bpy.ops.export_scene.gltf(
-            filepath= str(export_Path),
-            check_existing=False,
-            use_selection= True,
-            use_visible= False,
-            use_active_collection=False, 
-            use_active_scene=False, 
-            collection='',
-            use_renderable=False, 
-            use_active_collection_with_nested=True, 
-
-            export_nla_strips = True,
-            export_original_specular = False,
-            export_hierarchy_full_collections = False,
-            export_extra_animations = False,
-            export_loglevel = -1,
-
-            export_import_convert_lighting_mode = settings.export_import_convert_lighting_mode,
-            gltf_export_id = settings.gltf_export_id,
-            export_use_gltfpack = settings.export_use_gltfpack,
-            export_gltfpack_tc = settings.export_gltfpack_tc,
-            export_gltfpack_tq = settings.export_gltfpack_tq,
-            export_gltfpack_si = settings.export_gltfpack_si,
-            export_gltfpack_sa = settings.export_gltfpack_sa,
-            export_gltfpack_slb = settings.export_gltfpack_slb,
-
-            export_gltfpack_vp = settings.export_gltfpack_vp,
-            export_gltfpack_vt = settings.export_gltfpack_vt,
-            export_gltfpack_vn = settings.export_gltfpack_vn,
-            export_gltfpack_vc = settings.export_gltfpack_vc,
-            export_gltfpack_vpi = settings.export_gltfpack_vpi,
-            export_gltfpack_noq = settings.export_gltfpack_noq,
-            export_gltfpack_kn = settings.export_gltfpack_kn,
-            export_format = settings.export_format,
-
-            ui_tab = settings.ui_tab,
-            export_copyright = settings.export_copyright,
-            export_image_format = settings.export_image_format,
-            export_image_add_webp = settings.export_image_add_webp,
-            export_image_webp_fallback = settings.export_image_webp_fallback,
-            export_texture_dir = settings.export_texture_dir,
-            export_jpeg_quality = settings.export_jpeg_quality,
-            export_image_quality = settings.export_image_quality,
-            export_keep_originals = settings.export_keep_originals,
-            export_texcoords = settings.export_texcoords,
-            export_normals = settings.export_normals,
-            export_gn_mesh = settings.export_gn_mesh,
-
-            export_draco_mesh_compression_enable = settings.export_draco_mesh_compression_enable,
-            export_draco_mesh_compression_level = settings.export_draco_mesh_compression_level,
-            export_draco_position_quantization = settings.export_draco_position_quantization,
-            export_draco_normal_quantization = settings.export_draco_normal_quantization,
-            export_draco_texcoord_quantization = settings.export_draco_texcoord_quantization,
-            export_draco_color_quantization = settings.export_draco_color_quantization,
-            export_draco_generic_quantization = settings.export_draco_generic_quantization,
-            export_tangents = settings.export_tangents,
-            export_materials = settings.export_materials,
-            export_unused_images = settings.export_unused_images,
-            export_unused_textures = settings.export_unused_textures,
-            export_vertex_color = settings.export_vertex_color,
-            export_all_vertex_colors = settings.export_all_vertex_colors,
-            export_active_vertex_color_when_no_material = settings.export_active_vertex_color_when_no_material,
-
-            export_attributes = settings.export_attributes,
-            use_mesh_edges = settings.use_mesh_edges,
-            use_mesh_vertices = settings.use_mesh_vertices,
-            export_cameras = settings.export_cameras,
-
-
-
-            at_collection_center = settings.at_collection_center,
-            export_extras = settings.export_extras,
-            export_yup = settings.export_yup,
-            export_apply = settings.export_apply,
-            export_shared_accessors = settings.export_shared_accessors,
-            export_animations = settings.export_animations,
-            export_frame_range = settings.export_frame_range,
-            export_frame_step = settings.export_frame_step,
-            export_force_sampling = settings.export_force_sampling,
-            export_sampling_interpolation_fallback = settings.export_sampling_interpolation_fallback,
-            export_pointer_animation = settings.export_pointer_animation,
-            export_animation_mode = settings.export_animation_mode,
-            export_nla_strips_merged_animation_name = settings.export_nla_strips_merged_animation_name,
-            export_def_bones = settings.export_def_bones,
-            export_hierarchy_flatten_objs = settings.export_hierarchy_flatten_objs,
-            export_armature_object_remove = settings.export_armature_object_remove,
-            export_leaf_bone = settings.export_leaf_bone,
-
-            export_optimize_animation_size = settings.export_optimize_animation_size,
-            export_optimize_animation_keep_anim_armature = settings.export_optimize_animation_keep_anim_armature,
-            export_optimize_animation_keep_anim_object = settings.export_optimize_animation_keep_anim_object,
-            export_optimize_disable_viewport = settings.export_optimize_disable_viewport,
-            export_negative_frame = settings.export_negative_frame,
-            export_anim_slide_to_zero = settings.export_anim_slide_to_zero,
-            export_bake_animation = settings.export_bake_animation,
-            export_merge_animation = settings.export_merge_animation,
-            export_anim_single_armature = settings.export_anim_single_armature,
-            export_reset_pose_bones = settings.export_reset_pose_bones,
-            export_current_frame = settings.export_current_frame,
-            export_rest_position_armature = settings.export_rest_position_armature,
-            export_anim_scene_split_object = settings.export_anim_scene_split_object,
-            export_skins = settings.export_skins,
-            export_influence_nb = settings.export_influence_nb,
-
-            export_all_influences = settings.export_all_influences,
-            export_morph = settings.export_morph,
-            export_morph_normal = settings.export_morph_normal,
-            export_morph_tangent = settings.export_morph_tangent,
-            export_morph_animation = settings.export_morph_animation,
-            export_morph_reset_sk_data = settings.export_morph_reset_sk_data,
-            export_lights = settings.export_lights,
-            export_try_sparse_sk = settings.export_try_sparse_sk,
-            export_try_omit_sparse_sk = settings.export_try_omit_sparse_sk,
-            export_gpu_instances = settings.export_gpu_instances,
-            export_action_filter = settings.export_action_filter,
-            export_convert_animation_pointer = settings.export_convert_animation_pointer,
-
-            
-
-        )
-        return result
 
 def exp_Col_traverse(Col , Exclude):
     # Call out the childrens
@@ -192,24 +69,32 @@ def update_presets(self, context):
         items = [('0', 'No Presets', '')]
     return items
 
-
-def update_prefs_presets(self, context):
+def update_fbx_presets(self, context):
     prefs = get_addon_prefs()
-    preset_type = prefs.exp_Preset_Type
+    return update_prefs_presets(prefs.exp_Presets_FBX,  "FBX")
 
-    if preset_type == 'FBX':
-        presets = prefs.exp_Presets_FBX
-    elif preset_type == 'OBJ':
-        presets = prefs.exp_Presets_OBJ
-    elif preset_type == 'USD':
-        presets = prefs.exp_Presets_USD
-    elif preset_type == 'DAE':
-        presets = prefs.exp_Presets_DAE
-    elif preset_type == 'GLTF':
-        presets = prefs.exp_Presets_GLTF
+def update_obj_presets(self, context):
+    prefs = get_addon_prefs()
+    return update_prefs_presets(prefs.exp_Presets_OBJ,  "OBJ")
+
+def update_usd_presets(self, context):
+    prefs = get_addon_prefs()
+    return update_prefs_presets(prefs.exp_Presets_USD,  "USD")
+
+def update_dae_presets(self, context):
+    prefs = get_addon_prefs()
+    return update_prefs_presets(prefs.exp_Presets_DAE,  "DAE")
+
+def update_gltf_presets(self, context):
+    prefs = get_addon_prefs()
+    return update_prefs_presets(prefs.exp_Presets_GLTF,  "GLTF")
+
+def update_prefs_presets(presets, exp_Type):
+
+    if not presets:
+        return [('-1', f"No {exp_Type} Presets", '')]
 
     try:
-
         items =[
             (str(i), presets[i].preset_name  , "")
             for i in range(len(presets))
@@ -218,7 +103,7 @@ def update_prefs_presets(self, context):
         print(f"Error {e}")
         items = []
     if not items:
-        items = [('-1', f"No {preset_type} Presets", '')]
+        items = [('-1', f"No {exp_Type} Presets", '')]
 
     return items
 
@@ -617,7 +502,7 @@ def Col_traverse(col):
             if not(obj.parent):
                 obj.parent = get_empty_obj(col.name)
 
-def get_expFormat_utils_map( my_pref):
+def get_expFormat_utils_map( my_pref ):
     preset_maps = {
         'FBX': (my_pref.exp_Presets_FBX, 'default_FBX_preset'),
         'OBJ': (my_pref.exp_Presets_OBJ, 'default_OBJ_preset'),
