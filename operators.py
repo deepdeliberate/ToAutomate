@@ -1646,6 +1646,16 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
             utils.rem_col(col)
         
+        elif exp_format == 'GLTF':
+            export_ext = '.glb' 
+
+            settings = preset.exp_GLTFProperties
+            export_ext = '.glb' if settings.export_format == 'GLB' else '.gltf'
+
+            export_Path = Path(mesh_export_path).joinpath(str(export_final_name + export_ext) )
+
+
+        
         if do_triangulate:
             for obj in final_objects:
                 utils.rem_triangulate(obj, "TAMT_Triangulate_T")
@@ -1896,6 +1906,8 @@ class OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS(bpy.types.Operator):
             utils_panel.usd_properties(layout, preset.exp_USDProperties)
         elif preset.exp_format == 'DAE': # DAE
             utils_panel.dae_properties(layout, preset.exp_DAEProperties)
+        elif preset.exp_format == 'GLTF': # GLTF
+            utils_panel.gltf_properties(layout, preset.exp_GLTFProperties)
 
     def execute(self, context):
         
@@ -1934,6 +1946,8 @@ class TAMT_OT_PREFS_LoadPresetFromPrefs(bpy.types.Operator):
             'OBJ': prefs.exp_Presets_OBJ,
             'USD': prefs.exp_Presets_USD,
             'DAE': prefs.exp_Presets_DAE,
+            'GLTF': prefs.exp_Presets_GLTF,
+
         }
 
         pref_presets = prefs_preset_map.get(current_preset_type, None)
@@ -1957,6 +1971,7 @@ class TAMT_OT_PREFS_LoadPresetFromPrefs(bpy.types.Operator):
             'OBJ':cur_preset.exp_OBJProperties,
             'USD':cur_preset.exp_USDProperties,
             'DAE':cur_preset.exp_DAEProperties,
+            'GLTF': cur_preset.exp_GLTFProperties,
         }
         
         if selected and len(pref_presets) > 0 :
@@ -1981,12 +1996,7 @@ class OBJECT_OT_TAMT_PREFS_ADD_EXPPRESET(bpy.types.Operator):
         prefs = utils.get_addon_prefs()
         preset_type = prefs.exp_Preset_Type
 
-        preset_map = {
-            'FBX': (prefs.exp_Presets_FBX, 'default_FBX_preset'),
-            'OBJ': (prefs.exp_Presets_OBJ, 'default_OBJ_preset'),
-            'USD': (prefs.exp_Presets_USD, 'default_USD_preset'),
-            'DAE': (prefs.exp_Presets_DAE, 'default_DAE_preset'),
-        }
+        preset_map = utils.get_expFormat_utils_map(prefs)
 
         presets, index_prop_name = preset_map.get(preset_type, (None, None))
             
@@ -2023,13 +2033,7 @@ class OBJECT_OT_TAMT_PREFS_REM_EXPPRESET(bpy.types.Operator):
         prefs = utils.get_addon_prefs()
         preset_type = prefs.exp_Preset_Type
 
-        preset_map = {
-            'FBX': (prefs.exp_Presets_FBX, 'default_FBX_preset'),
-            'OBJ': (prefs.exp_Presets_OBJ, 'default_OBJ_preset'),
-            'USD': (prefs.exp_Presets_USD, 'default_USD_preset'),
-            'DAE': (prefs.exp_Presets_DAE, 'default_DAE_preset'),
-
-        }
+        preset_map = utils.get_expFormat_utils_map(prefs)
 
         presets, index_prop_name = preset_map.get(preset_type, (None, None))
         

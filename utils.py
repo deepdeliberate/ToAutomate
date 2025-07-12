@@ -79,8 +79,10 @@ def update_prefs_presets(self, context):
         presets = prefs.exp_Presets_OBJ
     elif preset_type == 'USD':
         presets = prefs.exp_Presets_USD
-    else:
+    elif preset_type == 'DAE':
         presets = prefs.exp_Presets_DAE
+    elif preset_type == 'GLTF':
+        presets = prefs.exp_Presets_GLTF
 
     try:
 
@@ -112,11 +114,12 @@ def update_panel_expFormat_presets(self, context):
         presets = prefs.exp_Presets_OBJ
     elif preset_type == 'USD':
         presets = prefs.exp_Presets_USD
-    else:
+    elif preset_type == 'DAE':
         presets = prefs.exp_Presets_DAE
+    elif preset_type == 'GLTF':
+        presets = prefs.exp_Presets_GLTF
 
     try:
-
         items =[
             (str(i), presets[i].preset_name  , "")
             for i in range(len(presets))
@@ -490,7 +493,15 @@ def Col_traverse(col):
             if not(obj.parent):
                 obj.parent = get_empty_obj(col.name)
 
-
+def get_expFormat_utils_map( my_pref):
+    preset_maps = {
+        'FBX': (my_pref.exp_Presets_FBX, 'default_FBX_preset'),
+        'OBJ': (my_pref.exp_Presets_OBJ, 'default_OBJ_preset'),
+        'USD': (my_pref.exp_Presets_USD, 'default_USD_preset'),
+        'DAE': (my_pref.exp_Presets_DAE, 'default_DAE_preset'),
+        'GLTF': (my_pref.exp_Presets_GLTF, 'default_GLTF_preset'),
+    }
+    return preset_maps
 
 def get_empty_obj(name):
     my_col = get_col(name)

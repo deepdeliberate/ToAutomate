@@ -39,6 +39,7 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
             ('OBJ', "OBJ Presets", "OBJ Export presets"),
             ('USD', "USD_Presets", "USD Export presets"),
             ('DAE', "DAE_Presets", "Dae Collada Export presets"),
+            ('GLTF', "GLTF_Presets", "Gltf Export presets"),
         ],
         default= 'FBX',
     )
@@ -46,18 +47,20 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
     # Make enum for selection and filling it with values using a function
     # Calling a class with presetPointerProperty
     exp_Presets_FBX:            bpy.props.CollectionProperty(type = props.TAMT_fbxExportProperties)
-    default_FBX_preset:            bpy.props.EnumProperty(name = "FBX Preset", items =  utils.update_prefs_presets )
+    default_FBX_preset:            bpy.props.EnumProperty(name = "FBX Preset", items =  utils.update_prefs_presets, default= 0 )
     
     exp_Presets_OBJ:            bpy.props.CollectionProperty(type = props.TAMT_objExportProperties)
-    default_OBJ_preset:            bpy.props.EnumProperty(name = "OBJ Preset", items =  utils.update_prefs_presets )
+    default_OBJ_preset:            bpy.props.EnumProperty(name = "OBJ Preset", items =  utils.update_prefs_presets, default= 0 )
     
     exp_Presets_USD:            bpy.props.CollectionProperty(type = props.TAMT_usdExportProperties)
-    default_USD_preset:            bpy.props.EnumProperty(name = "USD Preset", items =  utils.update_prefs_presets )
+    default_USD_preset:            bpy.props.EnumProperty(name = "USD Preset", items =  utils.update_prefs_presets, default= 0 )
     
     exp_Presets_DAE:            bpy.props.CollectionProperty(type = props.TAMT_daeExportProperties)
-    default_DAE_preset:            bpy.props.EnumProperty(name = "DAE Preset", items =  utils.update_prefs_presets )
+    default_DAE_preset:            bpy.props.EnumProperty(name = "DAE Preset", items =  utils.update_prefs_presets, default= 0 )
     
-
+    exp_Presets_GLTF:            bpy.props.CollectionProperty(type = props.TAMT_gltfExportProperties)
+    default_GLTF_preset:            bpy.props.EnumProperty(name = "GLTF Preset", items =  utils.update_prefs_presets, default= 0 )
+    
 
     def draw(self, context):
         layout = self.layout
@@ -78,6 +81,8 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
             'OBJ': (self.exp_Presets_OBJ, 'default_OBJ_preset'),
             'USD': (self.exp_Presets_USD, 'default_USD_preset'),
             'DAE': (self.exp_Presets_DAE, 'default_DAE_preset'),
+            'GLTF': (self.exp_Presets_GLTF, 'default_GLTF_preset'),
+
         }
 
         presets, index_prop_name = preset_map.get(self.exp_Preset_Type, (None, None))
@@ -92,7 +97,11 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
         right_side = layout_row.row(align= True)
         right_side.alignment = 'RIGHT'
 
-        right_side.prop(self, index_prop_name, text = "", icon='PRESET',icon_only=True)
+        p_icon_only = False
+        if len(presets) > 0:
+            p_icon_only = True
+
+        right_side.prop(self, index_prop_name, text = "", icon='PRESET',icon_only=p_icon_only)
         if len(presets) > 0:
             index = int(getattr(self, index_prop_name))
             right_side.prop(presets[index], "preset_name", text = "")
@@ -107,6 +116,7 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
             'OBJ': utils_panel.obj_properties,
             'USD': utils_panel.usd_properties,
             'DAE': utils_panel.dae_properties,
+            'GLTF': utils_panel.gltf_properties,
         }
 
         if len(presets) > 0:

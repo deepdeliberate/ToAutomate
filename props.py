@@ -15,6 +15,12 @@ import bpy
 
 from . import utils
 from bpy.props import PointerProperty
+from bpy.props import BoolProperty
+from bpy.props import EnumProperty
+from bpy.props import IntProperty
+from bpy.props import FloatProperty
+from bpy.props import StringProperty
+
 
 
 class TAMT_CollectionItem(bpy.types.PropertyGroup):
@@ -1037,6 +1043,821 @@ class TAMT_daeExportProperties(bpy.types.PropertyGroup):
         default=False,
     )
 
+class TAMT_gltfExportProperties(bpy.types.PropertyGroup):
+    preset_name: bpy.props.StringProperty(
+        name= "GLTF Preset Name",
+        description= "Name for this GLTF preset",
+        default= 'Preset',
+    )
+
+    export_import_convert_lighting_mode: EnumProperty(
+        name='Lighting Mode',
+        items=(
+            ('SPEC', 'Standard', 'Physically-based glTF lighting units (cd, lx, nt)'),
+            ('COMPAT', 'Unitless', 'Non-physical, unitless lighting. Useful when exposure controls are not available'),
+            ('RAW', 'Raw (Deprecated)', 'Blender lighting strengths with no conversion'),
+        ),
+        description='Optional backwards compatibility for non-standard render engines. Applies to lights',  # TODO: and emissive materials',
+        default='SPEC'
+    )
+
+    gltf_export_id: StringProperty(
+        name='Identifier',
+        description=(
+            'Identifier of caller (in case of add-on calling this exporter). '
+            'Can be useful in case of Extension added by other add-ons'
+        ),
+        default=''
+    )
+
+    # gltfpack properties
+    export_use_gltfpack: BoolProperty(
+        name='Use Gltfpack',
+        description='Use gltfpack to simplify the mesh and/or compress its textures',
+        default=False,
+    )
+
+    export_gltfpack_tc: BoolProperty(
+        name='KTX2 Compression',
+        description='Convert all textures to KTX2 with BasisU supercompression',
+        default=True,
+    )
+
+    export_gltfpack_tq: IntProperty(
+        name='Texture Encoding Quality',
+        description='Texture encoding quality',
+        default=8,
+        min=1,
+        max=10,
+    )
+
+    export_gltfpack_si: FloatProperty(
+        name='Mesh Simplification Ratio',
+        description='Simplify meshes targeting triangle count ratio',
+        default=1.0,
+        min=0.0,
+        max=1.0,
+    )
+
+    export_gltfpack_sa: BoolProperty(
+        name='Aggressive Mesh Simplification',
+        description='Aggressively simplify to the target ratio disregarding quality',
+        default=False,
+    )
+
+    export_gltfpack_slb: BoolProperty(
+        name='Lock Mesh Border Vertices',
+        description='Lock border vertices during simplification to avoid gaps on connected meshes',
+        default=False,
+    )
+
+    export_gltfpack_vp: IntProperty(
+        name='Position Quantization',
+        description='Use N-bit quantization for positions',
+        default=14,
+        min=1,
+        max=16,
+    )
+
+    export_gltfpack_vt: IntProperty(
+        name='Texture Coordinate Quantization',
+        description='Use N-bit quantization for texture coordinates',
+        default=12,
+        min=1,
+        max=16,
+    )
+
+    export_gltfpack_vn: IntProperty(
+        name='Normal/Tangent Quantization',
+        description='Use N-bit quantization for normals and tangents',
+        default=8,
+        min=1,
+        max=16,
+    )
+
+    export_gltfpack_vc: IntProperty(
+        name='Vertex Color Quantization',
+        description='Use N-bit quantization for colors',
+        default=8,
+        min=1,
+        max=16,
+    )
+
+    export_gltfpack_vpi: EnumProperty(
+        name='Vertex Position Attributes',
+        description='Type to use for vertex position attributes',
+        items=(('Integer', 'Integer', 'Use integer attributes for positions'),
+               ('Normalized', 'Normalized', 'Use normalized attributes for positions'),
+               ('Floating-point', 'Floating-point', 'Use floating-point attributes for positions')),
+        default='Integer',
+    )
+
+    export_gltfpack_noq: BoolProperty(
+        name='Disable Quantization',
+        description='Disable quantization; produces much larger glTF files with no extensions',
+        default=True,
+    )
+
+    export_gltfpack_kn: BoolProperty(
+        name='Keep Named Nodes',
+        description='Restrict some optimization to keep named nodes and meshes attached to named nodes so that named nodes can be transformed externally',
+        default=False,
+    )
+
+    export_format: EnumProperty(
+        name='Format',
+        description=(
+            'Output format. Binary is most efficient, '
+            'but JSON may be easier to edit later'
+        ),
+        items=(('GLB', 'glTF Binary (.glb)',
+              'Exports a single file, with all data packed in binary form. '
+              'Most efficient and portable, but more difficult to edit later'),
+             ('GLTF_SEPARATE', 'glTF Separate (.gltf + .bin + textures)',
+              'Exports multiple files, with separate JSON, binary and texture data. '
+              'Easiest to edit later')),
+        default=0,  # Warning => If you change the default, need to change the default filter too
+    )
+
+    ui_tab: EnumProperty(
+        items=(('GENERAL', "General", "General settings"),
+               ('MESHES', "Meshes", "Mesh settings"),
+               ('OBJECTS', "Objects", "Object settings"),
+               ('ANIMATION', "Animation", "Animation settings")),
+        name="ui_tab",
+        description="Export setting categories",
+    )
+
+    export_copyright: StringProperty(
+        name='Copyright',
+        description='Legal rights and conditions for the model',
+        default=''
+    )
+
+    export_image_format: EnumProperty(
+        name='Images',
+        items=(('AUTO', 'Automatic',
+                'Save PNGs as PNGs, JPEGs as JPEGs, WebPs as WebPs. '
+                'For other formats, use PNG'),
+               ('JPEG', 'JPEG Format (.jpg)',
+                'Save images as JPEGs. (Images that need alpha are saved as PNGs though.) '
+                'Be aware of a possible loss in quality'),
+               ('WEBP', 'WebP Format',
+                'Save images as WebPs as main image (no fallback)'),
+               ('NONE', 'None',
+                'Don\'t export images'),
+               ),
+        description=(
+            'Output format for images. PNG is lossless and generally preferred, but JPEG might be preferable for web '
+            'applications due to the smaller file size. Alternatively they can be omitted if they are not needed'
+        ),
+        default='AUTO'
+    )
+
+    export_image_add_webp: BoolProperty(
+        name='Create WebP',
+        description=(
+            "Creates WebP textures for every texture. "
+            "For already WebP textures, nothing happens"
+        ),
+        default=False
+    )
+
+    export_image_webp_fallback: BoolProperty(
+        name='WebP Fallback',
+        description=(
+            "For all WebP textures, create a PNG fallback texture"
+        ),
+        default=False
+    )
+
+    export_texture_dir: StringProperty(
+        name='Textures',
+        description='Folder to place texture files in. Relative to the .gltf file',
+        default='',
+    )
+
+    export_jpeg_quality: IntProperty(
+        name='JPEG Quality',
+        description='Quality of JPEG export',
+        default=75,
+        min=0,
+        max=100
+    )
+
+    export_image_quality: IntProperty(
+        name='Image Quality',
+        description='Quality of image export',
+        default=75,
+        min=0,
+        max=100
+    )
+
+    export_keep_originals: BoolProperty(
+        name='Keep Original',
+        description=('Keep original textures files if possible. '
+                     'WARNING: if you use more than one texture, '
+                     'where pbr standard requires only one, only one texture will be used. '
+                     'This can lead to unexpected results'
+                     ),
+        default=False,
+    )
+
+    export_texcoords: BoolProperty(
+        name='UVs',
+        description='Export UVs (texture coordinates) with meshes',
+        default=True
+    )
+
+    export_normals: BoolProperty(
+        name='Normals',
+        description='Export vertex normals with meshes',
+        default=True
+    )
+
+    export_gn_mesh: BoolProperty(
+        name='Geometry Nodes Instances (Experimental)',
+        description='Export Geometry nodes instance meshes',
+        default=False
+    )
+
+    export_draco_mesh_compression_enable: BoolProperty(
+        name='Draco Mesh Compression',
+        description='Compress mesh using Draco',
+        default=False
+    )
+
+    export_draco_mesh_compression_level: IntProperty(
+        name='Compression Level',
+        description='Compression level (0 = most speed, 6 = most compression, higher values currently not supported)',
+        default=6,
+        min=0,
+        max=10
+    )
+
+    export_draco_position_quantization: IntProperty(
+        name='Position Quantization Bits',
+        description='Quantization bits for position values (0 = no quantization)',
+        default=14,
+        min=0,
+        max=30
+    )
+
+    export_draco_normal_quantization: IntProperty(
+        name='Normal Quantization Bits',
+        description='Quantization bits for normal values (0 = no quantization)',
+        default=10,
+        min=0,
+        max=30
+    )
+
+    export_draco_texcoord_quantization: IntProperty(
+        name='Texcoord Quantization Bits',
+        description='Quantization bits for texture coordinate values (0 = no quantization)',
+        default=12,
+        min=0,
+        max=30
+    )
+
+    export_draco_color_quantization: IntProperty(
+        name='Color Quantization Bits',
+        description='Quantization bits for color values (0 = no quantization)',
+        default=10,
+        min=0,
+        max=30
+    )
+
+    export_draco_generic_quantization: IntProperty(
+        name='Generic Quantization Bits',
+        description='Quantization bits for generic values like weights or joints (0 = no quantization)',
+        default=12,
+        min=0,
+        max=30
+    )
+
+    export_tangents: BoolProperty(
+        name='Tangents',
+        description='Export vertex tangents with meshes',
+        default=False
+    )
+
+    export_materials: EnumProperty(
+        name='Materials',
+        items=(
+            ('EXPORT',
+             'Export',
+             'Export all materials used by included objects'),
+            ('PLACEHOLDER',
+             'Placeholder',
+             'Do not export materials, but write multiple primitive groups per mesh, keeping material slot information'),
+            ('VIEWPORT',
+            'Viewport',
+            'Export minimal materials as defined in Viewport display properties'),
+            ('NONE',
+             'No export',
+             'Do not export materials, and combine mesh primitive groups, losing material slot information')),
+        description='Export materials',
+        default='EXPORT')
+
+    export_unused_images: BoolProperty(
+        name='Unused Images',
+        description='Export images not assigned to any material',
+        default=False)
+
+    export_unused_textures: BoolProperty(
+        name='Prepare Unused Textures',
+        description=(
+            'Export image texture nodes not assigned to any material. '
+            'This feature is not standard and needs an external extension to be included in the glTF file'
+        ),
+        default=False)
+
+    export_vertex_color: EnumProperty(
+        name='Use Vertex Color',
+        items=(
+            ('MATERIAL', 'Material',
+             'Export vertex color when used by material'),
+            ('ACTIVE', 'Active',
+             'Export active vertex color'),
+            ('NAME', 'Name',
+             'Export vertex color with this name'),
+            ('NONE', 'None',
+             'Do not export vertex color')),
+        description='How to export vertex color',
+        default='MATERIAL'
+    )
+
+    export_vertex_color_name: StringProperty(
+        name='Vertex Color Name',
+        description='Name of vertex color to export',
+        default='Color'
+    )
+
+    export_all_vertex_colors: BoolProperty(
+        name='Export All Vertex Colors',
+        description=(
+            'Export all vertex colors, even if not used by any material. '
+            'If no Vertex Color is used in the mesh materials, a fake COLOR_0 will be created, '
+            'in order to keep material unchanged'
+        ),
+        default=True
+    )
+
+    export_active_vertex_color_when_no_material: BoolProperty(
+        name='Export Active Vertex Color When No Material',
+        description='When there is no material on object, export active vertex color',
+        default=True
+    )
+
+    export_attributes: BoolProperty(
+        name='Attributes',
+        description='Export Attributes (when starting with underscore)',
+        default=False
+    )
+
+    use_mesh_edges: BoolProperty(
+        name='Loose Edges',
+        description=(
+            'Export loose edges as lines, using the material from the first material slot'
+        ),
+        default=False,
+    )
+
+    use_mesh_vertices: BoolProperty(
+        name='Loose Points',
+        description=(
+            'Export loose points as glTF points, using the material from the first material slot'
+        ),
+        default=False,
+    )
+
+    export_cameras: BoolProperty(
+        name='Cameras',
+        description='Export cameras',
+        default=False
+    )
+
+    use_selection: BoolProperty(
+        name='Selected Objects',
+        description='Export selected objects only',
+        default=False
+    )
+
+    use_visible: BoolProperty(
+        name='Visible Objects',
+        description='Export visible objects only',
+        default=False
+    )
+
+    use_renderable: BoolProperty(
+        name='Renderable Objects',
+        description='Export renderable objects only',
+        default=False
+    )
+
+    use_active_collection_with_nested: BoolProperty(
+        name='Include Nested Collections',
+        description='Include active collection and nested collections',
+        default=True
+    )
+
+    use_active_collection: BoolProperty(
+        name='Active Collection',
+        description='Export objects in the active collection only',
+        default=False
+    )
+
+    use_active_scene: BoolProperty(
+        name='Active Scene',
+        description='Export active scene only',
+        default=False
+    )
+
+    collection: StringProperty(
+        name="Source Collection",
+        description="Export only objects from this collection (and its children)",
+        default="",
+    )
+
+    at_collection_center: BoolProperty(
+        name="Export at Collection Center",
+        description="Export at Collection center of mass of root objects of the collection",
+        default=False,
+    )
+
+    export_extras: BoolProperty(
+        name='Custom Properties',
+        description='Export custom properties as glTF extras',
+        default=False
+    )
+
+    export_yup: BoolProperty(
+        name='+Y Up',
+        description='Export using glTF convention, +Y up',
+        default=True
+    )
+
+    export_apply: BoolProperty(
+        name='Apply Modifiers',
+        description='Apply modifiers (excluding Armatures) to mesh objects -'
+                    'WARNING: prevents exporting shape keys',
+        default=False
+    )
+
+    export_shared_accessors: BoolProperty(
+        name='Shared Accessors',
+        description='Export Primitives using shared accessors for attributes',
+        default=False
+    )
+
+    export_animations: BoolProperty(
+        name='Animations',
+        description='Exports active actions and NLA tracks as glTF animations',
+        default=True
+    )
+
+    export_frame_range: BoolProperty(
+        name='Limit to Playback Range',
+        description='Clips animations to selected playback range',
+        default=False
+    )
+
+    export_frame_step: IntProperty(
+        name='Sampling Rate',
+        description='How often to evaluate animated values (in frames)',
+        default=1,
+        min=1,
+        max=120
+    )
+
+    export_force_sampling: BoolProperty(
+        name='Always Sample Animations',
+        description='Apply sampling to all animations',
+        default=True
+    )
+
+    export_sampling_interpolation_fallback: EnumProperty(
+        name='Sampling Interpolation Fallback',
+        items=(('LINEAR', 'Linear', 'Linear interpolation between keyframes'),
+               ('STEP', 'Step', 'No interpolation between keyframes'),
+        ),
+        description='Interpolation fallback for sampled animations, when the property is not keyed',
+        default='LINEAR'
+    )
+
+    export_pointer_animation: BoolProperty(
+        name='Export Animation Pointer (Experimental)',
+        description='Export material, Light & Camera animation as Animation Pointer. '
+                    'Available only for baked animation mode \'NLA Tracks\' and \'Scene\'',
+        default=False
+    )
+
+    export_animation_mode: EnumProperty(
+        name='Animation Mode',
+        items=(('ACTIONS', 'Actions',
+                'Export actions (actives and on NLA tracks) as separate animations'),
+               ('ACTIVE_ACTIONS', 'Active actions merged',
+                'All the currently assigned actions become one glTF animation'),
+               ('BROADCAST', 'Broadcast actions',
+                'Broadcast all compatible actions to all objects. '
+                'Animated objects will get all actions compatible with them, '
+                'others will get no animation at all'),
+               ('NLA_TRACKS', 'NLA Tracks',
+                'Export individual NLA Tracks as separate animation'),
+               ('SCENE', 'Scene',
+                'Export baked scene as a single animation')
+               ),
+        description='Export Animation mode',
+        default='ACTIONS'
+    )
+
+    export_nla_strips_merged_animation_name: StringProperty(
+        name='Merged Animation Name',
+        description=(
+            "Name of single glTF animation to be exported"
+        ),
+        default='Animation'
+    )
+
+    export_def_bones: BoolProperty(
+        name='Export Deformation Bones Only',
+        description='Export Deformation bones only',
+        default=False
+    )
+
+    export_hierarchy_flatten_bones: BoolProperty(
+        name='Flatten Bone Hierarchy',
+        description='Flatten Bone Hierarchy. Useful in case of non decomposable transformation matrix',
+        default=False
+    )
+
+    export_hierarchy_flatten_objs: BoolProperty(
+        name='Flatten Object Hierarchy',
+        description='Flatten Object Hierarchy. Useful in case of non decomposable transformation matrix',
+        default=False
+    )
+
+    export_armature_object_remove: BoolProperty(
+        name='Remove Armature Object',
+        description=(
+            'Remove Armature object if possible. '
+            'If Armature has multiple root bones, object will not be removed'
+        ),
+        default=False
+    )
+
+    export_leaf_bone: BoolProperty(
+        name='Add Leaf Bones',
+        description=(
+            'Append a final bone to the end of each chain to specify last bone length '
+            '(use this when you intend to edit the armature from exported data)'
+        ),
+        default=False
+    )
+
+    export_optimize_animation_size: BoolProperty(
+        name='Optimize Animation Size',
+        description=(
+            "Reduce exported file size by removing duplicate keyframes"
+        ),
+        default=True
+    )
+
+    export_optimize_animation_keep_anim_armature: BoolProperty(
+        name='Force Keeping Channels for Bones',
+        description=(
+            "If all keyframes are identical in a rig, "
+            "force keeping the minimal animation. "
+            "When off, all possible channels for "
+            "the bones will be exported, even if empty "
+            "(minimal animation, 2 keyframes)"
+        ),
+        default=True
+    )
+
+    export_optimize_animation_keep_anim_object: BoolProperty(
+        name='Force Keeping Channel for Objects',
+        description=(
+            "If all keyframes are identical for object transformations, "
+            "force keeping the minimal animation"
+        ),
+        default=False
+    )
+
+    export_optimize_disable_viewport: BoolProperty(
+        name='Disable Viewport for Other Objects',
+        description=(
+            "When exporting animations, disable viewport for other objects, "
+            "for performance"
+        ),
+        default=False
+    )
+
+    export_negative_frame: EnumProperty(
+        name='Negative Frames',
+        items=(('SLIDE', 'Slide',
+                'Slide animation to start at frame 0'),
+               ('CROP', 'Crop',
+                'Keep only frames above frame 0'),
+               ),
+        description='Negative Frames are slid or cropped',
+        default='SLIDE'
+    )
+
+    export_anim_slide_to_zero: BoolProperty(
+        name='Set All glTF Animation Starting at 0',
+        description=(
+            "Set all glTF animation starting at 0.0s. "
+            "Can be useful for looping animations"
+        ),
+        default=False
+    )
+
+    export_bake_animation: BoolProperty(
+        name='Bake All Objects Animations',
+        description=(
+            "Force exporting animation on every object. "
+            "Can be useful when using constraints or driver. "
+            "Also useful when exporting only selection"
+        ),
+        default=False
+    )
+
+    export_merge_animation: EnumProperty(
+        name='Merge Animation',
+        items=(('NLA_TRACK', 'NLA Track Names', 'Merge by NLA Track Names'),
+               ('ACTION', 'Actions', 'Merge by Actions'),
+               ('NONE', 'No Merge', 'Do Not Merge Animations'),
+               ),
+        description='Merge Animations',
+        default='ACTION'
+    )
+
+    export_anim_single_armature: BoolProperty(
+        name='Export all Armature Actions',
+        description=(
+            "Export all actions, bound to a single armature. "
+            "WARNING: Option does not support exports including multiple armatures"
+        ),
+        default=True
+    )
+
+    export_reset_pose_bones: BoolProperty(
+        name='Reset Pose Bones Between Actions',
+        description=(
+            "Reset pose bones between each action exported. "
+            "This is needed when some bones are not keyed on some animations"
+        ),
+        default=True
+    )
+
+    export_current_frame: BoolProperty(
+        name='Use Current Frame as Object Rest Transformations',
+        description=(
+            'Export the scene in the current animation frame. '
+            'When off, frame 0 is used as rest transformations for objects'
+        ),
+        default=False
+    )
+
+    export_rest_position_armature: BoolProperty(
+        name='Use Rest Position Armature',
+        description=(
+            "Export armatures using rest position as joints' rest pose. "
+            "When off, current frame pose is used as rest pose"
+        ),
+        default=True
+    )
+
+    export_anim_scene_split_object: BoolProperty(
+        name='Split Animation by Object',
+        description=(
+            "Export Scene as seen in Viewport, "
+            "But split animation by Object"
+        ),
+        default=True
+    )
+
+    export_skins: BoolProperty(
+        name='Skinning',
+        description='Export skinning (armature) data',
+        default=True
+    )
+
+    export_influence_nb: IntProperty(
+        name='Bone Influences',
+        description='Choose how many Bone influences to export',
+        default=4,
+        min=1
+    )
+
+    export_all_influences: BoolProperty(
+        name='Include All Bone Influences',
+        description='Allow export of all joint vertex influences. Models may appear incorrectly in many viewers',
+        default=False
+    )
+
+    export_morph: BoolProperty(
+        name='Shape Keys',
+        description='Export shape keys (morph targets)',
+        default=True
+    )
+
+    export_morph_normal: BoolProperty(
+        name='Shape Key Normals',
+        description='Export vertex normals with shape keys (morph targets)',
+        default=True
+    )
+
+    export_morph_tangent: BoolProperty(
+        name='Shape Key Tangents',
+        description='Export vertex tangents with shape keys (morph targets)',
+        default=False
+    )
+
+    export_morph_animation: BoolProperty(
+        name='Shape Key Animations',
+        description='Export shape keys animations (morph targets)',
+        default=True
+    )
+
+    export_morph_reset_sk_data: BoolProperty(
+        name='Reset Shape Keys Between Actions',
+        description=(
+            "Reset shape keys between each action exported. "
+            "This is needed when some SK channels are not keyed on some animations"
+        ),
+        default=True
+    )
+
+    export_lights: BoolProperty(
+        name='Punctual Lights',
+        description='Export directional, point, and spot lights. '
+                    'Uses "KHR_lights_punctual" glTF extension',
+        default=False
+    )
+
+    export_try_sparse_sk: BoolProperty(
+        name='Use Sparse Accessor if Better',
+        description='Try using Sparse Accessor if it saves space',
+        default=True
+    )
+
+    export_try_omit_sparse_sk: BoolProperty(
+        name='Omitting Sparse Accessor if Data is Empty',
+        description='Omitting Sparse Accessor if data is empty',
+        default=False
+    )
+
+    export_gpu_instances: BoolProperty(
+        name='GPU Instances',
+        description='Export using EXT_mesh_gpu_instancing. '
+                    'Limited to children of a given Empty. '
+                    'Multiple materials might be omitted',
+        default=False
+    )
+
+    export_action_filter: BoolProperty(
+        name='Filter Actions',
+        description='Filter Actions to be exported',
+        default=False,
+    )
+
+    export_convert_animation_pointer: BoolProperty(
+        name='Convert TRS/Weights to Animation Pointer',
+        description='Export TRS and weights as Animation Pointer. '
+                    'Using KHR_animation_pointer extension',
+        default=False
+    )
+
+
+    will_save_settings: BoolProperty(
+        name='Remember Export Settings',
+        description='Store glTF export settings in the Blender project',
+        default=False)
+
+    export_hierarchy_full_collections: BoolProperty(
+        name='Full Collection Hierarchy',
+        description='Export full hierarchy, including intermediate collections',
+        default=False
+    )
+
+    export_extra_animations: BoolProperty(
+        name='Prepare Extra Animations',
+        description=(
+            'Export additional animations.\n'
+            'This feature is not standard and needs an external extension to be included in the glTF file'
+        ),
+        default=False
+    )
+
+    export_loglevel: IntProperty(
+        name='Log Level',
+        description="Log Level",
+        default=-1,
+    )
+
+    
 
 class TAMT_export_Preset_Properties(bpy.types.PropertyGroup):
 
@@ -1078,13 +1899,15 @@ class TAMT_export_Preset_Properties(bpy.types.PropertyGroup):
         items=[('FBX',"FBX Export","Exports the file as Project.fbx"),
                 ('OBJ',"OBJ Export","Export the file as Project.obj"),
                 ('USD',"USD Export", "Export as file.usdc"),
-                ('DAE',"DAE Export","Export as .dae (Collada)")])
+                ('DAE',"DAE Export","Export as .dae (Collada)"),
+                ('GLTF',"GLTF/GLB Export","Export as .gltf/.glb")])
     
 
-    exp_FBXProperties: bpy.props.PointerProperty(type=TAMT_fbxExportProperties)
-    exp_OBJProperties: bpy.props.PointerProperty(type=TAMT_objExportProperties)
-    exp_USDProperties: bpy.props.PointerProperty(type=TAMT_usdExportProperties)
-    exp_DAEProperties: bpy.props.PointerProperty(type=TAMT_daeExportProperties)
+    exp_FBXProperties:  bpy.props.PointerProperty(type=TAMT_fbxExportProperties)
+    exp_OBJProperties:  bpy.props.PointerProperty(type=TAMT_objExportProperties)
+    exp_USDProperties:  bpy.props.PointerProperty(type=TAMT_usdExportProperties)
+    exp_DAEProperties:  bpy.props.PointerProperty(type=TAMT_daeExportProperties)
+    exp_GLTFProperties: bpy.props.PointerProperty(type=TAMT_gltfExportProperties)
 
 
     
@@ -1413,6 +2236,7 @@ classes = (
     TAMT_objExportProperties,
     TAMT_usdExportProperties,
     TAMT_daeExportProperties,
+    TAMT_gltfExportProperties,
     TAMT_export_Preset_Properties,
     TAMT_exportCollection,
     TAMT_Addon_Props,
