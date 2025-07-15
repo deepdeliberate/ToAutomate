@@ -1537,7 +1537,7 @@ class OBJECT_OT_TAMT_EXPORTCOL_CREATEPRESET(bpy.types.Operator):
             'GLTF': (prefs.exp_Presets_GLTF, 'default_GLTF_preset'),
         }
 
-        presets, index_prop_name = preset_map.get(preset_type, (None, None))
+        # presets, index_prop_name = preset_map.get(preset_type, (None, None))
 
 
         new_preset.name = f"Preset {len(collection.presets)}"
