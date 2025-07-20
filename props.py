@@ -138,12 +138,8 @@ class TAMT_fbxExportProperties(bpy.types.PropertyGroup):
     mesh_smooth_type: bpy.props.EnumProperty(
         name="Smoothing",
         description="Export smoothing information (prefer ‘Normals Only’ option if your target importer understand split normals)",
-        items=[
-            ('OFF',"Normals Only", "Export only normals instead of writing edge or face smoothing data"),
-            ('FACE',"Face", "Write face smoothing"),
-            ('EDGE',"Edge", "Write Edge smoothing"),
-        ],
-        default='OFF',
+        items= utils.fbx_smooth_grp_items,
+        default=0,
     )
 
     colors_type: bpy.props.EnumProperty(

@@ -14,6 +14,20 @@ import os
 
 from pathlib import Path
 
+def get_blender_version():
+    return bpy.app.version
+
+# ------------- Export Format Utils -----------------
+def fbx_smooth_grp_items(self, context):
+    items= [
+            ('OFF',"Normals Only", "Export only normals instead of writing edge or face smoothing data"),
+            ('FACE',"Face", "Write face smoothing"),
+            ('EDGE',"Edge", "Write Edge smoothing")
+        ]
+    if get_blender_version() >= (4, 5, 0):
+        items.append(('SMOOTH_GROUP',"Smoothing Groups","Write face smoothing groups"))
+
+    return items
 
 def exp_Col_traverse(Col , Exclude):
     # Call out the childrens

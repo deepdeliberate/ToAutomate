@@ -251,7 +251,7 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
                     pair_obj = bpy.data.objects.get( obj.name.replace(LP, HP))
                     if pair_obj:
                         if H_Col not in pair_obj.users_collection:
-                            self.report({'INFO'},f"{pair_obj.name} found, but in non-LP_HP collection {pair_obj.users_collection[0]}")
+                            self.report({'INFO'},f"{pair_obj.name} found, but in non-LP_HP collection {pair_obj.users_collection[0].name}")
                         else:
                             final_selection.append(pair_obj)
                     else:
@@ -263,7 +263,7 @@ class OBJECT_OT_TAMT_select(bpy.types.Operator):
                     pair_obj = bpy.data.objects.get( obj.name.replace(HP, LP))
                     if pair_obj:
                         if L_Col not in pair_obj.users_collection:
-                            self.report({'INFO'},f"{pair_obj.name} found, but in non-LP_HP collection {pair_obj.users_collection[0]}")
+                            self.report({'INFO'},f"{pair_obj.name} found, but in non-LP_HP collection {pair_obj.users_collection[0].name}")
                         else:
                             final_selection.append(pair_obj)
 
