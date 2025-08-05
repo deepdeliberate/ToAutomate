@@ -988,7 +988,6 @@ class OBJECT_OT_TAMT_UV_Rename(bpy.types.Operator):
 
         active = tamt.uvmap_ren_active
         f_name = tamt.uvmap_f_name
-        rep_name = tamt.uvmap_rep_name
 
         create = tamt.uvmap_ren_create
 
@@ -1009,15 +1008,15 @@ class OBJECT_OT_TAMT_UV_Rename(bpy.types.Operator):
                     for uv_tex in obj.data.uv_layers:
                         if uv_tex.name==f_name:
                             exist=1
-                            uv_tex.name=rep_name
+                            uv_tex.name=uv_name
                             if active:
                                 obj.data.uv_layers.active=uv_tex
                                 
                     if (not(exist) and create):
-                        obj.data.uv_layers.new(name=rep_name)
+                        new_uv = obj.data.uv_layers.new(name=uv_name)
                         if active:
-                            obj.data.uv_layers.active=uv_tex
-                            obj.data.uv_layers[rep_name].active_render=True
+                            obj.data.uv_layers.active=new_uv
+                            obj.data.uv_layers[uv_name].active_render=True
         return {'FINISHED'}
 
 
