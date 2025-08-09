@@ -1008,7 +1008,7 @@ class OBJECT_OT_TAMT_UV_Rename(bpy.types.Operator):
                 if obj.type=='MESH':
                     for uv_tex in obj.data.uv_layers:
                         if uv_tex.name==f_name:
-                            f_exist=1
+                            f_exist= True
                             uv_tex.name=uv_name
                             if active:
                                 obj.data.uv_layers.active=uv_tex
