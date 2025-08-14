@@ -345,7 +345,9 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
 
                 
                 row1.label(text = "Export Collection Selection Menu:")
-                row1.prop(preset,"collection_type", expand=True)
+                row2 = row1.row().split(factor= 0.2, align= True)
+                row2.label (text= "Target:")
+                row2.prop(preset,"collection_type", expand= True)
                 
                 row1.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_ADDCOL.bl_idname, text = "Add Collection")
                 row1.prop(preset,"collections_expanded", text="EDIT Collections", icon="BLANK1")
@@ -355,11 +357,14 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
                 
                 
                 if preset.collections_expanded:
-                    for i, item in enumerate(collection_group):
-                        index = preset.inc_collections_index if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections_index
-                        row = row1.row()
-                        row.prop(item, "collection")
-                        op = row.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_REMCOL.bl_idname, text = "", icon="X").index = i
+                    if  len (collection_group) > 0:
+                        for i, item in enumerate(collection_group):
+                            index = preset.inc_collections_index if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections_index
+                            row = row1.row()
+                            row.prop(item, "collection")
+                            op = row.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_REMCOL.bl_idname, text = "", icon="X").index = i
+                    else:
+                        row1.row().label(text = "No Collections, Add Collection to get started")
 
         
 

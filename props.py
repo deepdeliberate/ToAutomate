@@ -1974,8 +1974,8 @@ class TAMT_export_Preset_Properties(bpy.types.PropertyGroup):
 
     def get_col_type_items(self, context):
         items = [
-            ('INC_COLLECTIONS', f"Include Collection ({len(self.inc_collections)})", "Select Collections to Include"),
-            ('EXC_COLLECTIONS', f"Exclude Collection ({len(self.exc_collections)})", "Select Collections to Exclude")
+            ('INC_COLLECTIONS', f"Include List ({len(self.inc_collections)})", "Select Collections to Include"),
+            ('EXC_COLLECTIONS', f"Exclude List ({len(self.exc_collections)})", "Select Collections to Exclude")
         ]
         return items
 
