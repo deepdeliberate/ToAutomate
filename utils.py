@@ -257,16 +257,41 @@ def get_col(col_name ):
 
 #  Function to move object to given collection
 def move_obj(self, obj, Col):
+
     my_col = get_col(Col)
 
     old_colls = obj.users_collection
 
     if not(my_col in old_colls):
         my_col.objects.link(obj)
+
     for o in old_colls:
         if not( o == my_col):
             o.objects.unlink(obj)
-        self.report({'INFO'}, f"{o.name} Object already in {Col} Collection")
+        self.report({'INFO'}, f"{obj.name} Object already in \"{Col.name}\" Collection")
+
+
+def move_to_col(self, obj, col):
+    old_cols = obj.users_collection
+    if col in old_cols:
+        return
+    else:
+        col.objects.link(obj)
+        
+    for c in old_cols:
+        c.objects.unlink(obj)
+        
+
+def move_to_col(obj, col):
+    old_cols = obj.users_collection
+    if col in old_cols:
+        return
+    else:
+        col.objects.link(obj)
+        
+    for c in old_cols:
+        c.objects.unlink(obj)
+
 
 def move_mult_obj(self, all_obj, Col):
     my_col = get_col(Col)

@@ -122,6 +122,13 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         box4.prop(tamt,"del_emp", text="Delete Empties?")
         box4.operator(operators.OBJECT_OT_TAMT_COL_REORGANIZE.bl_idname, text = "Reset Collections")
 
+        box5 = layout.box()
+        box5.label(text = "Misc Tools")
+        box5.operator(operators.OBJECT_OT_TAMT_MOVETO_ACTIVEOBJCOL.bl_idname, text = "To Active's Coll" )
+        
+
+
+
 class TAMT_PT_MeshOperators_panel(bpy.types.Panel):
     """ Mesh Ops Panel"""
     bl_label = "Mesh Operators"

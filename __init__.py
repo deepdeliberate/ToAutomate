@@ -11,8 +11,8 @@
 bl_info = {
     "name": "ToAutomate",
     "author": "Naman Deep",
-    "version": (1,0,5),
-    "blender": (4, 4, 0),
+    "version": (1,0,6),
+    "blender": (4, 5, 0),
     "location": "VIEW3D > Properties > To Automate",
     "description": "Addon to Partly Automate 3D Project Development",
     "category": "3D View",

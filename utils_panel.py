@@ -13,6 +13,20 @@
 
 import bpy
 
+#------------------------ Collection Organize/De-Organize Paneling ----------------------------
+
+
+## 3D Object Ops Misc.
+def TAMAT_3DOPS_miscTools(layout):
+    header, body = layout.panel("TAMT_3D_misctools", default_closed = True)
+    header.label(text = "Misc. Tools")
+
+    if body:
+        body.label(text = "I am test")
+
+
+## Export Panels
+
 #------------------------ FBX Panel ----------------------------
 
 

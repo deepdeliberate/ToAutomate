@@ -378,6 +378,34 @@ class OBJECT_OT_TAMT_COL_REORGANIZE(bpy.types.Operator):
                     o.children.unlink(col)
         
         return {'FINISHED'}
+    
+## Move to Active Object's collection
+
+class OBJECT_OT_TAMT_MOVETO_ACTIVEOBJCOL(bpy.types.Operator):
+    bl_idname = "to_automate.move_to_active"
+    bl_label = "Move to Active Obj Collection"
+    bl_description = "Move selected objects to active object's collection"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        if context.mode != 'OBJECT':
+            return False
+        if len(context.selected_objects) <= 1:
+            return False
+        return True
+    
+    def execute(self, context):
+        act_obj = bpy.context.active_object
+        
+        for obj in bpy.context.selected_objects:
+            target_col = act_obj.users_collection[0]
+            if obj == act_obj:
+                continue
+            utils.move_to_col(obj, target_col)
+
+        return {'FINISHED'}
+
 
 
 # function to select the object if found in a collection
@@ -1875,6 +1903,7 @@ classes = [
     OBJECT_OT_TAMT_select,
     OBJECT_OT_TAMT_COLORGANIZE,
     OBJECT_OT_TAMT_COL_REORGANIZE,
+    OBJECT_OT_TAMT_MOVETO_ACTIVEOBJCOL,
 
     OBJECT_OT_TAMT_MOD_MIRROR,
     OBJECT_OT_TAMT_MOD_TRIANGULATE,
