@@ -1157,6 +1157,9 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
         preset_index = int( tamt.export_presets.selected_preset)
         preset = tamt.export_collection.presets[preset_index]
 
+
+        ## START: Getting Current Preset Properties
+
         exp_saveInMain = preset.exp_inDirectory #Bool
         exp_name = preset.exp_name
         exp_nameMethod = preset.exp_nameMethod
@@ -1184,6 +1187,8 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
         avoid_suffix_check = False
 
         final_objects = []
+
+        # 1. Source Selection
 
         if exp_meshSource == 'OP1':
             inc_collections = preset.inc_collections
@@ -1214,6 +1219,8 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 self.report({'ERROR'}, "Object Count from Collections is 0")
                 return {'CANCELLED'}
             
+
+            # ------- Store Objs here for re-select
             for col in final_cols:
                 for obj in col.objects:
                     final_objects.append(obj)
@@ -1242,6 +1249,8 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
 
         # final_objects contains all desired mesh so far
 
+        # 2. Name Selection for the final file
+
         export_final_name = 'ABC'
         # Name Algorithm ----------------------------
 
@@ -1267,7 +1276,7 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
         
         
         
-        # Export location path
+        # 3. Export location path
 
         mesh_export_path = bpy.path.abspath('//')
 
