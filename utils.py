@@ -11,6 +11,7 @@
 
 import bpy
 import os
+import json
 
 from pathlib import Path
 
@@ -41,6 +42,104 @@ def get_addon_prefs():
     addon_name = __package__ or "ToAutomate"
 
     return bpy.context.preferences.addons[addon_name].preferences
+
+def save_active_preset(filepath, preset, preset_type):
+    if not preset:
+        return
+    
+    exp_data = {}
+    exp_data[preset_type] = []
+    
+    preset_data = {}
+    for prop in preset.bl_rna.properties:
+        if prop.identifier != "rna_type":
+            value = getattr(preset, prop.identifier)
+
+            if isinstance(value, set):
+                value = list(value)
+            elif hasattr(value, "to_tuple"):
+                value = value.to_tuple()
+            elif hasattr(value, "items"):
+                value = dict(value)
+
+            preset_data[prop.identifier] = value
+
+    exp_data[preset_type].append(preset_data)
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(exp_data, f, indent = 4)
+
+def save_all_presets(filepath):
+    exp_data = {}
+    
+    prefs = get_addon_prefs()
+    preset_map = get_expFormat_utils_map(prefs)
+
+    for type in preset_map.keys():
+        presets, _ = preset_map.get(type)
+
+        exp_data[type] = []
+
+        for preset in presets:
+            preset_data = {}
+            for prop in preset.bl_rna.properties:
+                if prop.identifier != "rna_type":
+                    value = getattr(preset, prop.identifier)
+
+                    if isinstance(value, set):
+                        value = list(value)
+                    elif hasattr(value, "to_tuple"):
+                        value = value.to_tuple()
+                    elif hasattr(value, "items"):
+                        value = dict(value)
+                    
+                    preset_data[prop.identifier] = value
+
+            exp_data[type].append(preset_data)
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(exp_data, f, indent = 4)
+    
+
+    
+
+
+def load_presets_from_file(filepath):
+    with open(filepath, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    prefs = get_addon_prefs()
+    preset_colls = get_expFormat_utils_map(prefs)
+
+    imported = []
+
+    for preset_type, presets_data in data.items():
+        if preset_type not in preset_colls:
+            continue
+
+        coll = preset_colls[preset_type][0]
+
+        for prset_data in presets_data:
+            new_preset = coll.add()
+            new_preset.name = prset_data.get("preset_name", f"Imported {preset_type} Preset")
+
+            for key, value in prset_data.items():
+                if not hasattr(new_preset, key):
+                    continue
+
+                current_val = getattr(new_preset, key)
+
+                if isinstance(current_val, set) and isinstance(value, list):
+                    setattr(new_preset, key, set(value))
+                else:
+                    setattr(new_preset, key, value)
+            
+            imported.append((preset_type, new_preset.name))
+    
+    return imported
+
+
+
 
 def copy_expFormat_presets(source, targetPreset):
     for attr in source.bl_rna.properties.keys():

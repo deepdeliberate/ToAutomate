@@ -19,6 +19,8 @@ from . import export_utils
 from . import props
 from . import utils
 from . import utils_panel
+from bpy_extras.io_utils import ExportHelper, ImportHelper
+from bpy.types import Operator
 from pathlib import Path
 
 class OBJECT_OT_TAMT_rename(bpy.types.Operator):
@@ -1996,6 +1998,83 @@ class OBJECT_OT_TAMT_PREFS_REM_EXPPRESET(bpy.types.Operator):
         return {'FINISHED'}
     
 
+class OBJECT_OT_TAMT_PREFS_EXPORT_ACTIVE_PRESET(Operator, ExportHelper):
+    bl_idname="to_automate.atm_prefs_export_actpreset"
+    bl_label = "Save Preset"
+    bl_description = "Save Active Export Settings to a file."
+
+    filename_ext = ".json"
+    filter_glob: bpy.props.StringProperty(
+        default= "*.json",
+        maxlen=255,
+    )
+
+    def invoke(self, context, event):
+        if not self.filepath:
+            self.filepath = "Untitled.json"
+        return super().invoke(context, event)
+
+    def execute(self, context):
+        prefs = utils.get_addon_prefs()
+        preset_type = prefs.exp_Preset_Type
+
+        preset_map = utils.get_expFormat_utils_map(prefs)
+        presets, index_prop_name = preset_map.get(preset_type, (None, None))
+
+        active_index = int(getattr(prefs, index_prop_name))
+
+        # Export to json.
+        utils.save_active_preset(filepath, presets[active_index], preset_type)
+        self.report({'INFO'}, f"Presets exported to {self.filepath}")
+        return {'FINISHED'}
+    
+
+class OBJECT_OT_TAMT_PREFS_EXPORT_ALL_PRESET(Operator, ExportHelper):
+    bl_idname="to_automate.atm_prefs_export_all"
+    bl_label = "Export Presets"
+    bl_description = "Save All Export Settings Presets to a file."
+
+    filename_ext = ".json"
+    filter_glob: bpy.props.StringProperty(
+        default= "*.json",
+        maxlen=255,
+    )
+
+    def invoke(self, context, event):
+        if not self.filepath:
+            self.filepath = "Untitled.json"
+        return super().invoke(context, event)
+
+    def execute(self, context):
+
+        # Export to json.
+        utils.save_all_presets(self.filepath)
+        self.report({'INFO'}, f"All Presets exported to {self.filepath}")
+        return {'FINISHED'}
+
+
+class OBJECT_OT_TAMT_PREFS_IMPORT_SETTINGS(bpy.types.Operator, ImportHelper):
+    "Import Presets from JSON"
+    bl_idname = "to_automate.atm_prefs_import_presets"
+    bl_label = "Import Presets"
+
+    filename_ext = ".json"
+    filter_glob: bpy.props.StringProperty(default="*.json")
+
+    def execute(self, context):
+        imported = utils.load_presets_from_file(self.filepath)
+
+        if not imported:
+            self.report({'ERROR'}, "No Presets Imported")
+            return {'CANCELLED'}
+
+        msg = ", ".join([f"(t):{n}" for t, n, in imported])
+        self.report({'INFO'}, f"Imported: {msg}")
+
+        return {'FINISHED'}
+
+
+
 
 classes = [
     OBJECT_OT_TAMT_rename,
@@ -2034,7 +2113,11 @@ classes = [
 
     OBJECT_OT_TAMT_PREFS_ADD_EXPPRESET,
     OBJECT_OT_TAMT_PREFS_REM_EXPPRESET,
+    OBJECT_OT_TAMT_PREFS_EXPORT_ACTIVE_PRESET,
+    OBJECT_OT_TAMT_PREFS_EXPORT_ALL_PRESET,
+    OBJECT_OT_TAMT_PREFS_IMPORT_SETTINGS,
     TAMT_OT_PREFS_LoadPresetFromPrefs,
+    
     
 
 ]

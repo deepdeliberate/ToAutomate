@@ -69,10 +69,13 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
         r1.label(text="Substance Painter Executable")
         r1.prop(self, 'painter_path', text="")
 
-        r2 = layout.row()
+        r2 = layout.row(align=True)
         r2.label(text="Export Format Preset")
         
         r2.prop(self, 'exp_Preset_Type', text="")
+        r2.operator("to_automate.atm_prefs_export_all", text = "", icon="EXPORT")
+        r2.operator("to_automate.atm_prefs_import_presets", text = "", icon = 'IMPORT')
+
 
         layout_row = layout.row(align=True)
 
@@ -109,6 +112,7 @@ class ToAutomatePreferences(bpy.types.AddonPreferences):
 
         right_side.operator("to_automate.atm_prefs_create_preset", text= "", icon= 'ADD')
         right_side.operator("to_automate.atm_prefs_remove_preset", text= "", icon= 'REMOVE')
+        right_side.operator("to_automate.atm_prefs_export_actpreset", text = "", icon='FILE_ALIAS')
 
 
         panel_map = {
