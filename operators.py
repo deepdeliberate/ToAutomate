@@ -1762,8 +1762,11 @@ class OBJECT_OT_TAMT_EXPORTCOL_REMPRESET(bpy.types.Operator):
 class OBJECT_OT_TAMT_EXPORTCOL_ADDCOL(bpy.types.Operator):
     bl_idname="to_automate.atmt_exportcol_addcol"
     bl_label = "Add Collection"
-    bl_description = "Add Active Collection in Outliner to Include/Exclude it's object and children collection for Export"
+    bl_description = "Add Active Collection / Empty Slot to Include/Exclude it's object and children collection for Export"
 
+    active_add: bpy.props.BoolProperty(default= True)
+
+    
     def execute(self, context):
         tamt = context.scene.tamt
         preset_index = int(tamt.export_presets.selected_preset)
@@ -1771,21 +1774,23 @@ class OBJECT_OT_TAMT_EXPORTCOL_ADDCOL(bpy.types.Operator):
 
         active_collection = context.collection
         collection_group = preset.inc_collections if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections
-        if not active_collection:
-            self.report({'ERROR'}, "No Active Collectioin")
-            return {'CANCELLED'}
-        
-        # Check if the collection is already in th preset's collections
 
-        already_present = False
-        for item in collection_group:
-            if item.collection == active_collection:
-                already_present = True
-                break
-        
-        if already_present:
-            self.report({'WARNING'}, "Collection is already added")
-            return {'CANCELLED'}
+        if self.active_add:
+            if not active_collection:
+                self.report({'ERROR'}, "No Active Collectioin")
+                return {'CANCELLED'}
+            
+            # Check if the collection is already in th preset's collections
+
+            already_present = False
+            for item in collection_group:
+                if item.collection == active_collection:
+                    already_present = True
+                    break
+            
+            if already_present:
+                self.report({'WARNING'}, "Active Collection already added")
+                return {'CANCELLED'}
                     
             
         if preset.collection_type == 'INC_COLLECTIONS':
@@ -1793,9 +1798,11 @@ class OBJECT_OT_TAMT_EXPORTCOL_ADDCOL(bpy.types.Operator):
         else:
             item = preset.exc_collections.add()
 
-        item.collection = active_collection
+        if self.active_add:
+            item.collection = active_collection
         
         return {'FINISHED'}
+    
     
 class OBJECT_OT_TAMT_EXPORTCOL_REMCOL(bpy.types.Operator):
     bl_idname = "renamer.export_remove_collection"

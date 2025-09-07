@@ -358,7 +358,9 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
                 row2.label (text= "Target:")
                 row2.prop(preset,"collection_type", expand= True)
                 
-                row1.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_ADDCOL.bl_idname, text = "Add Collection")
+                r1 = row1.row()
+                r1.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_ADDCOL.bl_idname, text = "Add Collection", icon= "ADD").active_add = True
+                r1.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_ADDCOL.bl_idname, text = "Add Slot", icon="META_PLANE").active_add = False
                 row1.prop(preset,"collections_expanded", text="EDIT Collections", icon="BLANK1")
                 
                 if preset.collections_expanded:
@@ -369,8 +371,10 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
                     if  len (collection_group) > 0:
                         for i, item in enumerate(collection_group):
                             index = preset.inc_collections_index if preset.collection_type == 'INC_COLLECTIONS' else preset.exc_collections_index
-                            row = row1.row()
-                            row.prop(item, "collection")
+                            row = row1.row().split(factor=0.1, align=True)
+                            row.label(text = f"{i+1}")
+                            row = row.row().split(factor=0.9)
+                            row.prop(item, "collection", text = "", expand= True)
                             op = row.operator(operators.OBJECT_OT_TAMT_EXPORTCOL_REMCOL.bl_idname, text = "", icon="X").index = i
                     else:
                         row1.row().label(text = "No Collections, Add Collection to get started")
