@@ -407,6 +407,44 @@ class OBJECT_OT_TAMT_MOVETO_ACTIVEOBJCOL(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class OBJECT_OT_TAMT_SEL_ACTIVEOBJCOL_OBJECT(bpy.types.Operator):
+    bl_idname = "to_automate.select_sibling"
+    bl_label = "Select Same Collection Object"
+    bl_description = "Select Active object's collection's all objects"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    sel_hidden: bpy.props.BoolProperty(name="Unhide", default= True)
+
+    @classmethod
+    def poll(cls, context):
+        if context.mode != 'OBJECT':
+            return False    
+        if len (context.selected_objects) < 1:
+            return False
+        return True
+    
+    def invoke(self, context, event):
+        wm = context.window_manager
+        wm.invoke_props_dialog(self)
+
+        return {'RUNNING_MODAL'}
+
+    def execute(self, context):
+        act_obj = bpy.context.active_object
+
+        col = act_obj.users_collection[0]
+        
+        for i,obj in enumerate(col.objects):
+            
+            if self.sel_hidden:
+                obj.hide_viewport = False
+                obj.hide_viewport = False
+                obj.hide_set(False)
+            
+            obj.select_set(True)
+        
+        return {'FINISHED'}
+
 
 # function to select the object if found in a collection
 
@@ -1904,6 +1942,7 @@ classes = [
     OBJECT_OT_TAMT_COLORGANIZE,
     OBJECT_OT_TAMT_COL_REORGANIZE,
     OBJECT_OT_TAMT_MOVETO_ACTIVEOBJCOL,
+    OBJECT_OT_TAMT_SEL_ACTIVEOBJCOL_OBJECT,
 
     OBJECT_OT_TAMT_MOD_MIRROR,
     OBJECT_OT_TAMT_MOD_TRIANGULATE,

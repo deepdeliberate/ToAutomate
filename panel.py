@@ -125,6 +125,7 @@ class TAMTOBJECT_PT_3DView_panel(bpy.types.Panel):
         box5 = layout.box()
         box5.label(text = "Misc Tools")
         box5.operator(operators.OBJECT_OT_TAMT_MOVETO_ACTIVEOBJCOL.bl_idname, text = "To Active's Coll" )
+        box5.operator(operators.OBJECT_OT_TAMT_SEL_ACTIVEOBJCOL_OBJECT.bl_idname, text= "Select Siblings")
         
 
 
