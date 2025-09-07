@@ -33,6 +33,9 @@ class exportPresetActive(bpy.types.PropertyGroup):
     selected_preset: bpy.props.EnumProperty(name = "Preset", items =  utils.update_presets )
 
 
+## -------------------- Start: Export Format Props -------------------------------------
+
+
 class TAMT_fbxExportProperties(bpy.types.PropertyGroup):
     preset_name: bpy.props.StringProperty(
         name= "FBX Preset Name",
@@ -1854,6 +1857,8 @@ class TAMT_gltfExportProperties(bpy.types.PropertyGroup):
     )
 
     
+## -------------------- End: Export Format Props  -------------------------------------
+
 
 class TAMT_export_Preset_Properties(bpy.types.PropertyGroup):
 
@@ -2043,7 +2048,11 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
                 ('OP2', "Significant Other","Select the counter high / low object for the selected objects")]
     )
 
+
+
     # ----------- Rename organization type ---------------------
+
+
     rnm_ord_type: bpy.props.EnumProperty(
         name = "",
         description = "Organization Method for Renaming LP & HP objects",
@@ -2099,8 +2108,21 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         name="Delete Empties?",
         description="If enabled, deletes the parent empties",
         default=True)    
+    
 
-    # --------- Modifier Menu -------------------
+    ## -------------- Misc. 3D Tools ----------------
+
+    move_collection: bpy.props.PointerProperty(
+        name="Select Collection",
+        description= "Select Target Collection for Objects",
+        type= bpy.types.Collection,
+    )
+
+
+
+    ## --------- Modifier Menu -------------------
+
+
     shift_uv: bpy.props.BoolProperty(
         name="SHIFT UVs",
         description="Shift mirror part's UV along x to 1",
@@ -2126,7 +2148,9 @@ class TAMT_Addon_Props(bpy.types.PropertyGroup):
         description="Create new modifier even if already in the selected_objects, Only Mirror and Array ",
         default=True)
     
-    ##   Material Menu
+    ## ----------------  Material Menu -------------
+
+
     base_mat: bpy.props.PointerProperty( type = bpy.types.Material)
 
     apply_mat: bpy.props.BoolProperty(

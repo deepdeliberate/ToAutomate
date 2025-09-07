@@ -445,6 +445,60 @@ class OBJECT_OT_TAMT_SEL_ACTIVEOBJCOL_OBJECT(bpy.types.Operator):
         
         return {'FINISHED'}
 
+    
+class OBJECT_OT_TAMT_MOVEOBJECTS_TO_COL(bpy.types.Operator):
+    """Move Selected Objects to Collection from Search field"""
+    bl_idname="to_automate.move_to_find_coll"
+    bl_label="Move to Collection"
+    bl_description="Move to Desired Collection with search option"  
+    bl_options={"REGISTER","UNDO"}
+
+
+    # ----- Improvements: Maybe Add MRU cache for recent collections (As several button below)
+    # sets the move_collection to that button's selected collection
+
+    @classmethod
+    def poll(cls, context):
+        if context.mode != "OBJECT":
+            return False
+        if len(context.selected_objects) < 1:
+            return False
+        return True
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+
+        tamt = context.scene.tamt
+
+        layout.prop(tamt, "move_collection", text= "Target")
+
+
+    def execute(self, context):
+        tamt = context.scene.tamt
+        target_col = tamt.move_collection
+        
+        for obj in context.selected_objects:
+            old_cols = obj.users_collection
+            if target_col not in old_cols:
+                target_col.objects.link(obj)
+                
+            for c in old_cols:
+                if c == target_col:
+                    continue
+                c.objects.unlink(obj)
+
+
+        return {'FINISHED'}
+    
+
+
+### -------------------------- MESH OPERATORS ------------------------------------------
+
 
 # function to select the object if found in a collection
 
@@ -1943,6 +1997,7 @@ classes = [
     OBJECT_OT_TAMT_COL_REORGANIZE,
     OBJECT_OT_TAMT_MOVETO_ACTIVEOBJCOL,
     OBJECT_OT_TAMT_SEL_ACTIVEOBJCOL_OBJECT,
+    OBJECT_OT_TAMT_MOVEOBJECTS_TO_COL,
 
     OBJECT_OT_TAMT_MOD_MIRROR,
     OBJECT_OT_TAMT_MOD_TRIANGULATE,
