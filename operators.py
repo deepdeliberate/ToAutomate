@@ -10,15 +10,24 @@
 
 
 
+
 import bpy
+import base64
 import bmesh
+import json
 import os
 import subprocess
+import sys
+import time
 
 from . import export_utils
 from . import props
 from . import utils
 from . import utils_panel
+
+from .utils_substance import remotePainter
+from .utils_substance import painter_funcs
+from .utils_substance import utils_remote
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 from bpy.types import Operator
 from pathlib import Path
@@ -1927,6 +1936,43 @@ class TAMT_OT_PREFS_LoadPresetFromPrefs(bpy.types.Operator):
 
         self.report({'INFO'}, f"Successfully Imported {current_preset_type} Export Settings from {selected.preset_name}")
         return {'FINISHED'}
+    
+
+#   -------------------------- Substance Painter Operators -------------------------------
+class TAMT_OT_CreateSubstanceProject(bpy.types.Operator):
+    bl_idname="to_automate.atm_createspp"
+    bl_label = "Create Substance Painter Project"
+    bl_description = "Create Substance Painter Project with exported file"
+    bl_options={"REGISTER","UNDO"}
+
+    def execute(self, context):
+        tamt = context.scene.tamt
+        preferences = utils.get_preferences(context)
+
+        preset_index = int( tamt.export_presets.selected_preset)
+        preset = tamt.export_collection.presets[preset_index]
+
+        exported_mesh_path = preset.exp_meshSource
+        painter_path = preferences["painter_path"]
+
+        project_settings = {
+            "default_texture_resolution": 4096,
+            "normal_map_format": "DirectX",
+            "compute_tangent_space_per_fragment": True,
+            "use_uv_tile_workflow": False,
+            "import_cameras": False,
+        }
+
+        code_list = {'MAKE', 'BAKE', 'RLSAVE'}
+
+        utils_remote.remoteStart(code_list, exported_mesh_path, project_settings, painter_path)
+        
+        return {'FINISHED'}
+        
+
+        
+        
+
         
 
 #   ---------------------------- Export Preference Operators ------------------------------
@@ -2110,6 +2156,8 @@ classes = [
     OBJECT_OT_TAMT_EXPORTCOL_ADDCOL,
     OBJECT_OT_TAMT_EXPORTCOL_REMCOL,
     OBJECT_OT_TAMT_EXPORT_TYPE_SETTINGS,
+
+    TAMT_OT_CreateSubstanceProject,
 
     OBJECT_OT_TAMT_PREFS_ADD_EXPPRESET,
     OBJECT_OT_TAMT_PREFS_REM_EXPPRESET,

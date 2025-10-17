@@ -34,6 +34,10 @@ from . import utils
 from . import utils_panel
 from . import export_utils
 
+from .utils_substance import painter_funcs
+from .utils_substance import remotePainter
+from .utils_substance import utils_remote
+
 _refresh_.reload_modules()
 
 def register():

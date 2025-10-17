@@ -344,6 +344,7 @@ class TAMT_PT_EXPORTCOL_PANEL(bpy.types.Panel):
             option_row = row.row().split(factor=0.5, align=True)
             option_row.prop(preset, "exp_triangulate", text = "Triangulate",  icon="BLANK1")
             option_row.prop(preset, "exp_inDirectory", text = "Use File Directory")
+            row.operator(operators.TAMT_OT_CreateSubstanceProject.bl_idname, text="Open Substance")
             row.prop(preset, "exp_targetKeyframe", text = "Export Frame")
             
 
