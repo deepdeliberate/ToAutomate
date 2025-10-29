@@ -43,6 +43,20 @@ def get_addon_prefs():
 
     return bpy.context.preferences.addons[addon_name].preferences
 
+def get_ext_format(exp_format):
+    if exp_format == 'FBX':
+        export_ext = '.fbx'
+    elif exp_format == 'OBJ':
+        export_ext = '.obj'
+    elif exp_format == 'USD':
+        export_ext = '.usdc'
+    elif exp_format == 'DAE':
+        export_ext = '.dae'
+    elif exp_format == 'GLTF':
+        export_ext = '.glb'
+    
+    return export_ext
+
 def save_active_preset(filepath, preset, preset_type):
     if not preset:
         return

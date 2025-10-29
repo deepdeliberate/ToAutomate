@@ -3,13 +3,14 @@ import sys
 import subprocess
 import json
 import time
+import textwrap
 
 from . import remotePainter
 from . import painter_funcs
 from .. import utils
 
 
-def remoteStart( code_list ,exported_mesh_path, project_settings, painter_path):         
+def remoteStart( code_list ,exported_mesh_path, project_settings, painter_path):
     exported_mesh_json = json.dumps(exported_mesh_path)
     project_settings_json = json.dumps(project_settings)
 
@@ -42,6 +43,7 @@ def remoteStart( code_list ,exported_mesh_path, project_settings, painter_path):
     
     code_to_execute = painter_funcs.Create_PainterFile(exported_mesh_json, project_settings_json)
 
+
     try:
         print("Sending project creation script to Substance Painter...")
         response = painter_client.execScript(code_to_execute, "python")
@@ -51,4 +53,4 @@ def remoteStart( code_list ,exported_mesh_path, project_settings, painter_path):
     except Exception as e:
         print(f"An unexpected error occurred when sending script to Painter: {e}")
 
-    # painter_process.terminate() # Uncomment if you want to close Painter automatically
+    

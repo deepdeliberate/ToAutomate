@@ -1437,16 +1437,8 @@ class OBJECT_OT_TAMT_EXPORTCOLL(bpy.types.Operator):
                 utils.add_triangulate(obj, "TAMT_Triangulate_T")
 
         # Export File Format
-        if exp_format == 'FBX':
-            export_ext = '.fbx'
-        elif exp_format == 'OBJ':
-            export_ext = '.obj'
-        elif exp_format == 'USD':
-            export_ext = '.usdc'
-        elif exp_format == 'DAE':
-            export_ext = '.dae'
-        elif exp_format == 'GLTF':
-            export_ext = '.glb'
+
+        export_ext = utils.get_ext_format(exp_format)
 
         exp_mesh = ''
 
@@ -1952,7 +1944,14 @@ class TAMT_OT_CreateSubstanceProject(bpy.types.Operator):
         preset_index = int( tamt.export_presets.selected_preset)
         preset = tamt.export_collection.presets[preset_index]
 
-        exported_mesh_path = preset.exp_meshSource
+        mesh_path = preset.exp_meshPath
+        exp_format = preset.exp_format
+        exp_name = preset.exp_name
+
+        export_ext = utils.get_ext_format(exp_format)
+        
+
+        exported_mesh_path = str(Path(mesh_path).joinpath(str(exp_name + export_ext) ))
         painter_path = preferences["painter_path"]
 
         project_settings = {
