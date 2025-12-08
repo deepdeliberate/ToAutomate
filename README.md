@@ -72,4 +72,4 @@ But I am pretty sure, trying out these features for yourself can save a minute o
     - less friction in export and baking mesh just to find out that some random mesh wasn't named properly or somehow that one didn't have UV offset leading to Artifacts, that cycle can go repeatedly and in a game-dev environment can be frustrating.
 - Test the addon and find it for yourself, If you have more ideas, Suggest them and we'll do best to implement them.
 
-
+![Installaion](https://www.youtube.com/watch?v=i6-da0sqhdM&t=3s)
