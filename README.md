@@ -2,7 +2,7 @@
 ToAuotmate has a simple goal, to streamline and automate the repeating process of 3D production work.
 
 ## Documentation: 
-* [Documentation](https://deepdesperate.github.io/ToAutomateDocs/)
+* [Documentation](https://deepdeliberate.github.io/ToAutomateDocs/)
 
 ## Overview
 
