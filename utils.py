@@ -586,7 +586,7 @@ def rem_triangulate(obj , tri_name = "Export_Triangulate_T"):
     return obj
 
 def Global_Sym():
-    name = bpy.context.scene.sym_obj_name  
+    name = bpy.context.scene.tamt.sym_obj_name  
     if not(bpy.data.objects.get(name)):
         o=bpy.data.objects.new(name,None)
         bpy.context.scene.collection.objects.link(o)
